@@ -19,21 +19,23 @@ export default function InicioAdm({ navigation, route }) {
   const [escalas, setEscalas] = useState(null);
   const [search, setSearch] = useState("");
 
-  // Modal
+  // Modal - campos usados para adicionar/editar escala
   const [modalVisible, setModalVisible] = useState(false);
   const [novaData, setNovaData] = useState("");
   const [novoMinisterio, setNovoMinisterio] = useState("");
-
-  // Busca por nome
   const [usuarios, setUsuarios] = useState([]);
   const [usuarioSelecionado, setUsuarioSelecionado] = useState(null);
   const [buscaUsuario, setBuscaUsuario] = useState("");
+
+  // Estado para escala selecionada para edição
+  const [escalaSelecionada, setEscalaSelecionada] = useState(null);
 
   function parseDataBR(dataStr) {
     const [dia, mes, ano] = dataStr.split("/");
     return new Date(ano, mes - 1, dia);
   }
 
+  // Carrega usuário logado no AsyncStorage se não vier via rota
   useEffect(() => {
     async function loadUser() {
       if (!user) {
@@ -54,6 +56,7 @@ export default function InicioAdm({ navigation, route }) {
     loadUser();
   }, []);
 
+  // Carrega escalas do backend sempre que modal é fechado (para atualizar lista)
   useEffect(() => {
     async function carregarEscalas() {
       try {
@@ -74,6 +77,7 @@ export default function InicioAdm({ navigation, route }) {
     carregarEscalas();
   }, [modalVisible]);
 
+  // Carrega lista de usuários para selecionar ao adicionar/editar escala
   useEffect(() => {
     async function carregarUsuarios() {
       try {
@@ -89,6 +93,7 @@ export default function InicioAdm({ navigation, route }) {
     carregarUsuarios();
   }, []);
 
+  // Função para adicionar nova escala (POST)
   async function adicionarEscala() {
     if (!novaData || !usuarioSelecionado || !novoMinisterio) {
       Alert.alert("Erro", "Preencha todos os campos e selecione um usuário.");
@@ -113,17 +118,106 @@ export default function InicioAdm({ navigation, route }) {
 
       if (res.ok) {
         Alert.alert("Sucesso", "Escala adicionada com sucesso!");
-        setModalVisible(false);
-        setNovaData("");
-        setNovoMinisterio("");
-        setBuscaUsuario("");
-        setUsuarioSelecionado(null);
+        fecharModal();
       } else {
         Alert.alert("Erro", result.error || "Falha ao adicionar escala.");
       }
     } catch (e) {
       Alert.alert("Erro", "Erro ao conectar com o servidor.");
     }
+  }
+
+  // Função para abrir modal para editar escala
+  function abrirEditarEscala(escala) {
+    setEscalaSelecionada(escala);
+    setNovaData(escala.data.toLocaleDateString("pt-BR"));
+    setNovoMinisterio(escala.ministerio);
+    const usuario = usuarios.find((u) => u.id === escala.pessoa_id) || null;
+    setUsuarioSelecionado(usuario);
+    setBuscaUsuario(usuario?.nome || "");
+    setModalVisible(true);
+  }
+
+  // Função para atualizar escala (PUT)
+  async function atualizarEscala() {
+    if (!novaData || !usuarioSelecionado || !novoMinisterio) {
+      Alert.alert("Erro", "Preencha todos os campos e selecione um usuário.");
+      return;
+    }
+    if (!escalaSelecionada) return;
+
+    try {
+      const res = await fetch(
+        `https://agendas-escalas-iasd-backend.onrender.com/api/escalas/${escalaSelecionada.id}`,
+        {
+          method: "PUT",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            data: novaData,
+            ministerio: novoMinisterio,
+            pessoa_id: usuarioSelecionado.id,
+          }),
+        }
+      );
+
+      const result = await res.json();
+
+      if (res.ok) {
+        Alert.alert("Sucesso", "Escala atualizada com sucesso!");
+        fecharModal();
+      } else {
+        Alert.alert("Erro", result.error || "Falha ao atualizar escala.");
+      }
+    } catch (e) {
+      Alert.alert("Erro", "Erro ao conectar com o servidor.");
+    }
+  }
+
+  // Função para excluir escala (DELETE)
+  async function deletarEscala() {
+    if (!escalaSelecionada) return;
+
+    Alert.alert(
+      "Confirmação",
+      "Tem certeza que deseja excluir esta escala?",
+      [
+        { text: "Cancelar", style: "cancel" },
+        {
+          text: "Excluir",
+          style: "destructive",
+          onPress: async () => {
+            try {
+              const res = await fetch(
+                `https://agendas-escalas-iasd-backend.onrender.com/api/escalas/${escalaSelecionada.id}`,
+                {
+                  method: "DELETE",
+                }
+              );
+              const result = await res.json();
+
+              if (res.ok) {
+                Alert.alert("Sucesso", "Escala excluída com sucesso!");
+                fecharModal();
+              } else {
+                Alert.alert("Erro", result.error || "Falha ao excluir escala.");
+              }
+            } catch {
+              Alert.alert("Erro", "Erro ao conectar com o servidor.");
+            }
+          },
+        },
+      ]
+    );
+  }
+
+  // Função para fechar modal e limpar estados
+  function fecharModal() {
+    setModalVisible(false);
+    setNovaData("");
+    setNovoMinisterio("");
+    setBuscaUsuario("");
+    setUsuarioSelecionado(null);
+    setEscalaSelecionada(null);
   }
 
   if (!user || !user.id) {
@@ -208,7 +302,10 @@ export default function InicioAdm({ navigation, route }) {
       </View>
 
       {/* CONTEÚDO COM SCROLL */}
-      <ScrollView style={{ flex: 1 }} contentContainerStyle={{ paddingBottom: 100 }}>
+      <ScrollView
+        style={{ flex: 1 }}
+        contentContainerStyle={{ paddingBottom: 100 }}
+      >
         {/* CARD COM PRÓXIMA ESCALA */}
         <View style={styles.cardContainer}>
           <View style={styles.card}>
@@ -287,14 +384,23 @@ export default function InicioAdm({ navigation, route }) {
             size={24}
             color="#2e3e4e"
             style={{ marginLeft: 8 }}
-            onPress={() => setModalVisible(true)}
+            onPress={() => {
+              // Limpa estados para adicionar nova escala
+              setEscalaSelecionada(null);
+              setNovaData("");
+              setNovoMinisterio("");
+              setBuscaUsuario("");
+              setUsuarioSelecionado(null);
+              setModalVisible(true);
+            }}
           />
         </View>
         <View style={styles.tabela}>
           <View style={styles.tabelaLinhaHeader}>
-            <Text style={styles.tabelaHeaderTexto}>MÊS</Text>
-            <Text style={styles.tabelaHeaderTexto}>DIA</Text>
-            <Text style={styles.tabelaHeaderTexto}>PESSOA</Text>
+            <Text style={[styles.tabelaHeaderTexto, { flex: 1 }]}>MÊS</Text>
+            <Text style={[styles.tabelaHeaderTexto, { flex: 1 }]}>DIA</Text>
+            <Text style={[styles.tabelaHeaderTexto, { flex: 2 }]}>PESSOA</Text>
+            <Text style={[styles.tabelaHeaderTexto, { flex: 0.5 }]}>Editar</Text>
           </View>
           {escalasGeralFiltradas.length === 0 && (
             <Text style={{ padding: 8, textAlign: "center" }}>
@@ -306,26 +412,40 @@ export default function InicioAdm({ navigation, route }) {
             const mes = dataObj.toLocaleDateString("pt-BR", { month: "long" });
             const dia = dataObj.getDate();
             return (
-              <View key={index} style={styles.tabelaLinha}>
-                <Text style={styles.tabelaTexto}>
+              <View
+                key={index}
+                style={[
+                  styles.tabelaLinha,
+                  { flexDirection: "row", alignItems: "center" },
+                ]}
+              >
+                <Text style={[styles.tabelaTexto, { flex: 1 }]}>
                   {mes.charAt(0).toUpperCase() + mes.slice(1)}
                 </Text>
-                <Text style={styles.tabelaTexto}>{dia}</Text>
-                <Text style={styles.tabelaTexto}>{item.pessoa_nome}</Text>
+                <Text style={[styles.tabelaTexto, { flex: 1 }]}>{dia}</Text>
+                <Text style={[styles.tabelaTexto, { flex: 2 }]}>
+                  {item.pessoa_nome}
+                </Text>
+                <TouchableOpacity
+                  onPress={() => abrirEditarEscala(item)}
+                  style={{ flex: 0.5, alignItems: "center" }}
+                >
+                  <MaterialIcons name="edit" size={20} color="#2e3e4e" />
+                </TouchableOpacity>
               </View>
             );
           })}
         </View>
       </ScrollView>
 
-      {/* MODAL */}
+      {/* MODAL ADICIONAR/EDITAR ESCALA */}
       {modalVisible && (
         <View style={styles.modalOverlay}>
           <View style={styles.modalContent}>
             <Text
               style={{ fontSize: 16, fontWeight: "bold", marginBottom: 10 }}
             >
-              Adicionar Escala
+              {escalaSelecionada ? "Editar Escala" : "Adicionar Escala"}
             </Text>
 
             <Text>Data (dd/mm/aaaa):</Text>
@@ -341,13 +461,13 @@ export default function InicioAdm({ navigation, route }) {
               value={buscaUsuario}
               onChangeText={(text) => {
                 setBuscaUsuario(text);
-                setUsuarioSelecionado(null); // limpa seleção anterior
+                setUsuarioSelecionado(null);
               }}
               placeholder="Digite o nome"
               style={styles.modalInput}
             />
 
-            {/* Lista de sugestões aparece enquanto digita */}
+            {/* Lista de sugestões enquanto digita */}
             {buscaUsuario.length > 0 && !usuarioSelecionado && (
               <ScrollView
                 style={{
@@ -400,99 +520,144 @@ export default function InicioAdm({ navigation, route }) {
             >
               <Text
                 style={{ color: "#d00", fontWeight: "bold" }}
-                onPress={() => setModalVisible(false)}
+                onPress={fecharModal}
               >
                 Cancelar
               </Text>
-              <Text
-                style={{ color: "#007aff", fontWeight: "bold" }}
-                onPress={adicionarEscala}
-              >
-                Salvar
-              </Text>
+
+              {escalaSelecionada ? (
+                <>
+                  <Text
+                    style={{ color: "#007aff", fontWeight: "bold" }}
+                    onPress={atualizarEscala}
+                  >
+                    Salvar
+                  </Text>
+                  <Text
+                    style={{ color: "#d00", fontWeight: "bold" }}
+                    onPress={deletarEscala}
+                  >
+                    Excluir
+                  </Text>
+                </>
+              ) : (
+                <Text
+                  style={{ color: "#007aff", fontWeight: "bold" }}
+                  onPress={adicionarEscala}
+                >
+                  Salvar
+                </Text>
+              )}
             </View>
           </View>
         </View>
       )}
-      {/* RODAPÉ */}
-      <AdmInferior navigation={navigation} route={{ params: { user } }} />
+
+      {/* BARRA INFERIOR */}
+      <AdmInferior navigation={navigation} user={user} />
     </View>
   );
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: "#f3f3ef" },
-  topo: {
-    backgroundColor: "#2e3e4e",
-    flexDirection: "row",
-    alignItems: "center",
-    justifyContent: "space-between",
-    paddingHorizontal: 10,
-    height: 100,
-    borderBottomLeftRadius: 20,
-    borderBottomRightRadius: 20,
-  },
-  logo: { width: 50, height: 50, resizeMode: "contain" },
-  searchContainer: {
-    flexDirection: "row",
-    backgroundColor: "#fff",
-    alignItems: "center",
-    borderRadius: 20,
-    paddingHorizontal: 10,
+  container: {
     flex: 1,
-    marginHorizontal: 10,
-    height: 35,
+    backgroundColor: "#fff",
   },
-  searchIcon: { marginRight: 5 },
-  input: { flex: 1, height: "100%", fontSize: 14 },
-  cardContainer: { paddingHorizontal: 20, marginTop: 20 },
+  topo: {
+    flexDirection: "row",
+    alignItems: "center",
+    paddingHorizontal: 15,
+    paddingTop: 30,
+    paddingBottom: 10,
+    backgroundColor: "#2e3e4e",
+  },
+  logo: {
+    width: 50,
+    height: 50,
+    resizeMode: "contain",
+  },
+  searchContainer: {
+    flex: 1,
+    marginLeft: 15,
+    position: "relative",
+  },
+  searchIcon: {
+    position: "absolute",
+    top: 12,
+    left: 8,
+    zIndex: 1,
+  },
+  input: {
+    height: 35,
+    backgroundColor: "#fff",
+    borderRadius: 5,
+    paddingLeft: 30,
+    fontSize: 14,
+    color: "#000",
+  },
+  cardContainer: {
+    paddingHorizontal: 15,
+    marginTop: 20,
+  },
   card: {
     backgroundColor: "#2e3e4e",
-    borderRadius: 20,
-    paddingVertical: 15,
-    paddingHorizontal: 25,
+    borderRadius: 10,
+    padding: 15,
     flexDirection: "row",
-    justifyContent: "space-between",
-    alignItems: "center",
-    borderWidth: 2,
-    borderColor: "#2e3e4e",
+    justifyContent: "space-around",
   },
-  cardItem: { alignItems: "center", justifyContent: "center" },
-  cardItemText: { marginTop: 5, alignItems: "center" },
-  cardTitle: { color: "#fff", fontSize: 10 },
-  cardDate: { color: "#fff", fontSize: 13, fontWeight: "bold" },
-  escalaTexto: { fontSize: 14, fontWeight: "500" },
+  cardItem: {
+    flexDirection: "row",
+    alignItems: "center",
+  },
+  cardItemText: {
+    marginLeft: 8,
+  },
+  cardTitle: {
+    color: "#bbb",
+    fontSize: 14,
+  },
+  cardDate: {
+    color: "#fff",
+    fontSize: 18,
+    fontWeight: "bold",
+  },
+  escalaTexto: {
+    fontWeight: "bold",
+    fontSize: 18,
+  },
   tabela: {
+    marginHorizontal: 15,
     marginTop: 10,
-    marginHorizontal: 10,
-    borderRadius: 8,
-    overflow: "hidden",
-    backgroundColor: "#a4a4a4",
+    borderWidth: 1,
+    borderColor: "#ddd",
+    borderRadius: 5,
+    backgroundColor: "#f9f9f9",
   },
   tabelaLinhaHeader: {
     flexDirection: "row",
-    backgroundColor: "#3c2f2f",
-    padding: 8,
+    backgroundColor: "#2e3e4e",
+    paddingVertical: 8,
+    paddingHorizontal: 10,
+    borderTopLeftRadius: 5,
+    borderTopRightRadius: 5,
+  },
+  tabelaHeaderTexto: {
+    color: "#fff",
+    fontWeight: "bold",
+    flex: 1,
   },
   tabelaLinha: {
     flexDirection: "row",
-    backgroundColor: "#e0dede",
-    padding: 8,
+    paddingVertical: 8,
+    paddingHorizontal: 10,
     borderBottomWidth: 1,
-    borderBottomColor: "#fff",
-  },
-  tabelaHeaderTexto: {
-    flex: 1,
-    fontWeight: "bold",
-    color: "#fff",
-    textAlign: "center",
-    fontSize: 12,
+    borderBottomColor: "#ddd",
   },
   tabelaTexto: {
     flex: 1,
-    textAlign: "center",
-    fontSize: 12,
-    color: "#000",
+    color: "#333",
   },
   modalOverlay: {
     position: "absolute",
@@ -500,23 +665,24 @@ const styles = StyleSheet.create({
     left: 0,
     right: 0,
     bottom: 0,
-    backgroundColor: "rgba(0,0,0,0.5)",
+    backgroundColor: "rgba(0,0,0,0.4)",
     justifyContent: "center",
     alignItems: "center",
-    padding: 20,
+    paddingHorizontal: 15,
   },
   modalContent: {
     backgroundColor: "#fff",
-    padding: 20,
     borderRadius: 10,
+    padding: 20,
     width: "100%",
+    maxWidth: 400,
   },
   modalInput: {
     borderWidth: 1,
     borderColor: "#ccc",
     borderRadius: 5,
-    padding: 8,
+    paddingHorizontal: 10,
+    paddingVertical: 8,
     marginBottom: 10,
-    backgroundColor: "#f9f9f9",
   },
 });
