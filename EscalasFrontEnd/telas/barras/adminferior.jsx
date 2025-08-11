@@ -9,7 +9,7 @@ export default function AdmInferior({ navigation, route }) {
     <View style={styles.footer}>
       <TouchableOpacity
         style={styles.footerItem}
-        onPress={() => navigation.navigate("InicioAdm", { user })}
+        onPress={() => navigation.navigate("InicioAdm")}
       >
         <MaterialIcons name="home" size={24} color="#fff" />
         <Text style={styles.footerText}>Início</Text>
@@ -17,7 +17,7 @@ export default function AdmInferior({ navigation, route }) {
 
       <TouchableOpacity
         style={styles.footerItem}
-        onPress={() => navigation.navigate("InicioAdm", { user })}
+        onPress={() => navigation.navigate("InicioAdm")}
       >
         <MaterialIcons name="calendar-month" size={24} color="#fff" />
         <Text style={styles.footerText}>Agenda Anual</Text>
@@ -25,7 +25,7 @@ export default function AdmInferior({ navigation, route }) {
 
       <TouchableOpacity
         style={styles.footerItem}
-        onPress={() => navigation.navigate("PerfilAdm", { user })}
+        onPress={() => navigation.navigate("PerfilAdmin")}
       >
         <MaterialIcons name="person" size={24} color="#fff" />
         <Text style={styles.footerText}>Perfil</Text>

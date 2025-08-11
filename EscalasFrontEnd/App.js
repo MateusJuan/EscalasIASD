@@ -7,7 +7,7 @@ import CriarConta from "./telas/criarConta";
 import InicioUsuario from "./telas/usuario/inicio";
 import InicioAdm from "./telas/adm/inicioAdm";
 import Perfil from "./telas/usuario/perfil";
-import PerfilAdm from "./telas/adm/perfilAdm";
+import PerfilAdmin from "./telas/adm/perfilAdm";
 
 const Stack = createNativeStackNavigator();
 
@@ -46,8 +46,8 @@ export default function App() {
           options={{headerShown: false}}
         />
         <Stack.Screen
-          name="PerfilAdm"
-          component={PerfilAdm}
+          name="PerfilAdmin"
+          component={PerfilAdmin}
           options={{headerShown: false}}
         />
       </Stack.Navigator>

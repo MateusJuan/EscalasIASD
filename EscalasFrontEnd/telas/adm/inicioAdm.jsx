@@ -138,7 +138,12 @@ export default function InicioAdm({ navigation, route }) {
 
   if (escalas === null) {
     return (
-      <View style={[styles.container, { justifyContent: "center", alignItems: "center" }]}>
+      <View
+        style={[
+          styles.container,
+          { justifyContent: "center", alignItems: "center" },
+        ]}
+      >
         <ActivityIndicator size="large" color="#2e3e4e" />
       </View>
     );
@@ -163,11 +168,19 @@ export default function InicioAdm({ navigation, route }) {
     (e) => e.data.getMonth() === mesAtual && e.data.getFullYear() === anoAtual
   );
 
+  // Filtra escalas do usuário pelo ministério usando search
   const escalasFiltradas = escalasUsuarioMes.filter((e) =>
     e.ministerio.toLowerCase().includes(search.toLowerCase())
   );
-escalasFiltradas.sort((a, b) => a.data.getDate() - b.data.getDate());
-escalasGeralMes.sort((a, b) => a.data.getDate() - b.data.getDate());
+
+  // Filtra escalas gerais pelo nome da pessoa usando search
+  const escalasGeralFiltradas = escalasGeralMes.filter((e) =>
+    e.pessoa_nome.toLowerCase().includes(search.toLowerCase())
+  );
+
+  // Ordena as listas filtradas pela data
+  escalasFiltradas.sort((a, b) => a.data.getDate() - b.data.getDate());
+  escalasGeralFiltradas.sort((a, b) => a.data.getDate() - b.data.getDate());
 
   return (
     <View style={styles.container}>
@@ -178,9 +191,14 @@ escalasGeralMes.sort((a, b) => a.data.getDate() - b.data.getDate());
           style={styles.logo}
         />
         <View style={styles.searchContainer}>
-          <MaterialIcons name="search" size={16} color="#6c6c6c" style={styles.searchIcon} />
+          <MaterialIcons
+            name="search"
+            size={16}
+            color="#6c6c6c"
+            style={styles.searchIcon}
+          />
           <TextInput
-            placeholder="Pesquisar ministério"
+            placeholder="Pesquisar ministério ou nome"
             placeholderTextColor="#6c6c6c"
             style={styles.input}
             value={search}
@@ -189,87 +207,101 @@ escalasGeralMes.sort((a, b) => a.data.getDate() - b.data.getDate());
         </View>
       </View>
 
-      {/* CARD COM PRÓXIMA ESCALA */}
-      <View style={styles.cardContainer}>
-        <View style={styles.card}>
-          <View style={styles.cardItem}>
-            <MaterialIcons name="calendar-month" size={24} color="#fff" />
-            <View style={styles.cardItemText}>
-              <Text style={styles.cardTitle}>Próximo Dia Escalado</Text>
-              <Text style={styles.cardDate}>
-                {proxima ? proxima.data.toLocaleDateString("pt-BR") : "-"}
-              </Text>
-            </View>
-          </View>
-          <View style={styles.cardItem}>
-            <MaterialIcons name="church" size={24} color="#fff" />
-            <View style={styles.cardItemText}>
-              <Text style={styles.cardTitle}>Ministério</Text>
-              <Text style={styles.cardDate}>
-                {proxima ? proxima.ministerio : "-"}
-              </Text>
-            </View>
-          </View>
-        </View>
-      </View>
-
-      {/* MINHA ESCALA MENSAL */}
-      <View style={{ flexDirection: "row", alignItems: "center", marginLeft: 15, marginTop: 20 }}>
-        <Text style={styles.escalaTexto}>Minha Escala Mensal:</Text>
-      </View>
-      <View style={styles.tabela}>
-        <View style={styles.tabelaLinhaHeader}>
-          <Text style={styles.tabelaHeaderTexto}>MÊS</Text>
-          <Text style={styles.tabelaHeaderTexto}>DIA</Text>
-          <Text style={styles.tabelaHeaderTexto}>MINISTÉRIO</Text>
-        </View>
-        <ScrollView style={{ maxHeight: 200 }}>
-          {escalasFiltradas.length === 0 && (
-            <Text style={{ padding: 8, textAlign: "center" }}>
-              Nenhuma escala encontrada.
-            </Text>
-          )}
-          {escalasFiltradas.map((item, index) => {
-            const dataObj = item.data;
-            const mes = dataObj.toLocaleDateString("pt-BR", { month: "long" });
-            const dia = dataObj.getDate();
-            return (
-              <View key={index} style={styles.tabelaLinha}>
-                <Text style={styles.tabelaTexto}>
-                  {mes.charAt(0).toUpperCase() + mes.slice(1)}
+      {/* CONTEÚDO COM SCROLL */}
+      <ScrollView style={{ flex: 1 }} contentContainerStyle={{ paddingBottom: 100 }}>
+        {/* CARD COM PRÓXIMA ESCALA */}
+        <View style={styles.cardContainer}>
+          <View style={styles.card}>
+            <View style={styles.cardItem}>
+              <MaterialIcons name="calendar-month" size={24} color="#fff" />
+              <View style={styles.cardItemText}>
+                <Text style={styles.cardTitle}>Próximo Dia Escalado</Text>
+                <Text style={styles.cardDate}>
+                  {proxima ? proxima.data.toLocaleDateString("pt-BR") : "-"}
                 </Text>
-                <Text style={styles.tabelaTexto}>{dia}</Text>
-                <Text style={styles.tabelaTexto}>{item.ministerio}</Text>
               </View>
-            );
-          })}
-        </ScrollView>
-      </View>
-
-      {/* ESCALA GERAL DO MÊS + BOTÃO */}
-      <View style={{ flexDirection: "row", alignItems: "center", marginLeft: 15, marginTop: 20 }}>
-        <Text style={styles.escalaTexto}>Escala Geral do Mês:</Text>
-        <MaterialIcons
-          name="add-circle"
-          size={24}
-          color="#2e3e4e"
-          style={{ marginLeft: 8 }}
-          onPress={() => setModalVisible(true)}
-        />
-      </View>
-      <View style={styles.tabela}>
-        <View style={styles.tabelaLinhaHeader}>
-          <Text style={styles.tabelaHeaderTexto}>MÊS</Text>
-          <Text style={styles.tabelaHeaderTexto}>DIA</Text>
-          <Text style={styles.tabelaHeaderTexto}>PESSOA</Text>
+            </View>
+            <View style={styles.cardItem}>
+              <MaterialIcons name="church" size={24} color="#fff" />
+              <View style={styles.cardItemText}>
+                <Text style={styles.cardTitle}>Ministério</Text>
+                <Text style={styles.cardDate}>
+                  {proxima ? proxima.ministerio : "-"}
+                </Text>
+              </View>
+            </View>
+          </View>
         </View>
-        <ScrollView style={{ maxHeight: 200 }}>
-          {escalasGeralMes.length === 0 && (
+
+        {/* MINHA ESCALA MENSAL */}
+        <View
+          style={{
+            flexDirection: "row",
+            alignItems: "center",
+            marginLeft: 15,
+            marginTop: 20,
+          }}
+        >
+          <Text style={styles.escalaTexto}>Minha Escala Mensal:</Text>
+        </View>
+        <View style={[styles.tabela, { maxHeight: 200 }]}>
+          <View style={styles.tabelaLinhaHeader}>
+            <Text style={styles.tabelaHeaderTexto}>MÊS</Text>
+            <Text style={styles.tabelaHeaderTexto}>DIA</Text>
+            <Text style={styles.tabelaHeaderTexto}>MINISTÉRIO</Text>
+          </View>
+          {escalasFiltradas.length === 0 ? (
+            <Text style={{ padding: 8, textAlign: "center" }}>
+              Nenhuma escala encontrada.
+            </Text>
+          ) : (
+            escalasFiltradas.map((item, index) => {
+              const dataObj = item.data;
+              const mes = dataObj.toLocaleDateString("pt-BR", { month: "long" });
+              const dia = dataObj.getDate();
+              return (
+                <View key={index} style={styles.tabelaLinha}>
+                  <Text style={styles.tabelaTexto}>
+                    {mes.charAt(0).toUpperCase() + mes.slice(1)}
+                  </Text>
+                  <Text style={styles.tabelaTexto}>{dia}</Text>
+                  <Text style={styles.tabelaTexto}>{item.ministerio}</Text>
+                </View>
+              );
+            })
+          )}
+        </View>
+
+        {/* ESCALA GERAL DO MÊS + BOTÃO */}
+        <View
+          style={{
+            flexDirection: "row",
+            alignItems: "center",
+            marginLeft: 15,
+            marginTop: 20,
+          }}
+        >
+          <Text style={styles.escalaTexto}>Escala Geral do Mês:</Text>
+          <MaterialIcons
+            name="add-circle"
+            size={24}
+            color="#2e3e4e"
+            style={{ marginLeft: 8 }}
+            onPress={() => setModalVisible(true)}
+          />
+        </View>
+        <View style={styles.tabela}>
+          <View style={styles.tabelaLinhaHeader}>
+            <Text style={styles.tabelaHeaderTexto}>MÊS</Text>
+            <Text style={styles.tabelaHeaderTexto}>DIA</Text>
+            <Text style={styles.tabelaHeaderTexto}>PESSOA</Text>
+          </View>
+          {escalasGeralFiltradas.length === 0 && (
             <Text style={{ padding: 8, textAlign: "center" }}>
               Nenhuma escala encontrada.
             </Text>
           )}
-          {escalasGeralMes.map((item, index) => {
+          {escalasGeralFiltradas.map((item, index) => {
             const dataObj = item.data;
             const mes = dataObj.toLocaleDateString("pt-BR", { month: "long" });
             const dia = dataObj.getDate();
@@ -283,14 +315,18 @@ escalasGeralMes.sort((a, b) => a.data.getDate() - b.data.getDate());
               </View>
             );
           })}
-        </ScrollView>
-      </View>
+        </View>
+      </ScrollView>
 
       {/* MODAL */}
       {modalVisible && (
         <View style={styles.modalOverlay}>
           <View style={styles.modalContent}>
-            <Text style={{ fontSize: 16, fontWeight: "bold", marginBottom: 10 }}>Adicionar Escala</Text>
+            <Text
+              style={{ fontSize: 16, fontWeight: "bold", marginBottom: 10 }}
+            >
+              Adicionar Escala
+            </Text>
 
             <Text>Data (dd/mm/aaaa):</Text>
             <TextInput
@@ -355,9 +391,25 @@ escalasGeralMes.sort((a, b) => a.data.getDate() - b.data.getDate());
               style={styles.modalInput}
             />
 
-            <View style={{ flexDirection: 'row', justifyContent: 'space-between', marginTop: 15 }}>
-              <Text style={{ color: "#d00", fontWeight: "bold" }} onPress={() => setModalVisible(false)}>Cancelar</Text>
-              <Text style={{ color: "#007aff", fontWeight: "bold" }} onPress={adicionarEscala}>Salvar</Text>
+            <View
+              style={{
+                flexDirection: "row",
+                justifyContent: "space-between",
+                marginTop: 15,
+              }}
+            >
+              <Text
+                style={{ color: "#d00", fontWeight: "bold" }}
+                onPress={() => setModalVisible(false)}
+              >
+                Cancelar
+              </Text>
+              <Text
+                style={{ color: "#007aff", fontWeight: "bold" }}
+                onPress={adicionarEscala}
+              >
+                Salvar
+              </Text>
             </View>
           </View>
         </View>
@@ -444,7 +496,10 @@ const styles = StyleSheet.create({
   },
   modalOverlay: {
     position: "absolute",
-    top: 0, left: 0, right: 0, bottom: 0,
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
     backgroundColor: "rgba(0,0,0,0.5)",
     justifyContent: "center",
     alignItems: "center",

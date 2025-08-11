@@ -1,8 +1,9 @@
 {
   "expo": {
-    "name": "EscalasFrontEnd",
+    "name": "Escalas IASD",
     "slug": "EscalasFrontEnd",
     "version": "1.0.0",
+    "icon": "./img/icone.png",
     "android": {
       "package": "com.matewx_j.EscalasFrontEnd"
     },
