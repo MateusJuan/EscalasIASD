@@ -9,7 +9,7 @@ import {
   Alert,
   SafeAreaView,
 } from "react-native";
-import { MaskedTextInput } from 'react-native-mask-text';
+import { MaskedTextInput } from "react-native-mask-text";
 import axios from "axios";
 import { Feather } from "@expo/vector-icons";
 
@@ -20,27 +20,34 @@ export default function CriarConta({ navigation }) {
   const [dataNascimento, setDataNascimento] = useState("");
   const [senhaVisivel, setSenhaVisivel] = useState(false);
 
-  const handleEnviar = async () => {
-    if (!nome || !email || !senha || !dataNascimento) {
-      Alert.alert("Erro", "Preencha todos os campos.");
-      return;
-    }
+const handleEnviar = async () => {
+  if (!nome || !email || !senha || !dataNascimento) {
+    Alert.alert("Erro", "Preencha todos os campos.");
+    return;
+  }
 
-    try {
-      await axios.post("https://agendas-escalas-iasd-backend.onrender.com/api/usuarios", {
-        nome,
-        email,
-        senha,
-        dataNascimento
-      });
+  // Converte dd/mm/yyyy para yyyy-mm-dd
+  let dataFormatada = dataNascimento;
+  if (dataNascimento.includes("/")) {
+    const [dia, mes, ano] = dataNascimento.split("/");
+    dataFormatada = `${ano}-${mes}-${dia}`;
+  }
 
-      // Navegação direta para Login após sucesso
-      navigation.navigate("Login");
-    } catch (error) {
-      Alert.alert("Erro", "Não foi possível criar a conta.");
-      console.error(error);
-    }
-  };
+  try {
+    await axios.post("https://agendas-escalas-iasd-backend.onrender.com/api/usuarios", {
+      nome,
+      email,
+      senha,
+      dataNascimento: dataFormatada
+    });
+
+    navigation.navigate("Login");
+  } catch (error) {
+    Alert.alert("Erro", "Não foi possível criar a conta.");
+    console.error(error);
+  }
+};
+
 
   return (
     <SafeAreaView style={styles.container}>
@@ -87,12 +94,16 @@ export default function CriarConta({ navigation }) {
 
       <Text style={styles.label}>DATA DE NASCIMENTO</Text>
       <MaskedTextInput
-        type={"datetime"}
-        options={{ format: "DD/MM/YYYY" }}
+        mask="99/99/9999"
         style={styles.input}
         placeholder="dd/mm/aaaa"
         value={dataNascimento}
-        onChangeText={setDataNascimento}
+        onChangeText={(masked, raw) => {
+          console.log("masked:", masked, "raw:", raw);
+          setDataNascimento(masked);
+        }}
+        keyboardType="numeric"
+        maxLength={10}
       />
 
       <TouchableOpacity style={styles.botao} onPress={handleEnviar}>
