@@ -2,6 +2,14 @@
   "expo": {
     "name": "EscalasFrontEnd",
     "slug": "EscalasFrontEnd",
-    "version": "1.0.0"
+    "version": "1.0.0",
+    "android": {
+      "package": "com.matewx_j.EscalasFrontEnd"
+    },
+    "extra": {
+      "eas": {
+        "projectId": "f7177ff5-2c05-46b4-9892-aa8b47a18299"
+      }
+    }
   }
 }
