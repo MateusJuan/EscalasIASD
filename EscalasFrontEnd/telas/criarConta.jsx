@@ -20,7 +20,7 @@ export default function CriarConta({ navigation }) {
   const [dataNascimento, setDataNascimento] = useState("");
   const [senhaVisivel, setSenhaVisivel] = useState(false);
 
-const handleEnviar = async () => {
+  const handleEnviar = async () => {
   if (!nome || !email || !senha || !dataNascimento) {
     Alert.alert("Erro", "Preencha todos os campos.");
     return;
