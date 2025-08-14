@@ -42,20 +42,29 @@ export default function Login({ navigation }) {
     }
 
     try {
-      const response = await axios.post("https://agendas-escalas-iasd-backend.onrender.com/api/login", {
-        email,
-        senha,
-      });
+      const response = await axios.post(
+        "https://agendas-escalas-iasd-backend.onrender.com/api/login",
+        { email, senha }
+      );
 
-      const usuario = response.data;
+      console.log("Resposta da API:", response.data);
 
-      await AsyncStorage.setItem("usuarioLogado", JSON.stringify(usuario));
-      Alert.alert("Sucesso", `Bem-vindo, ${usuario.nome}!`);
+      const { token, user } = response.data;
 
-      if (usuario.tipo === "adm") {
-        navigation.navigate("InicioAdm", { user: usuario });
+      if (!user || !user.nome) {
+        throw new Error("Resposta inválida do servidor");
+      }
+
+      // Salva usuário e token
+      await AsyncStorage.setItem("usuarioLogado", JSON.stringify(user));
+      await AsyncStorage.setItem("token", token);
+
+      Alert.alert("Sucesso", `Bem-vindo, ${user.nome}!`);
+
+      if (user.tipo === "adm") {
+        navigation.replace("InicioAdm", { user });
       } else {
-        navigation.navigate("InicioUsuario", { user: usuario });
+        navigation.replace("InicioUsuario", { user });
       }
 
     } catch (error) {

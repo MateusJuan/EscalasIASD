@@ -1,15 +1,32 @@
 import { StatusBar } from 'expo-status-bar';
 import { useEffect } from 'react';
 import { StyleSheet, Text, View, Image } from 'react-native';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
-export default function CarregandoApp({navigation}) {
-  useEffect(()=>{
-    const timer = setTimeout(()=>{
-      navigation.replace("Login")
-    },3000);
+export default function CarregandoApp({ navigation }) {
+  useEffect(() => {
+    const verificarLogin = async () => {
+      try {
+        const usuarioSalvo = await AsyncStorage.getItem('usuarioLogado');
+        if (usuarioSalvo) {
+          const usuario = JSON.parse(usuarioSalvo);
+          if (usuario.tipo === 'adm') {
+            navigation.replace('InicioAdm', { user: usuario });
+          } else {
+            navigation.replace('InicioUsuario', { user: usuario });
+          }
+        } else {
+          navigation.replace('Login');
+        }
+      } catch (error) {
+        console.error('Erro ao verificar login:', error);
+        navigation.replace('Login');
+      }
+    };
 
-    return()=> clearTimeout(timer);
-  },[navigation]);
+    verificarLogin();
+  }, [navigation]);
+
   return (
     <View style={styles.container}>
       <Image
