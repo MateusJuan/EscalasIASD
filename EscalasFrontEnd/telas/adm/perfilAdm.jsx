@@ -74,12 +74,6 @@ export default function Perfil({ navigation }) {
     return regex.test(email);
   };
 
-  {/*const validarSenhaForte = (senha) => {
-    if (!senha) return true;
-    const regex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d).{6,}$/;
-    return regex.test(senha);
-  };*/}
-
   const salvarEdicao = async () => {
     if (!nomeEdit.trim() || !emailEdit.trim() || !dataNascimentoEdit.trim()) {
       alert("Preencha todos os campos obrigatórios.");
@@ -89,10 +83,6 @@ export default function Perfil({ navigation }) {
       alert("Email inválido.");
       return;
     }
-    {/*if (!validarSenhaForte(senhaEdit)) {
-      alert("Senha fraca. Use ao menos 6 caracteres, letras maiúsculas e números.");
-      return;
-    }*/}
     if (senhaEdit !== confirmaSenhaEdit) {
       alert("As senhas não coincidem.");
       return;
@@ -141,15 +131,22 @@ export default function Perfil({ navigation }) {
   return (
     <SafeAreaView style={styles.container}>
       <ScrollView style={{ width: "100%" }}>
-        <View style={styles.header}>
-          {user?.foto ? (
-            <Image source={{ uri: user.foto }} style={styles.avatar} />
-          ) : (
-            <MaterialIcons name="account-circle" size={100} color="#555" />
+          <View style={styles.header}>
+              {user?.avatar ? (
+                  <Image
+                  source={{ uri: user.avatar }}
+                  style={styles.avatar}
+                  />
+              ) : (
+              <View style={styles.avatarPlaceholder}>
+              <Text style={styles.avatarLetter}>
+                  {user?.nome ? user.nome.charAt(0).toUpperCase() : "U"}
+              </Text>
+              </View>
           )}
-          <Text style={styles.nome}>{user?.nome}</Text>
-          <Text style={styles.email}>{user?.email}</Text>
-        </View>
+          <Text style={styles.value}>{user?.nome || "Nome não informado"}</Text>
+          <Text style={styles.email}>{user?.email || "Email não informado"}</Text>
+          </View>
 
         <View style={styles.infoContainer}>
           <View style={styles.infoItem}>
@@ -339,6 +336,20 @@ const styles = StyleSheet.create({
     height: 100,
     borderRadius: 50,
     backgroundColor: "#ccc",
+  },
+  avatarPlaceholder: {
+    width: 120,
+    height: 120,
+    borderRadius: 60,
+    backgroundColor: '#2e3e4e',
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginBottom: 10,
+  },
+  avatarLetter: {
+    color: '#ccc',
+    fontSize: 50,
+    fontWeight: 'bold',
   },
   nome: {
     fontSize: 24,
