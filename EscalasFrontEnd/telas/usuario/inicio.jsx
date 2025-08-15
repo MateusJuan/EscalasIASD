@@ -1,3 +1,4 @@
+import React, { useEffect, useState } from "react";
 import {
   View,
   Text,
@@ -6,11 +7,10 @@ import {
   Image,
   ScrollView,
   ActivityIndicator,
-  Alert,
+  Modal,
 } from "react-native";
 import { MaterialIcons } from "@expo/vector-icons";
 import UsuarioInferior from "../barras/usuarioinferior";
-import { useState, useEffect } from "react";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 
 // Função para criar datas de forma segura
@@ -43,6 +43,23 @@ export default function InicioUsuario({ navigation, route }) {
   const [escalas, setEscalas] = useState(null);
   const [search, setSearch] = useState("");
 
+  // Modais de erro/sucesso
+  const [modalErro, setModalErro] = useState(false);
+  const [modalSucesso, setModalSucesso] = useState(false);
+  const [mensagemModal, setMensagemModal] = useState("");
+
+  const mostrarErro = (mensagem) => {
+    setMensagemModal(mensagem);
+    setModalErro(true);
+    setTimeout(() => setModalErro(false), 1000);
+  };
+
+  const mostrarSucesso = (mensagem) => {
+    setMensagemModal(mensagem);
+    setModalSucesso(true);
+    setTimeout(() => setModalSucesso(false), 1000);
+  };
+
   // Carregar usuário logado
   useEffect(() => {
     async function loadUser() {
@@ -52,12 +69,12 @@ export default function InicioUsuario({ navigation, route }) {
           if (jsonValue != null) {
             setUser(JSON.parse(jsonValue));
           } else {
-            Alert.alert("Usuário não encontrado", "Faça login novamente.");
-            navigation.navigate("Login");
+            mostrarErro("Usuário não encontrado. Faça login novamente.");
+            setTimeout(() => navigation.navigate("Login"), 2000);
           }
         } catch (e) {
-          Alert.alert("Erro", "Falha ao carregar usuário.");
-          navigation.navigate("Login");
+          mostrarErro("Falha ao carregar usuário.");
+          setTimeout(() => navigation.navigate("Login"), 2000);
         }
       }
     }
@@ -80,7 +97,7 @@ export default function InicioUsuario({ navigation, route }) {
 
         setEscalas(escalasComData);
       } catch (error) {
-        Alert.alert("Erro", "Não foi possível carregar as escalas.");
+        mostrarErro("Não foi possível carregar as escalas.");
         setEscalas([]);
       }
     }
@@ -213,6 +230,23 @@ export default function InicioUsuario({ navigation, route }) {
 
       {/* RODAPÉ */}
       <UsuarioInferior navigation={navigation} />
+
+      {/* MODAIS DE ERRO E SUCESSO */}
+      <Modal transparent visible={modalSucesso} animationType="fade">
+        <View style={styles.modalBackground}>
+          <View style={[styles.modalContainer, { backgroundColor: "#4BB543" }]}>
+            <Text style={styles.modalTexto}>{mensagemModal}</Text>
+          </View>
+        </View>
+      </Modal>
+
+      <Modal transparent visible={modalErro} animationType="fade">
+        <View style={styles.modalBackground}>
+          <View style={[styles.modalContainer, { backgroundColor: "#FF4C4C" }]}>
+            <Text style={styles.modalTexto}>{mensagemModal}</Text>
+          </View>
+        </View>
+      </Modal>
     </View>
   );
 }
@@ -290,5 +324,23 @@ const styles = StyleSheet.create({
     textAlign: "center",
     fontSize: 12,
     color: "#000",
+  },
+  modalBackground: {
+    flex: 1,
+    backgroundColor: "rgba(0,0,0,0.3)",
+    justifyContent: "center",
+    paddingHorizontal: 20,
+  },
+  modalContainer: {
+    backgroundColor: "#fff",
+    borderRadius: 20,
+    padding: 20,
+    alignItems: "center",
+  },
+  modalTexto: {
+    fontSize: 16,
+    fontWeight: "bold",
+    color: "#fff",
+    textAlign: "center",
   },
 });

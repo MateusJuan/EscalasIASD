@@ -28,8 +28,7 @@ export default function AgendaMensalUsuario({ navigation }) {
   return (
     <View style={{ flex: 1 }}>
       <View style={styles.container}>
-        <Text>Nesta Tela será exibida a Agenda Mensal do Usuário e da Igreja</Text>
-        
+        <Text>Nesta Tela será exibida a Agenda Mensal da Igreja</Text>
         {/* Texto animado */}
         <Animated.Text style={[styles.animText, { opacity: fadeAnim }]}>
           Tela em Desenvolvimento...

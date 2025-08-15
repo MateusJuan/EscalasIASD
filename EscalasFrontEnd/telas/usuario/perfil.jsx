@@ -17,12 +17,19 @@ import AsyncStorage from "@react-native-async-storage/async-storage";
 import UsuarioInferior from "../barras/usuarioinferior";
 import axios from "axios";
 
-
 export default function Perfil({ navigation }) {
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
 
+  // Modais
   const [modalVisible, setModalVisible] = useState(false);
+  const [confirmarExcluir, setConfirmarExcluir] = useState(false);
+  const [confirmarSair, setConfirmarSair] = useState(false);
+  const [modalSucesso, setModalSucesso] = useState(false);
+  const [modalErro, setModalErro] = useState(false);
+  const [erroMensagem, setErroMensagem] = useState("");
+
+  // Campos de edição
   const [nomeEdit, setNomeEdit] = useState("");
   const [emailEdit, setEmailEdit] = useState("");
   const [dataNascimentoEdit, setDataNascimentoEdit] = useState("");
@@ -30,9 +37,6 @@ export default function Perfil({ navigation }) {
   const [confirmaSenhaEdit, setConfirmaSenhaEdit] = useState("");
   const [senhaVisivel, setSenhaVisivel] = useState(false);
   const [confirmaSenhaVisivel, setConfirmaSenhaVisivel] = useState(false);
-
-  const [confirmarExcluir, setConfirmarExcluir] = useState(false);
-  const [confirmarSair, setConfirmarSair] = useState(false);
 
   const carregarUsuario = async () => {
     try {
@@ -75,17 +79,29 @@ export default function Perfil({ navigation }) {
     return regex.test(email);
   };
 
+  const mostrarErro = (mensagem) => {
+    setErroMensagem(mensagem);
+    setModalErro(true);
+    setTimeout(() => setModalErro(false), 1000);
+  };
+
+  const mostrarSucesso = (mensagem = "Ação realizada com sucesso.") => {
+    setErroMensagem(mensagem); // Reaproveita o mesmo campo de mensagem
+    setModalSucesso(true);
+    setTimeout(() => setModalSucesso(false), 1000);
+  };
+
   const salvarEdicao = async () => {
     if (!nomeEdit.trim() || !emailEdit.trim() || !dataNascimentoEdit.trim()) {
-      alert("Preencha todos os campos obrigatórios.");
+      mostrarErro("Preencha todos os campos obrigatórios.");
       return;
     }
     if (!validarEmail(emailEdit)) {
-      alert("Email inválido.");
+      mostrarErro("Email inválido.");
       return;
     }
     if (senhaEdit !== confirmaSenhaEdit) {
-      alert("As senhas não coincidem.");
+      mostrarErro("As senhas não coincidem.");
       return;
     }
 
@@ -105,21 +121,16 @@ export default function Perfil({ navigation }) {
         setUser(usuarioAtualizado);
         await AsyncStorage.setItem("usuarioLogado", JSON.stringify(usuarioAtualizado));
         setModalVisible(false);
-        alert("Dados atualizados.");
+        mostrarSucesso("Dados atualizados com sucesso!");
       }
     } catch (error) {
       console.error(error);
-      alert("Erro ao atualizar os dados.");
+      mostrarErro("Erro ao atualizar os dados.");
     }
   };
 
-  const excluirConta = () => {
-    setConfirmarExcluir(true);
-  };
-
-  const handleLogout = () => {
-    setConfirmarSair(true);
-  };
+  const excluirConta = () => setConfirmarExcluir(true);
+  const handleLogout = () => setConfirmarSair(true);
 
   if (loading) {
     return (
@@ -128,27 +139,24 @@ export default function Perfil({ navigation }) {
       </SafeAreaView>
     );
   }
-  
 
   return (
     <SafeAreaView style={styles.container}>
       <ScrollView style={{ width: "100%" }}>
-          <View style={styles.header}>
-              {user?.avatar ? (
-                  <Image
-                  source={{ uri: user.avatar }}
-                  style={styles.avatar}
-                  />
-              ) : (
-              <View style={styles.avatarPlaceholder}>
+        <View style={styles.header}>
+          {user?.avatar ? (
+            <Image source={{ uri: user.avatar }} style={styles.avatar} />
+          ) : (
+            <View style={styles.avatarPlaceholder}>
               <Text style={styles.avatarLetter}>
-                  {user?.nome ? user.nome.charAt(0).toUpperCase() : "U"}
+                {user?.nome ? user.nome.charAt(0).toUpperCase() : "U"}
               </Text>
-              </View>
+            </View>
           )}
           <Text style={styles.value}>{user?.nome || "Nome não informado"}</Text>
           <Text style={styles.email}>{user?.email || "Email não informado"}</Text>
-          </View>
+        </View>
+
         <View style={styles.infoContainer}>
           <View style={styles.infoItem}>
             <MaterialIcons name="cake" size={24} color="#2e3e4e" />
@@ -230,10 +238,16 @@ export default function Perfil({ navigation }) {
               </View>
 
               <View style={styles.modalButtons}>
-                <TouchableOpacity style={[styles.modalButton, { backgroundColor: "#2e3e4e" }]} onPress={salvarEdicao}>
+                <TouchableOpacity
+                  style={[styles.modalButton, { backgroundColor: "#2e3e4e" }]}
+                  onPress={salvarEdicao}
+                >
                   <Text style={styles.modalButtonText}>Salvar</Text>
                 </TouchableOpacity>
-                <TouchableOpacity style={[styles.modalButton, { backgroundColor: "#999" }]} onPress={() => setModalVisible(false)}>
+                <TouchableOpacity
+                  style={[styles.modalButton, { backgroundColor: "#999" }]}
+                  onPress={() => setModalVisible(false)}
+                >
                   <Text style={styles.modalButtonText}>Cancelar</Text>
                 </TouchableOpacity>
               </View>
@@ -288,7 +302,9 @@ export default function Perfil({ navigation }) {
                 style={[styles.modalButton, { backgroundColor: "#a32e2e" }]}
                 onPress={async () => {
                   try {
-                    await axios.delete(`https://agendas-escalas-iasd-backend.onrender.com/api/usuarios/${user.id}`);
+                    await axios.delete(
+                      `https://agendas-escalas-iasd-backend.onrender.com/api/usuarios/${user.id}`
+                    );
                     await AsyncStorage.removeItem("usuarioLogado");
                     setConfirmarExcluir(false);
                     navigation.reset({
@@ -297,7 +313,7 @@ export default function Perfil({ navigation }) {
                     });
                   } catch (error) {
                     console.error(error);
-                    alert("Erro ao excluir conta.");
+                    mostrarErro("Erro ao excluir conta.");
                   }
                 }}
               >
@@ -314,6 +330,24 @@ export default function Perfil({ navigation }) {
         </View>
       </Modal>
 
+      {/* Modal de sucesso */}
+      <Modal transparent visible={modalSucesso} animationType="fade">
+        <View style={styles.modalBackground}>
+          <View style={[styles.modalContainer, { backgroundColor: "#4BB543" }]}>
+            <Text style={styles.modalTexto}>{erroMensagem}</Text>
+          </View>
+        </View>
+      </Modal>
+
+      {/* Modal de erro */}
+      <Modal transparent visible={modalErro} animationType="fade">
+        <View style={styles.modalBackground}>
+          <View style={[styles.modalContainer, { backgroundColor: "#FF4C4C" }]}>
+            <Text style={styles.modalTexto}>{erroMensagem}</Text>
+          </View>
+        </View>
+      </Modal>
+
       <UsuarioInferior navigation={navigation} />
     </SafeAreaView>
   );
@@ -326,7 +360,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: 20,
     paddingTop: 40,
     alignItems: "center",
-    paddingBottom: 80, // espaço para a barra inferior
+    paddingBottom: 80,
   },
   header: {
     alignItems: "center",
@@ -342,21 +376,15 @@ const styles = StyleSheet.create({
     width: 120,
     height: 120,
     borderRadius: 60,
-    backgroundColor: '#2e3e4e',
-    justifyContent: 'center',
-    alignItems: 'center',
+    backgroundColor: "#2e3e4e",
+    justifyContent: "center",
+    alignItems: "center",
     marginBottom: 10,
   },
   avatarLetter: {
-    color: '#ccc',
+    color: "#ccc",
     fontSize: 50,
-    fontWeight: 'bold',
-  },
-  nome: {
-    fontSize: 24,
     fontWeight: "bold",
-    marginTop: 15,
-    color: "#2e3e4e",
   },
   email: {
     fontSize: 16,
@@ -469,9 +497,6 @@ const styles = StyleSheet.create({
     fontSize: 16,
     color: "#000",
   },
-  iconSenha: {
-    paddingLeft: 10,
-  },
   modalButtons: {
     flexDirection: "row",
     justifyContent: "space-around",
@@ -488,5 +513,11 @@ const styles = StyleSheet.create({
     color: "#fff",
     fontWeight: "bold",
     fontSize: 16,
+  },
+  modalTexto: {
+    fontSize: 18,
+    fontWeight: "bold",
+    color: "#fff",
+    textAlign: "center",
   },
 });

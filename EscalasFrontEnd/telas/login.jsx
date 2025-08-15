@@ -1,6 +1,5 @@
 import { useState } from "react";
 import {
-  Alert,
   SafeAreaView,
   StyleSheet,
   Text,
@@ -8,17 +7,25 @@ import {
   TouchableOpacity,
   View,
   Animated,
+  Modal,
 } from "react-native";
 import axios from "axios";
 import { Feather } from "@expo/vector-icons";
 import AsyncStorage from "@react-native-async-storage/async-storage";
-
 
 export default function Login({ navigation }) {
   const [email, setEmail] = useState("");
   const [senha, setSenha] = useState("");
   const [senhaVisivel, setSenhaVisivel] = useState(false);
   const scaleAnim = useState(new Animated.Value(1))[0];
+
+  // Modal de sucesso
+  const [modalSucesso, setModalSucesso] = useState(false);
+  const [usuarioNome, setUsuarioNome] = useState("");
+
+  // Modal de erro
+  const [modalErro, setModalErro] = useState(false);
+  const [erroMensagem, setErroMensagem] = useState("");
 
   const animarBotao = () => {
     Animated.sequence([
@@ -37,7 +44,7 @@ export default function Login({ navigation }) {
 
   async function login() {
     if (!email || !senha) {
-      Alert.alert("Erro", "Preencha todos os campos.");
+      mostrarErro("Preencha todos os campos.");
       return;
     }
 
@@ -46,8 +53,6 @@ export default function Login({ navigation }) {
         "https://agendas-escalas-iasd-backend.onrender.com/api/login",
         { email, senha }
       );
-
-      console.log("Resposta da API:", response.data);
 
       const { token, user } = response.data;
 
@@ -59,19 +64,30 @@ export default function Login({ navigation }) {
       await AsyncStorage.setItem("usuarioLogado", JSON.stringify(user));
       await AsyncStorage.setItem("token", token);
 
-      Alert.alert("Sucesso", `Bem-vindo, ${user.nome}!`);
+      // Modal de sucesso
+      setUsuarioNome(user.nome);
+      setModalSucesso(true);
 
-      if (user.tipo === "adm" || user.tipo === "developer") {
-        navigation.replace("InicioAdm", { user });
-      } else {
-        navigation.replace("InicioUsuario", { user });
-      }
+      setTimeout(() => {
+        setModalSucesso(false);
+        if (user.tipo === "adm" || user.tipo === "developer") {
+          navigation.replace("InicioAdm", { user });
+        } else {
+          navigation.replace("InicioUsuario", { user });
+        }
+      }, 2000);
 
     } catch (error) {
-      Alert.alert("Erro", "Email ou senha incorretos.");
+      mostrarErro("Email ou senha incorretos.");
       console.error(error);
     }
   }
+
+  const mostrarErro = (mensagem) => {
+    setErroMensagem(mensagem);
+    setModalErro(true);
+    setTimeout(() => setModalErro(false), 1000);
+  };
 
   return (
     <SafeAreaView style={styles.container}>
@@ -129,6 +145,24 @@ export default function Login({ navigation }) {
       <TouchableOpacity onPress={() => navigation.navigate("CriarConta")}>
         <Text style={styles.criarConta}>CRIAR CONTA</Text>
       </TouchableOpacity>
+
+      {/* Modal de sucesso */}
+      <Modal transparent visible={modalSucesso} animationType="fade">
+        <View style={styles.modalFundo}>
+          <View style={[styles.modalContainer, { backgroundColor: "#4BB543" }]}>
+            <Text style={styles.modalTexto}>Bem-vindo, {usuarioNome}!</Text>
+          </View>
+        </View>
+      </Modal>
+
+      {/* Modal de erro */}
+      <Modal transparent visible={modalErro} animationType="fade">
+        <View style={styles.modalFundo}>
+          <View style={[styles.modalContainer, { backgroundColor: "#FF4C4C" }]}>
+            <Text style={styles.modalTexto}>{erroMensagem}</Text>
+          </View>
+        </View>
+      </Modal>
     </SafeAreaView>
   );
 }
@@ -208,5 +242,23 @@ const styles = StyleSheet.create({
     color: "#222",
     fontWeight: "500",
     letterSpacing: 1,
+  },
+  modalFundo: {
+    flex: 1,
+    backgroundColor: "rgba(0,0,0,0.5)",
+    alignItems: "center",
+    justifyContent: "center",
+  },
+  modalContainer: {
+    width: "80%",
+    padding: 20,
+    borderRadius: 10,
+    alignItems: "center",
+  },
+  modalTexto: {
+    fontSize: 18,
+    fontWeight: "bold",
+    color: "#fff",
+    textAlign: "center",
   },
 });

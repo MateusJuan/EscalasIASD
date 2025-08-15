@@ -1,4 +1,3 @@
-// telas/CriarConta.jsx
 import { useState } from "react";
 import {
   View,
@@ -6,8 +5,8 @@ import {
   TextInput,
   StyleSheet,
   TouchableOpacity,
-  Alert,
   SafeAreaView,
+  Modal,
 } from "react-native";
 import { MaskedTextInput } from "react-native-mask-text";
 import axios from "axios";
@@ -20,34 +19,54 @@ export default function CriarConta({ navigation }) {
   const [dataNascimento, setDataNascimento] = useState("");
   const [senhaVisivel, setSenhaVisivel] = useState(false);
 
+  // Modal de sucesso
+  const [modalSucesso, setModalSucesso] = useState(false);
+
+  // Modal de erro
+  const [modalErro, setModalErro] = useState(false);
+  const [erroMensagem, setErroMensagem] = useState("");
+
+  const mostrarErro = (mensagem) => {
+    setErroMensagem(mensagem);
+    setModalErro(true);
+    setTimeout(() => setModalErro(false), 1000);
+  };
+
+  const mostrarSucesso = () => {
+    setModalSucesso(true);
+    setTimeout(() => {
+      setModalSucesso(false);
+      navigation.navigate("Login");
+    }, 1000);
+  };
+
   const handleEnviar = async () => {
-  if (!nome || !email || !senha || !dataNascimento) {
-    Alert.alert("Erro", "Preencha todos os campos.");
-    return;
-  }
+    if (!nome || !email || !senha || !dataNascimento) {
+      mostrarErro("Preencha todos os campos.");
+      return;
+    }
 
-  // Converte dd/mm/yyyy para yyyy-mm-dd
-  let dataFormatada = dataNascimento;
-  if (dataNascimento.includes("/")) {
-    const [dia, mes, ano] = dataNascimento.split("/");
-    dataFormatada = `${ano}-${mes}-${dia}`;
-  }
+    // Converte dd/mm/yyyy para yyyy-mm-dd
+    let dataFormatada = dataNascimento;
+    if (dataNascimento.includes("/")) {
+      const [dia, mes, ano] = dataNascimento.split("/");
+      dataFormatada = `${ano}-${mes}-${dia}`;
+    }
 
-  try {
-    await axios.post("https://agendas-escalas-iasd-backend.onrender.com/api/usuarios", {
-      nome,
-      email,
-      senha,
-      dataNascimento: dataFormatada
-    });
+    try {
+      await axios.post("https://agendas-escalas-iasd-backend.onrender.com/api/usuarios", {
+        nome,
+        email,
+        senha,
+        dataNascimento: dataFormatada
+      });
 
-    navigation.navigate("Login");
-  } catch (error) {
-    Alert.alert("Erro", "Não foi possível criar a conta.");
-    console.error(error);
-  }
-};
-
+      mostrarSucesso();
+    } catch (error) {
+      console.error(error);
+      mostrarErro("Não foi possível criar a conta.");
+    }
+  };
 
   return (
     <SafeAreaView style={styles.container}>
@@ -98,10 +117,7 @@ export default function CriarConta({ navigation }) {
         style={styles.input}
         placeholder="dd/mm/aaaa"
         value={dataNascimento}
-        onChangeText={(masked, raw) => {
-          console.log("masked:", masked, "raw:", raw);
-          setDataNascimento(masked);
-        }}
+        onChangeText={(masked) => setDataNascimento(masked)}
         keyboardType="numeric"
         maxLength={10}
       />
@@ -109,6 +125,24 @@ export default function CriarConta({ navigation }) {
       <TouchableOpacity style={styles.botao} onPress={handleEnviar}>
         <Text style={styles.botaoTexto}>ENVIAR</Text>
       </TouchableOpacity>
+
+      {/* Modal de sucesso */}
+      <Modal transparent visible={modalSucesso} animationType="fade">
+        <View style={styles.modalFundo}>
+          <View style={[styles.modalContainer, { backgroundColor: "#4BB543" }]}>
+            <Text style={styles.modalTexto}>Conta criada com sucesso!</Text>
+          </View>
+        </View>
+      </Modal>
+
+      {/* Modal de erro */}
+      <Modal transparent visible={modalErro} animationType="fade">
+        <View style={styles.modalFundo}>
+          <View style={[styles.modalContainer, { backgroundColor: "#FF4C4C" }]}>
+            <Text style={styles.modalTexto}>{erroMensagem}</Text>
+          </View>
+        </View>
+      </Modal>
     </SafeAreaView>
   );
 }
@@ -164,5 +198,23 @@ const styles = StyleSheet.create({
     color: "#fff",
     fontWeight: "bold",
     fontSize: 16,
+  },
+  modalFundo: {
+    flex: 1,
+    backgroundColor: "rgba(0,0,0,0.5)",
+    alignItems: "center",
+    justifyContent: "center",
+  },
+  modalContainer: {
+    width: "80%",
+    padding: 20,
+    borderRadius: 10,
+    alignItems: "center",
+  },
+  modalTexto: {
+    fontSize: 18,
+    fontWeight: "bold",
+    color: "#fff",
+    textAlign: "center",
   },
 });
