@@ -15,10 +15,10 @@ export default function UsuarioInferior({ navigation }) {
 
       <TouchableOpacity
         style={styles.footerItem}
-        onPress={() => navigation.navigate("MinhaEscala")}
+        onPress={() => navigation.navigate("AgendaMensalUsuario")}
       >
         <MaterialIcons name="calendar-month" size={24} color="#fff" />
-        <Text style={styles.footerText}>Agenda Anual</Text>
+        <Text style={styles.footerText}>Agenda Mensal</Text>
       </TouchableOpacity>
 
       <TouchableOpacity

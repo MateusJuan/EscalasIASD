@@ -17,10 +17,10 @@ export default function AdmInferior({ navigation, route }) {
 
       <TouchableOpacity
         style={styles.footerItem}
-        onPress={() => navigation.navigate("InicioAdm")}
+        onPress={() => navigation.navigate("AgendaMensalAdm")}
       >
         <MaterialIcons name="calendar-month" size={24} color="#fff" />
-        <Text style={styles.footerText}>Agenda Anual</Text>
+        <Text style={styles.footerText}>Agenda Mensal</Text>
       </TouchableOpacity>
 
       <TouchableOpacity

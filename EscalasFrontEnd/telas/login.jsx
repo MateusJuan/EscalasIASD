@@ -61,7 +61,7 @@ export default function Login({ navigation }) {
 
       Alert.alert("Sucesso", `Bem-vindo, ${user.nome}!`);
 
-      if (user.tipo === "adm") {
+      if (user.tipo === "adm" || user.tipo === "developer") {
         navigation.replace("InicioAdm", { user });
       } else {
         navigation.replace("InicioUsuario", { user });

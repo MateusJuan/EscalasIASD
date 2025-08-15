@@ -8,7 +8,8 @@ import InicioUsuario from "./telas/usuario/inicio";
 import InicioAdm from "./telas/adm/inicioAdm";
 import Perfil from "./telas/usuario/perfil";
 import PerfilAdmin from "./telas/adm/perfilAdm";
-
+import AgendaMensalUsuario from './telas/usuario/agendaMensalUsuario';
+import AgendaMensalAdm from "./telas/adm/agendaMensalAdm";
 const Stack = createNativeStackNavigator();
 
 export default function App() {
@@ -48,6 +49,16 @@ export default function App() {
         <Stack.Screen
           name="PerfilAdmin"
           component={PerfilAdmin}
+          options={{headerShown: false}}
+        />
+        <Stack.Screen
+          name="AgendaMensalUsuario"
+          component={AgendaMensalUsuario}
+          options={{headerShown: false}}
+        />
+        <Stack.Screen
+          name="AgendaMensalAdm"
+          component={AgendaMensalAdm}
           options={{headerShown: false}}
         />
       </Stack.Navigator>

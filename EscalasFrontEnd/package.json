@@ -17,6 +17,7 @@
     "axios": "^1.11.0",
     "expo": "~53.0.20",
     "expo-status-bar": "~2.2.3",
+    "expo-updates": "^0.28.17",
     "jsonwebtoken": "^9.0.2",
     "react": "19.0.0",
     "react-dom": "19.0.0",
