@@ -13,11 +13,37 @@ import UsuarioInferior from "../barras/usuarioinferior";
 import { useState, useEffect } from "react";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 
+// Função para criar datas de forma segura
+function parseDataSeguro(dataStr) {
+  if (!dataStr) return null;
+
+  const parts = dataStr.includes("/") ? dataStr.split("/") : dataStr.split("-");
+  if (parts.length !== 3) return null;
+
+  let dia, mes, ano;
+  if (dataStr.includes("/")) {
+    // Formato dd/mm/yyyy
+    [dia, mes, ano] = parts.map(Number);
+  } else {
+    // Formato yyyy-mm-dd
+    [ano, mes, dia] = parts.map(Number);
+  }
+
+  // Cria data usando string ISO para evitar ajuste automático
+  const isoStr = `${ano.toString().padStart(4, "0")}-${mes
+    .toString()
+    .padStart(2, "0")}-${dia.toString().padStart(2, "0")}T00:00:00`;
+  const data = new Date(isoStr);
+
+  return data;
+}
+
 export default function InicioUsuario({ navigation, route }) {
   const [user, setUser] = useState(route.params?.user || null);
   const [escalas, setEscalas] = useState(null);
   const [search, setSearch] = useState("");
 
+  // Carregar usuário logado
   useEffect(() => {
     async function loadUser() {
       if (!user) {
@@ -38,6 +64,7 @@ export default function InicioUsuario({ navigation, route }) {
     loadUser();
   }, []);
 
+  // Carregar escalas
   useEffect(() => {
     async function carregarEscalas() {
       try {
@@ -46,13 +73,10 @@ export default function InicioUsuario({ navigation, route }) {
         );
         const data = await res.json();
 
-        const escalasComData = data.map((e) => {
-          const [dia, mes, ano] = e.data.split("/");
-          return {
-            ...e,
-            data: new Date(ano, mes - 1, dia),
-          };
-        });
+        const escalasComData = data.map((e) => ({
+          ...e,
+          data: parseDataSeguro(e.data),
+        }));
 
         setEscalas(escalasComData);
       } catch (error) {
@@ -76,7 +100,9 @@ export default function InicioUsuario({ navigation, route }) {
 
   if (escalas === null) {
     return (
-      <View style={[styles.container, { justifyContent: "center", alignItems: "center" }]}>
+      <View
+        style={[styles.container, { justifyContent: "center", alignItems: "center" }]}
+      >
         <ActivityIndicator size="large" color="#2e3e4e" />
       </View>
     );
@@ -89,6 +115,7 @@ export default function InicioUsuario({ navigation, route }) {
   const escalasUsuarioMes = escalas.filter(
     (e) =>
       e.pessoa_id === user.id &&
+      e.data &&
       e.data.getMonth() === mesAtual &&
       e.data.getFullYear() === anoAtual
   );
@@ -102,7 +129,7 @@ export default function InicioUsuario({ navigation, route }) {
   );
 
   escalasFiltradas.sort((a, b) => a.data.getDate() - b.data.getDate());
-  
+
   return (
     <View style={styles.container}>
       {/* TOPO */}

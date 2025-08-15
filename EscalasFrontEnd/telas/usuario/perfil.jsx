@@ -128,6 +128,7 @@ export default function Perfil({ navigation }) {
       </SafeAreaView>
     );
   }
+  
 
   return (
     <SafeAreaView style={styles.container}>

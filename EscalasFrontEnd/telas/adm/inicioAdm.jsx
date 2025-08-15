@@ -23,17 +23,48 @@ export default function InicioAdm({ navigation, route }) {
   const [modalVisible, setModalVisible] = useState(false);
   const [novaData, setNovaData] = useState("");
   const [novoMinisterio, setNovoMinisterio] = useState("");
+  const [buscaMinisterio, setBuscaMinisterio] = useState("");
 
   // Busca por nome
   const [usuarios, setUsuarios] = useState([]);
   const [usuarioSelecionado, setUsuarioSelecionado] = useState(null);
   const [buscaUsuario, setBuscaUsuario] = useState("");
 
+  // Lista de ministérios do backend
+  const [ministerios, setMinisterios] = useState([]);
+  const [ministerioSelecionado, setMinisterioSelecionado] = useState(null);
+
+  // Função de parse de datas
   function parseDataBR(dataStr) {
-    const [dia, mes, ano] = dataStr.split("/");
-    return new Date(ano, mes - 1, dia);
+    if (!dataStr) return null;
+
+    let data;
+
+    if (dataStr.includes("/")) {
+      // Formato dd/mm/yyyy
+      const [dia, mes, ano] = dataStr.split("/").map(Number);
+      data = new Date(ano, mes - 1, dia);
+      if (data.getDate() !== dia || data.getMonth() !== mes - 1 || data.getFullYear() !== ano) {
+        console.warn("Data inválida detectada:", dataStr);
+        return null;
+      }
+    } else if (dataStr.includes("-")) {
+      // Formato yyyy-mm-dd
+      const [ano, mes, dia] = dataStr.split("-").map(Number);
+      data = new Date(ano, mes - 1, dia);
+      if (data.getDate() !== dia || data.getMonth() !== mes - 1 || data.getFullYear() !== ano) {
+        console.warn("Data inválida detectada:", dataStr);
+        return null;
+      }
+    } else {
+      console.warn("Formato de data desconhecido:", dataStr);
+      return null;
+    }
+
+    return data;
   }
 
+  // === Carregar usuário logado ===
   useEffect(() => {
     async function loadUser() {
       if (!user) {
@@ -54,6 +85,7 @@ export default function InicioAdm({ navigation, route }) {
     loadUser();
   }, []);
 
+  // === Carregar escalas ===
   useEffect(() => {
     async function carregarEscalas() {
       try {
@@ -61,10 +93,12 @@ export default function InicioAdm({ navigation, route }) {
           "https://agendas-escalas-iasd-backend.onrender.com/api/escalas"
         );
         const data = await res.json();
-        const escalasComData = data.map((e) => ({
-          ...e,
-          data: parseDataBR(e.data),
-        }));
+        const escalasComData = data
+          .map((e) => ({
+            ...e,
+            data: parseDataBR(e.data),
+          }))
+          .filter((e) => e.data !== null); // remove datas inválidas
         setEscalas(escalasComData);
       } catch (error) {
         Alert.alert("Erro", "Não foi possível carregar as escalas.");
@@ -74,6 +108,7 @@ export default function InicioAdm({ navigation, route }) {
     carregarEscalas();
   }, [modalVisible]);
 
+  // === Carregar usuários ===
   useEffect(() => {
     async function carregarUsuarios() {
       try {
@@ -89,10 +124,44 @@ export default function InicioAdm({ navigation, route }) {
     carregarUsuarios();
   }, []);
 
+  // === Carregar ministérios enquanto digita ===
+  useEffect(() => {
+  async function carregarMinisterios() {
+    try {
+      if (buscaMinisterio.length === 0) return;
+
+      const res = await fetch(
+        `https://agendas-escalas-iasd-backend.onrender.com/api/ministerios?search=${buscaMinisterio}`
+      );
+
+      if (!res.ok) {
+        console.error("Erro no servidor:", res.status, res.statusText);
+        return;
+      }
+
+      const data = await res.json();
+      setMinisterios(data);
+    } catch (e) {
+      console.error("Erro ao buscar ministérios:", e);
+    }
+  }
+    carregarMinisterios();
+  }, [buscaMinisterio]);
+
   async function adicionarEscala() {
-    if (!novaData || !usuarioSelecionado || !novoMinisterio) {
+    if (!novaData || !usuarioSelecionado || (!novoMinisterio && !ministerioSelecionado)) {
       Alert.alert("Erro", "Preencha todos os campos e selecione um usuário.");
       return;
+    }
+
+    const ministerioFinal = ministerioSelecionado
+      ? ministerioSelecionado.ministerio
+      : novoMinisterio;
+
+    let dataFormatada = novaData;
+    if (novaData.includes("/")) {
+      const [dia, mes, ano] = novaData.split("/");
+      dataFormatada = `${ano}-${mes}-${dia}`;
     }
 
     try {
@@ -102,8 +171,8 @@ export default function InicioAdm({ navigation, route }) {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({
-            data: novaData,
-            ministerio: novoMinisterio,
+            data: dataFormatada,
+            ministerio: ministerioFinal,
             pessoa_id: usuarioSelecionado.id,
           }),
         }
@@ -117,7 +186,9 @@ export default function InicioAdm({ navigation, route }) {
         setNovaData("");
         setNovoMinisterio("");
         setBuscaUsuario("");
+        setBuscaMinisterio("");
         setUsuarioSelecionado(null);
+        setMinisterioSelecionado(null);
       } else {
         Alert.alert("Erro", result.error || "Falha ao adicionar escala.");
       }
@@ -149,6 +220,7 @@ export default function InicioAdm({ navigation, route }) {
     );
   }
 
+  // === Processamento de escalas do usuário e do mês ===
   const hoje = new Date();
   const mesAtual = hoje.getMonth();
   const anoAtual = hoje.getFullYear();
@@ -168,17 +240,14 @@ export default function InicioAdm({ navigation, route }) {
     (e) => e.data.getMonth() === mesAtual && e.data.getFullYear() === anoAtual
   );
 
-  // Filtra escalas do usuário pelo ministério usando search
   const escalasFiltradas = escalasUsuarioMes.filter((e) =>
     e.ministerio.toLowerCase().includes(search.toLowerCase())
   );
 
-  // Filtra escalas gerais pelo nome da pessoa usando search
   const escalasGeralFiltradas = escalasGeralMes.filter((e) =>
     e.pessoa_nome.toLowerCase().includes(search.toLowerCase())
   );
 
-  // Ordena as listas filtradas pela data
   escalasFiltradas.sort((a, b) => a.data.getDate() - b.data.getDate());
   escalasGeralFiltradas.sort((a, b) => a.data.getDate() - b.data.getDate());
 
@@ -207,9 +276,9 @@ export default function InicioAdm({ navigation, route }) {
         </View>
       </View>
 
-      {/* CONTEÚDO COM SCROLL */}
+      {/* SCROLL */}
       <ScrollView style={{ flex: 1 }} contentContainerStyle={{ paddingBottom: 100 }}>
-        {/* CARD COM PRÓXIMA ESCALA */}
+        {/* PRÓXIMA ESCALA */}
         <View style={styles.cardContainer}>
           <View style={styles.card}>
             <View style={styles.cardItem}>
@@ -322,9 +391,7 @@ export default function InicioAdm({ navigation, route }) {
       {modalVisible && (
         <View style={styles.modalOverlay}>
           <View style={styles.modalContent}>
-            <Text
-              style={{ fontSize: 16, fontWeight: "bold", marginBottom: 10 }}
-            >
+            <Text style={{ fontSize: 16, fontWeight: "bold", marginBottom: 10 }}>
               Adicionar Escala
             </Text>
 
@@ -341,13 +408,11 @@ export default function InicioAdm({ navigation, route }) {
               value={buscaUsuario}
               onChangeText={(text) => {
                 setBuscaUsuario(text);
-                setUsuarioSelecionado(null); // limpa seleção anterior
+                setUsuarioSelecionado(null);
               }}
               placeholder="Digite o nome"
               style={styles.modalInput}
             />
-
-            {/* Lista de sugestões aparece enquanto digita */}
             {buscaUsuario.length > 0 && !usuarioSelecionado && (
               <ScrollView
                 style={{
@@ -385,11 +450,46 @@ export default function InicioAdm({ navigation, route }) {
 
             <Text>Ministério:</Text>
             <TextInput
-              value={novoMinisterio}
-              onChangeText={setNovoMinisterio}
-              placeholder="Ex: Sonoplastia"
+              value={buscaMinisterio}
+              onChangeText={(text) => {
+                setBuscaMinisterio(text);
+                setMinisterioSelecionado(null);
+                setNovoMinisterio(text);
+              }}
+              placeholder="Digite ou selecione"
               style={styles.modalInput}
             />
+            {buscaMinisterio.length > 0 && !ministerioSelecionado && (
+              <ScrollView
+                style={{
+                  maxHeight: 100,
+                  marginBottom: 10,
+                  borderWidth: 1,
+                  borderColor: "#ccc",
+                  borderRadius: 5,
+                  backgroundColor: "#f9f9f9",
+                }}
+              >
+                {ministerios.map((m) => (
+                  <TouchableOpacity
+                    key={m.id}
+                    onPress={() => {
+                      setMinisterioSelecionado(m);
+                      setBuscaMinisterio(m.ministerio);
+                      setNovoMinisterio(m.ministerio);
+                    }}
+                    style={{
+                      paddingVertical: 8,
+                      paddingHorizontal: 10,
+                      borderBottomWidth: 1,
+                      borderBottomColor: "#ddd",
+                    }}
+                  >
+                    <Text>{m.ministerio}</Text>
+                  </TouchableOpacity>
+                ))}
+              </ScrollView>
+            )}
 
             <View
               style={{
@@ -414,7 +514,7 @@ export default function InicioAdm({ navigation, route }) {
           </View>
         </View>
       )}
-      {/* RODAPÉ */}
+
       <AdmInferior navigation={navigation} route={{ params: { user } }} />
     </View>
   );
@@ -469,17 +569,14 @@ const styles = StyleSheet.create({
     overflow: "hidden",
     backgroundColor: "#a4a4a4",
   },
-  tabelaLinhaHeader: {
-    flexDirection: "row",
-    backgroundColor: "#3c2f2f",
-    padding: 8,
-  },
+  tabelaLinhaHeader: { flexDirection: "row", backgroundColor: "#3c2f2f", padding: 8 },
   tabelaLinha: {
     flexDirection: "row",
     backgroundColor: "#e0dede",
     padding: 8,
     borderBottomWidth: 1,
     borderBottomColor: "#fff",
+    alignItems: "center", // centraliza verticalmente
   },
   tabelaHeaderTexto: {
     flex: 1,
@@ -490,7 +587,7 @@ const styles = StyleSheet.create({
   },
   tabelaTexto: {
     flex: 1,
-    textAlign: "center",
+    textAlign: "center", // centraliza horizontalmente
     fontSize: 12,
     color: "#000",
   },
