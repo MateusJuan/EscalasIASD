@@ -150,7 +150,7 @@ export default function Login({ navigation }) {
       <Modal transparent visible={modalSucesso} animationType="fade">
         <View style={styles.modalFundo}>
           <View style={[styles.modalContainer, { backgroundColor: "#4BB543" }]}>
-            <Text style={styles.modalTexto}>Bem-vindo, {usuarioNome}!</Text>
+            <Text style={styles.modalTexto}>Bem-vindo(a), {usuarioNome}!</Text>
           </View>
         </View>
       </Modal>
