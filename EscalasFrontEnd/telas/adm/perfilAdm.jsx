@@ -16,6 +16,7 @@ import { Feather } from "@expo/vector-icons";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import AdmInferior from "../barras/adminferior";
 import axios from "axios";
+import { Linking } from "react-native";
 
 export default function Perfil({ navigation }) {
   const [user, setUser] = useState(null);
@@ -180,6 +181,9 @@ export default function Perfil({ navigation }) {
           <MaterialIcons name="delete" size={20} color="#fff" />
           <Text style={styles.botaoTexto}>Excluir Conta</Text>
         </TouchableOpacity>
+        <Text style={styles.rodapeTexto} onPress={() => Linking.openURL("https://escalasfrontend--l9n95vzo2t.expo.app/")}>
+           Nosso Site : https://escalasfrontend--l9n95vzo2t.expo.app/
+        </Text>
       </ScrollView>
 
       {/* Modal de edição */}
@@ -520,4 +524,10 @@ const styles = StyleSheet.create({
     color: "#fff",
     textAlign: "center",
   },
+  rodapeTexto: {
+  fontSize: 14,
+  color: "#2e3e4e",
+  textAlign: "center", // centraliza horizontalmente
+  marginTop: 20,
+}
 });
