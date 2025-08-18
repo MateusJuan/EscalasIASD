@@ -4,6 +4,7 @@ import { createNativeStackNavigator } from "@react-navigation/native-stack";
 import CarregandoApp from "./telas/carregando";
 import Login from "./telas/login"
 import CriarConta from "./telas/criarConta";
+import RecuperacaoSenha from './telas/recuperacaoSenha';
 import InicioUsuario from "./telas/usuario/inicio";
 import InicioAdm from "./telas/adm/inicioAdm";
 import Perfil from "./telas/usuario/perfil";
@@ -29,6 +30,11 @@ export default function App() {
         <Stack.Screen
           name="CriarConta"
           component={CriarConta}
+          options={{headerShown: false}}
+        />
+        <Stack.Screen
+          name="RecuperacaoSenha"
+          component={RecuperacaoSenha}
           options={{headerShown: false}}
         />
         <Stack.Screen

@@ -83,7 +83,7 @@ export default function CriarConta({ navigation }) {
       <Text style={styles.label}>EMAIL</Text>
       <TextInput
         style={styles.input}
-        placeholder="teste@gmail.com"
+        placeholder="seuemail@gmail.com"
         keyboardType="email-address"
         autoCapitalize="none"
         value={email}
@@ -94,7 +94,7 @@ export default function CriarConta({ navigation }) {
       <View style={styles.senhaContainer}>
         <TextInput
           style={{ flex: 1, padding: 10, fontSize: 16 }}
-          placeholder="******"
+          placeholder="**********"
           secureTextEntry={!senhaVisivel}
           value={senha}
           onChangeText={setSenha}

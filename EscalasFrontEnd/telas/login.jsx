@@ -132,7 +132,7 @@ export default function Login({ navigation }) {
       </View>
 
       <TouchableOpacity
-        onPress={() => navigation.navigate("RecuperarSenha")}
+        onPress={() => navigation.navigate("RecuperacaoSenha")}
         style={{ alignSelf: "flex-start" }}
       >
         <Text style={styles.esqueciSenha}>ESQUECEU A SENHA?</Text>
