@@ -9,6 +9,7 @@ import {
   View,
   Modal,
 } from "react-native";
+import { Feather } from "@expo/vector-icons";
 
 export default function RecuperacaoSenha({ navigation }) {
   const [email, setEmail] = useState("");
@@ -53,6 +54,14 @@ export default function RecuperacaoSenha({ navigation }) {
 
   return (
     <SafeAreaView style={styles.container}>
+
+      <TouchableOpacity
+        style={styles.voltarBotao}
+        onPress={() => navigation.goBack()}
+      >
+        <Feather name="arrow-left" size={24} color="#000" />
+      </TouchableOpacity>
+
       <Text style={styles.titulo}>Recuperar Senha</Text>
       <Text style={styles.subtitulo}>
         Digite seu e-mail para receber uma nova senha
@@ -97,6 +106,13 @@ export default function RecuperacaoSenha({ navigation }) {
 }
 
 const styles = StyleSheet.create({
+  voltarBotao: {
+    position: 'absolute',
+    top: 10,
+    left: 10,
+    zIndex: 10,
+    padding: 5,
+  },
   container: {
     flex: 1,
     backgroundColor: "#f4f5f2",

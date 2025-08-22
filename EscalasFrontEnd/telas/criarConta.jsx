@@ -6,7 +6,7 @@ import {
   StyleSheet,
   TouchableOpacity,
   SafeAreaView,
-  Modal,
+  Modal
 } from "react-native";
 import { MaskedTextInput } from "react-native-mask-text";
 import axios from "axios";
@@ -70,6 +70,14 @@ export default function CriarConta({ navigation }) {
 
   return (
     <SafeAreaView style={styles.container}>
+
+    <TouchableOpacity
+      style={styles.voltarBotao}
+      onPress={() => navigation.goBack()}
+    >
+      <Feather name="arrow-left" size={24} color="#000" />
+    </TouchableOpacity>
+
       <Text style={styles.titulo}>Criar Uma Nova Conta</Text>
 
       <Text style={styles.label}>NOME</Text>
@@ -148,6 +156,13 @@ export default function CriarConta({ navigation }) {
 }
 
 const styles = StyleSheet.create({
+    voltarBotao: {
+    position: 'absolute',
+    top: 10,
+    left: 10,
+    zIndex: 10,
+    padding: 5,
+  },
   container: {
     flex: 1,
     paddingHorizontal: 20,
