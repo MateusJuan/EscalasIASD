@@ -1,5 +1,11 @@
-import { View, Text, TouchableOpacity, StyleSheet } from "react-native";
+import { View, Text, TouchableOpacity, StyleSheet, Linking } from "react-native";
 import { MaterialIcons } from "@expo/vector-icons";
+
+const linkAPK = "https://github.com/MateusJuan/EscalasIASD/releases/download/v1%2C0/application-9b910613-92d8-4166-a400-3e09a77f0f51.apk"
+
+const baixarAPK = () => {
+  Linking.openURL(linkAPK);
+};
 
 export default function AdmInferior({ navigation, route }) {
   // Pegue o user dos params, se existir
@@ -13,6 +19,14 @@ export default function AdmInferior({ navigation, route }) {
       >
         <MaterialIcons name="home" size={24} color="#fff" />
         <Text style={styles.footerText}>Início</Text>
+      </TouchableOpacity>
+
+      <TouchableOpacity
+         style={styles.footerItem}
+         onPress={baixarAPK}
+       >
+        <MaterialIcons name="download" size={24} color="#fff" />
+        <Text style={styles.footerText}>Atualizar App</Text>
       </TouchableOpacity>
 
       <TouchableOpacity
