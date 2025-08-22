@@ -34,7 +34,7 @@ export default function CarregandoApp({ navigation }) {
         style={styles.image}
         resizeMode="contain"
       />
-      <Text>IASD JARDIM COQUEIRAL</Text>
+      <Text>Sistema De Escalas</Text>
       <StatusBar style="auto" />
     </View>
   );

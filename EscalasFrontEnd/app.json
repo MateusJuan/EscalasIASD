@@ -1,6 +1,6 @@
 {
   "expo": {
-    "name": "Escalas IASD",
+    "name": "Sistema de Escalas",
     "slug": "EscalasFrontEnd",
     "version": "1.0.0",
     "icon": "./img/icone.png",
@@ -19,6 +19,9 @@
     "updates": {
       "url": "https://u.expo.dev/f7177ff5-2c05-46b4-9892-aa8b47a18299"
     },
-    "ios": {}
+    "ios": {},
+    "plugins": [
+      "expo-font"
+    ]
   }
 }
