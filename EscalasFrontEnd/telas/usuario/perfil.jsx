@@ -181,14 +181,14 @@ export default function Perfil({ navigation }) {
           <MaterialIcons name="delete" size={20} color="#fff" />
           <Text style={styles.botaoTexto}>Excluir Conta</Text>
         </TouchableOpacity>
-        <Text
+        {/*<Text
           style={styles.rodapeTexto}
           onPress={() =>
             Linking.openURL("https://escalasfrontend--l9n95vzo2t.expo.app/")
           }
         >
           Nosso Site: https://escalasfrontend--l9n95vzo2t.expo.app/
-        </Text>
+        </Text>*/}
       </ScrollView>
 
       {/* Modal de edição */}

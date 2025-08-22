@@ -1,7 +1,7 @@
 import { View, Text, TouchableOpacity, StyleSheet,Linking } from "react-native";
 import { MaterialIcons } from "@expo/vector-icons";
 
-const linkAPK = "https://github.com/MateusJuan/EscalasIASD/releases/download/v1.0/application-4879ffb8-fd62-4aa1-949b-fa5bd5b712ca.apk"
+const linkAPK = "https://github.com/MateusJuan/EscalasIASD/releases/download/v1.0/application-b4c23f0a-e993-4139-8ab5-16bc786b71ba.apk"
 
 const baixarAPK = () => {
   Linking.openURL(linkAPK);
