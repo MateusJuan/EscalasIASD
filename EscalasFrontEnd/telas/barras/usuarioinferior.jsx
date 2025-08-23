@@ -1,7 +1,7 @@
 import { View, Text, TouchableOpacity, StyleSheet,Linking } from "react-native";
 import { MaterialIcons } from "@expo/vector-icons";
 
-const linkAPK = "https://github.com/MateusJuan/EscalasIASD/releases/download/v1.0/application-b4c23f0a-e993-4139-8ab5-16bc786b71ba.apk"
+const linkAPK = "https://github.com/MateusJuan/EscalasIASD/releases/download/v1.0/Escalas.IASD.apk"
 
 const baixarAPK = () => {
   Linking.openURL(linkAPK);
@@ -18,13 +18,13 @@ export default function UsuarioInferior({ navigation }) {
         <Text style={styles.footerText}>Início</Text>
       </TouchableOpacity>
 
-      {/*<TouchableOpacity
+      <TouchableOpacity
         style={styles.footerItem}
         onPress={baixarAPK}
       >
         <MaterialIcons name="download" size={24} color="#fff" />
         <Text style={styles.footerText}>Atualizar App</Text>
-      </TouchableOpacity>*/}
+      </TouchableOpacity>
 
       <TouchableOpacity
         style={styles.footerItem}
