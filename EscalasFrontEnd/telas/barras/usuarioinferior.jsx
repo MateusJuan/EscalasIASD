@@ -18,13 +18,13 @@ export default function UsuarioInferior({ navigation }) {
         <Text style={styles.footerText}>Início</Text>
       </TouchableOpacity>
 
-      <TouchableOpacity
+      {/*<TouchableOpacity
         style={styles.footerItem}
         onPress={baixarAPK}
       >
         <MaterialIcons name="download" size={24} color="#fff" />
         <Text style={styles.footerText}>Atualizar App</Text>
-      </TouchableOpacity>
+      </TouchableOpacity>*/}
 
       <TouchableOpacity
         style={styles.footerItem}
