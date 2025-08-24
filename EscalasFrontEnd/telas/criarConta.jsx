@@ -16,6 +16,7 @@ export default function CriarConta({ navigation }) {
   const [nome, setNome] = useState("");
   const [email, setEmail] = useState("");
   const [senha, setSenha] = useState("");
+  const [igreja, setIgreja] = useState("");
   const [dataNascimento, setDataNascimento] = useState("");
   const [senhaVisivel, setSenhaVisivel] = useState(false);
 
@@ -41,7 +42,7 @@ export default function CriarConta({ navigation }) {
   };
 
   const handleEnviar = async () => {
-    if (!nome || !email || !senha || !dataNascimento) {
+    if (!nome || !email || !senha || !igreja || !dataNascimento) {
       mostrarErro("Preencha todos os campos.");
       return;
     }
@@ -58,6 +59,7 @@ export default function CriarConta({ navigation }) {
         nome,
         email,
         senha,
+        igreja,
         dataNascimento: dataFormatada
       });
 
@@ -128,6 +130,13 @@ export default function CriarConta({ navigation }) {
         onChangeText={(masked) => setDataNascimento(masked)}
         keyboardType="numeric"
         maxLength={10}
+      />
+      <Text style={styles.label}>IGREJA</Text>
+      <TextInput
+        style={styles.input}
+        placeholder="Nome da Igreja"
+        value={igreja}
+        onChangeText={setIgreja}
       />
 
       <TouchableOpacity style={styles.botao} onPress={handleEnviar}>
