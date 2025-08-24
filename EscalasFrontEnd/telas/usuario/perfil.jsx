@@ -38,6 +38,7 @@ export default function Perfil({ navigation }) {
   const [confirmaSenhaEdit, setConfirmaSenhaEdit] = useState("");
   const [senhaVisivel, setSenhaVisivel] = useState(false);
   const [confirmaSenhaVisivel, setConfirmaSenhaVisivel] = useState(false);
+  const [igrejaEdit, setIgrejaEdit] = useState("");
 
   const carregarUsuario = async () => {
     try {
@@ -66,6 +67,7 @@ export default function Perfil({ navigation }) {
     if (user) {
       setNomeEdit(user.nome || "");
       setEmailEdit(user.email || "");
+      setIgrejaEdit(user.igreja || "");
       setDataNascimentoEdit(user.dataNascimento || "");
       setSenhaEdit("");
       setConfirmaSenhaEdit("");
@@ -93,7 +95,7 @@ export default function Perfil({ navigation }) {
   };
 
   const salvarEdicao = async () => {
-    if (!nomeEdit.trim() || !emailEdit.trim() || !dataNascimentoEdit.trim()) {
+    if (!nomeEdit.trim() || !emailEdit.trim() || !igrejaEdit.trim() || !dataNascimentoEdit.trim()) {
       mostrarErro("Preencha todos os campos obrigatórios.");
       return;
     }
@@ -113,6 +115,7 @@ export default function Perfil({ navigation }) {
           nome: nomeEdit,
           email: emailEdit,
           dataNascimento: dataNascimentoEdit,
+          igreja: igrejaEdit,
           senha: senhaEdit ? senhaEdit : user.senha,
         }
       );
@@ -155,14 +158,28 @@ export default function Perfil({ navigation }) {
             </View>
           )}
           <Text style={styles.value}>{user?.nome || "Nome não informado"}</Text>
-          <Text style={styles.email}>{user?.email || "Email não informado"}</Text>
         </View>
-
+        {/*Email Usuario*/}
+        <View style={styles.infoItem}>
+          <MaterialIcons name="email" size={24} color="#2e3e4e" />
+          <Text style={styles.infoText}>
+            Email: {user?.email || "Email não informado"}
+          </Text>
+        </View>
         <View style={styles.infoContainer}>
+          {/* Data de nascimento */}
           <View style={styles.infoItem}>
             <MaterialIcons name="cake" size={24} color="#2e3e4e" />
             <Text style={styles.infoText}>
-              Data de Nascimento: {user?.dataNascimento}
+              Data de Nascimento: {user?.dataNascimento || "Não informado"}
+            </Text>
+          </View>
+
+          {/* Igreja */}
+          <View style={styles.infoItem}>
+            <MaterialIcons name="church" size={24} color="#2e3e4e" />
+            <Text style={styles.infoText}>
+              Igreja: {user?.igreja || "Igreja não informada"}
             </Text>
           </View>
         </View>
@@ -208,6 +225,14 @@ export default function Perfil({ navigation }) {
                 onChangeText={setEmailEdit}
                 keyboardType="email-address"
                 autoCapitalize="none"
+              />
+
+              <Text style={styles.label}>Igreja</Text>
+              <TextInput
+                style={styles.input}
+                value={igrejaEdit}
+                onChangeText={setIgrejaEdit}
+                placeholder="Informe sua igreja"
               />
 
               <Text style={styles.label}>Data de Nascimento</Text>
