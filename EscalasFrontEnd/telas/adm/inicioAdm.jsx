@@ -19,11 +19,17 @@ export default function InicioAdm({ navigation, route }) {
   const [escalas, setEscalas] = useState(null);
   const [search, setSearch] = useState("");
 
-  // Modal
-  const [modalVisible, setModalVisible] = useState(false);
+  // Modal Criar
+  const [modalCriarVisible, setModalCriarVisible] = useState(false);
   const [novaData, setNovaData] = useState("");
   const [novoMinisterio, setNovoMinisterio] = useState("");
   const [buscaMinisterio, setBuscaMinisterio] = useState("");
+
+  // Modal Editar/Apagar
+  const [modalEditarVisible, setModalEditarVisible] = useState(false);
+  const [escalaSelecionada, setEscalaSelecionada] = useState(null);
+  const [editarData, setEditarData] = useState("");
+  const [editarMinisterio, setEditarMinisterio] = useState("");
 
   // Busca por nome
   const [usuarios, setUsuarios] = useState([]);
@@ -34,33 +40,18 @@ export default function InicioAdm({ navigation, route }) {
   const [ministerios, setMinisterios] = useState([]);
   const [ministerioSelecionado, setMinisterioSelecionado] = useState(null);
 
-  // Função de parse de datas
   function parseDataBR(dataStr) {
     if (!dataStr) return null;
-
     let data;
-
     if (dataStr.includes("/")) {
-      // Formato dd/mm/yyyy
       const [dia, mes, ano] = dataStr.split("/").map(Number);
       data = new Date(ano, mes - 1, dia);
-      if (data.getDate() !== dia || data.getMonth() !== mes - 1 || data.getFullYear() !== ano) {
-        console.warn("Data inválida detectada:", dataStr);
-        return null;
-      }
+      if (data.getDate() !== dia || data.getMonth() !== mes - 1 || data.getFullYear() !== ano) return null;
     } else if (dataStr.includes("-")) {
-      // Formato yyyy-mm-dd
       const [ano, mes, dia] = dataStr.split("-").map(Number);
       data = new Date(ano, mes - 1, dia);
-      if (data.getDate() !== dia || data.getMonth() !== mes - 1 || data.getFullYear() !== ano) {
-        console.warn("Data inválida detectada:", dataStr);
-        return null;
-      }
-    } else {
-      console.warn("Formato de data desconhecido:", dataStr);
-      return null;
-    }
-
+      if (data.getDate() !== dia || data.getMonth() !== mes - 1 || data.getFullYear() !== ano) return null;
+    } else return null;
     return data;
   }
 
@@ -70,9 +61,8 @@ export default function InicioAdm({ navigation, route }) {
       if (!user) {
         try {
           const jsonValue = await AsyncStorage.getItem("usuarioLogado");
-          if (jsonValue != null) {
-            setUser(JSON.parse(jsonValue));
-          } else {
+          if (jsonValue != null) setUser(JSON.parse(jsonValue));
+          else {
             Alert.alert("Usuário não encontrado", "Faça login novamente.");
             navigation.navigate("Login");
           }
@@ -89,16 +79,9 @@ export default function InicioAdm({ navigation, route }) {
   useEffect(() => {
     async function carregarEscalas() {
       try {
-        const res = await fetch(
-          "https://agendas-escalas-iasd-backend.onrender.com/api/escalas"
-        );
+        const res = await fetch("https://agendas-escalas-iasd-backend.onrender.com/api/escalas");
         const data = await res.json();
-        const escalasComData = data
-          .map((e) => ({
-            ...e,
-            data: parseDataBR(e.data),
-          }))
-          .filter((e) => e.data !== null); // remove datas inválidas
+        const escalasComData = data.map((e) => ({ ...e, data: parseDataBR(e.data) })).filter((e) => e.data !== null);
         setEscalas(escalasComData);
       } catch (error) {
         Alert.alert("Erro", "Não foi possível carregar as escalas.");
@@ -106,15 +89,13 @@ export default function InicioAdm({ navigation, route }) {
       }
     }
     carregarEscalas();
-  }, [modalVisible]);
+  }, [modalCriarVisible, modalEditarVisible]);
 
   // === Carregar usuários ===
   useEffect(() => {
     async function carregarUsuarios() {
       try {
-        const res = await fetch(
-          "https://agendas-escalas-iasd-backend.onrender.com/api/usuarios"
-        );
+        const res = await fetch("https://agendas-escalas-iasd-backend.onrender.com/api/usuarios");
         const data = await res.json();
         setUsuarios(data);
       } catch (e) {
@@ -126,54 +107,68 @@ export default function InicioAdm({ navigation, route }) {
 
   // === Carregar ministérios enquanto digita ===
   useEffect(() => {
-  async function carregarMinisterios() {
-    try {
-      if (buscaMinisterio.length === 0) return;
-
-      const res = await fetch(
-        `https://agendas-escalas-iasd-backend.onrender.com/api/ministerios?search=${buscaMinisterio}`
-      );
-
-      if (!res.ok) {
-        console.error("Erro no servidor:", res.status, res.statusText);
-        return;
+    async function carregarMinisterios() {
+      if (!buscaMinisterio) return;
+      try {
+        const res = await fetch(`https://agendas-escalas-iasd-backend.onrender.com/api/ministerios?search=${buscaMinisterio}`);
+        if (!res.ok) return;
+        const data = await res.json();
+        setMinisterios(data);
+      } catch (e) {
+        console.error("Erro ao buscar ministérios:", e);
       }
-
-      const data = await res.json();
-      setMinisterios(data);
-    } catch (e) {
-      console.error("Erro ao buscar ministérios:", e);
     }
-  }
     carregarMinisterios();
   }, [buscaMinisterio]);
 
+  // === Funções para criar escala ===
   async function adicionarEscala() {
     if (!novaData || !usuarioSelecionado || (!novoMinisterio && !ministerioSelecionado)) {
       Alert.alert("Erro", "Preencha todos os campos e selecione um usuário.");
       return;
     }
-
-    const ministerioFinal = ministerioSelecionado
-      ? ministerioSelecionado.ministerio
-      : novoMinisterio;
-
-    let dataFormatada = novaData;
-    if (novaData.includes("/")) {
-      const [dia, mes, ano] = novaData.split("/");
-      dataFormatada = `${ano}-${mes}-${dia}`;
+    const ministerioFinal = ministerioSelecionado ? ministerioSelecionado.ministerio : novoMinisterio;
+    let dataFormatada = novaData.includes("/") ? novaData.split("/").reverse().join("-") : novaData;
+    try {
+      const res = await fetch("https://agendas-escalas-iasd-backend.onrender.com/api/escalas", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ data: dataFormatada, ministerio: ministerioFinal, pessoa_id: usuarioSelecionado.id }),
+      });
+      const result = await res.json();
+      if (res.ok) {
+        Alert.alert("Sucesso", "Escala adicionada com sucesso!");
+        setModalCriarVisible(false);
+        setNovaData("");
+        setNovoMinisterio("");
+        setBuscaUsuario("");
+        setBuscaMinisterio("");
+        setUsuarioSelecionado(null);
+        setMinisterioSelecionado(null);
+      } else Alert.alert("Erro", result.error || "Falha ao adicionar escala.");
+    } catch (e) {
+      Alert.alert("Erro", "Erro ao conectar com o servidor.");
     }
+  }
+
+  // === Funções para editar/apagar escala ===
+  async function atualizarEscala() {
+    if (!escalaSelecionada) return;
+
+    const dataFormatada = editarData.includes("/") 
+      ? editarData.split("/").reverse().join("-") 
+      : editarData;
 
     try {
       const res = await fetch(
-        "https://agendas-escalas-iasd-backend.onrender.com/api/escalas",
+        `http://agendas-escalas-iasd-backend.onrender.com/api/escalas/${escalaSelecionada.id}`,
         {
-          method: "POST",
+          method: "PUT",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({
             data: dataFormatada,
-            ministerio: ministerioFinal,
-            pessoa_id: usuarioSelecionado.id,
+            ministerio: editarMinisterio,
+            pessoa_id: escalaSelecionada.pessoa_id, // necessário para o backend
           }),
         }
       );
@@ -181,136 +176,89 @@ export default function InicioAdm({ navigation, route }) {
       const result = await res.json();
 
       if (res.ok) {
-        Alert.alert("Sucesso", "Escala adicionada com sucesso!");
-        setModalVisible(false);
-        setNovaData("");
-        setNovoMinisterio("");
-        setBuscaUsuario("");
-        setBuscaMinisterio("");
-        setUsuarioSelecionado(null);
-        setMinisterioSelecionado(null);
+        // Atualização bem-sucedida: fechar modal e limpar campos
+        setModalEditarVisible(false);
+        setEscalaSelecionada(null);
+        setEditarData("");
+        setEditarMinisterio("");
+        Alert.alert("Sucesso", "Escala atualizada!");
       } else {
-        Alert.alert("Erro", result.error || "Falha ao adicionar escala.");
+        // Apenas mostrar erro se realmente houver
+        Alert.alert("Erro", result.error || "Falha ao atualizar escala.");
       }
     } catch (e) {
       Alert.alert("Erro", "Erro ao conectar com o servidor.");
     }
   }
 
-  if (!user || !user.id) {
-    return (
-      <View style={styles.container}>
-        <Text style={{ marginTop: 50, textAlign: "center" }}>
-          Usuário não encontrado. Por favor, faça login novamente.
-        </Text>
-      </View>
-    );
+  async function deletarEscala() {
+    if (!escalaSelecionada) return;
+    try {
+      const res = await fetch(`http://agendas-escalas-iasd-backend.onrender.com/api/escalas/${escalaSelecionada.id}`, {
+        method: "DELETE",
+      });
+      if (res.ok) {
+        Alert.alert("Sucesso", "Escala apagada!");
+        setModalEditarVisible(false);
+        setEscalaSelecionada(null);
+        setEditarData("");
+        setEditarMinisterio("");
+      } else Alert.alert("Erro", "Falha ao apagar escala.");
+    } catch (e) {
+      Alert.alert("Erro", "Erro ao conectar com o servidor.");
+    }
   }
 
-  if (escalas === null) {
-    return (
-      <View
-        style={[
-          styles.container,
-          { justifyContent: "center", alignItems: "center" },
-        ]}
-      >
-        <ActivityIndicator size="large" color="#2e3e4e" />
-      </View>
-    );
-  }
+  if (!user || !user.id) return <View style={styles.container}><Text style={{ marginTop: 50, textAlign: "center" }}>Usuário não encontrado. Por favor, faça login novamente.</Text></View>;
+  if (escalas === null) return <View style={[styles.container, { justifyContent: "center", alignItems: "center" }]}><ActivityIndicator size="large" color="#2e3e4e" /></View>;
 
-  // === Processamento de escalas do usuário e do mês ===
+  // === Processamento das escalas do usuário e do mês ===
   const hoje = new Date();
   const mesAtual = hoje.getMonth();
   const anoAtual = hoje.getFullYear();
-
-  const escalasUsuarioMes = escalas.filter(
-    (e) =>
-      e.pessoa_id === user.id &&
-      e.data.getMonth() === mesAtual &&
-      e.data.getFullYear() === anoAtual
-  );
-
-  const futuras = escalasUsuarioMes.filter((e) => e.data >= hoje);
-  futuras.sort((a, b) => a.data - b.data);
+  const escalasUsuarioMes = escalas.filter(e => e.pessoa_id === user.id && e.data.getMonth() === mesAtual && e.data.getFullYear() === anoAtual);
+  const futuras = escalasUsuarioMes.filter(e => e.data >= hoje).sort((a,b)=>a.data-b.data);
   const proxima = futuras[0] || escalasUsuarioMes[0] || null;
-
-  const escalasGeralMes = escalas.filter(
-    (e) => e.data.getMonth() === mesAtual && e.data.getFullYear() === anoAtual
-  );
-
-  const escalasFiltradas = escalasUsuarioMes.filter((e) =>
-    e.ministerio.toLowerCase().includes(search.toLowerCase())
-  );
-
-  const escalasGeralFiltradas = escalasGeralMes.filter((e) =>
-    e.pessoa_nome.toLowerCase().includes(search.toLowerCase())
-  );
-
-  escalasFiltradas.sort((a, b) => a.data.getDate() - b.data.getDate());
-  escalasGeralFiltradas.sort((a, b) => a.data.getDate() - b.data.getDate());
+  const escalasGeralMes = escalas.filter(e => e.data.getMonth() === mesAtual && e.data.getFullYear() === anoAtual);
+  const escalasFiltradas = escalasUsuarioMes.filter(e => e.ministerio.toLowerCase().includes(search.toLowerCase()));
+  const escalasGeralFiltradas = escalasGeralMes.filter(e => e.pessoa_nome.toLowerCase().includes(search.toLowerCase()));
+  escalasFiltradas.sort((a,b)=>a.data.getDate()-b.data.getDate());
+  escalasGeralFiltradas.sort((a,b)=>a.data.getDate()-b.data.getDate());
 
   return (
     <View style={styles.container}>
       {/* TOPO */}
       <View style={styles.topo}>
-        <Image
-          source={require("../../img/Logo Circular.png")}
-          style={styles.logo}
-        />
+        <Image source={require("../../img/Logo Circular.png")} style={styles.logo}/>
         <View style={styles.searchContainer}>
-          <MaterialIcons
-            name="search"
-            size={16}
-            color="#6c6c6c"
-            style={styles.searchIcon}
-          />
-          <TextInput
-            placeholder="Pesquisar ministério ou nome"
-            placeholderTextColor="#6c6c6c"
-            style={styles.input}
-            value={search}
-            onChangeText={setSearch}
-          />
+          <MaterialIcons name="search" size={16} color="#6c6c6c" style={styles.searchIcon}/>
+          <TextInput placeholder="Pesquisar ministério ou nome" placeholderTextColor="#6c6c6c" style={styles.input} value={search} onChangeText={setSearch}/>
         </View>
       </View>
 
-      {/* SCROLL */}
       <ScrollView style={{ flex: 1 }} contentContainerStyle={{ paddingBottom: 100 }}>
         {/* PRÓXIMA ESCALA */}
         <View style={styles.cardContainer}>
           <View style={styles.card}>
             <View style={styles.cardItem}>
-              <MaterialIcons name="calendar-month" size={24} color="#fff" />
+              <MaterialIcons name="calendar-month" size={24} color="#fff"/>
               <View style={styles.cardItemText}>
                 <Text style={styles.cardTitle}>Próximo Dia Escalado</Text>
-                <Text style={styles.cardDate}>
-                  {proxima ? proxima.data.toLocaleDateString("pt-BR") : "-"}
-                </Text>
+                <Text style={styles.cardDate}>{proxima ? proxima.data.toLocaleDateString("pt-BR") : "-"}</Text>
               </View>
             </View>
             <View style={styles.cardItem}>
-              <MaterialIcons name="church" size={24} color="#fff" />
+              <MaterialIcons name="church" size={24} color="#fff"/>
               <View style={styles.cardItemText}>
                 <Text style={styles.cardTitle}>Ministério</Text>
-                <Text style={styles.cardDate}>
-                  {proxima ? proxima.ministerio : "-"}
-                </Text>
+                <Text style={styles.cardDate}>{proxima ? proxima.ministerio : "-"}</Text>
               </View>
             </View>
           </View>
         </View>
 
         {/* MINHA ESCALA MENSAL */}
-        <View
-          style={{
-            flexDirection: "row",
-            alignItems: "center",
-            marginLeft: 15,
-            marginTop: 20,
-          }}
-        >
+        <View style={{ flexDirection: "row", alignItems: "center", marginLeft: 15, marginTop: 20 }}>
           <Text style={styles.escalaTexto}>Minha Escala Mensal:</Text>
         </View>
         <View style={[styles.tabela, { maxHeight: 200 }]}>
@@ -320,9 +268,7 @@ export default function InicioAdm({ navigation, route }) {
             <Text style={styles.tabelaHeaderTexto}>MINISTÉRIO</Text>
           </View>
           {escalasFiltradas.length === 0 ? (
-            <Text style={{ padding: 8, textAlign: "center" }}>
-              Nenhuma escala encontrada.
-            </Text>
+            <Text style={{ padding: 8, textAlign: "center" }}>Nenhuma escala encontrada.</Text>
           ) : (
             escalasFiltradas.map((item, index) => {
               const dataObj = item.data;
@@ -330,9 +276,7 @@ export default function InicioAdm({ navigation, route }) {
               const dia = dataObj.getDate();
               return (
                 <View key={index} style={styles.tabelaLinha}>
-                  <Text style={styles.tabelaTexto}>
-                    {mes.charAt(0).toUpperCase() + mes.slice(1)}
-                  </Text>
+                  <Text style={styles.tabelaTexto}>{mes.charAt(0).toUpperCase() + mes.slice(1)}</Text>
                   <Text style={styles.tabelaTexto}>{dia}</Text>
                   <Text style={styles.tabelaTexto}>{item.ministerio}</Text>
                 </View>
@@ -342,22 +286,9 @@ export default function InicioAdm({ navigation, route }) {
         </View>
 
         {/* ESCALA GERAL DO MÊS + BOTÃO */}
-        <View
-          style={{
-            flexDirection: "row",
-            alignItems: "center",
-            marginLeft: 15,
-            marginTop: 20,
-          }}
-        >
+        <View style={{ flexDirection: "row", alignItems: "center", marginLeft: 15, marginTop: 20 }}>
           <Text style={styles.escalaTexto}>Escala Geral do Mês:</Text>
-          <MaterialIcons
-            name="add-circle"
-            size={24}
-            color="#2e3e4e"
-            style={{ marginLeft: 8 }}
-            onPress={() => setModalVisible(true)}
-          />
+          <MaterialIcons name="add-circle" size={24} color="#2e3e4e" style={{ marginLeft: 8 }} onPress={() => setModalCriarVisible(true)}/>
         </View>
         <View style={styles.tabela}>
           <View style={styles.tabelaLinhaHeader}>
@@ -366,151 +297,83 @@ export default function InicioAdm({ navigation, route }) {
             <Text style={styles.tabelaHeaderTexto}>PESSOA</Text>
           </View>
           {escalasGeralFiltradas.length === 0 && (
-            <Text style={{ padding: 8, textAlign: "center" }}>
-              Nenhuma escala encontrada.
-            </Text>
+            <Text style={{ padding: 8, textAlign: "center" }}>Nenhuma escala encontrada.</Text>
           )}
           {escalasGeralFiltradas.map((item, index) => {
             const dataObj = item.data;
             const mes = dataObj.toLocaleDateString("pt-BR", { month: "long" });
             const dia = dataObj.getDate();
             return (
-              <View key={index} style={styles.tabelaLinha}>
-                <Text style={styles.tabelaTexto}>
-                  {mes.charAt(0).toUpperCase() + mes.slice(1)}
-                </Text>
+              <TouchableOpacity
+                key={index}
+                style={styles.tabelaLinha}
+                onPress={() => {
+                  setEscalaSelecionada(item);
+                  setEditarData(item.data.toLocaleDateString("pt-BR"));
+                  setEditarMinisterio(item.ministerio);
+                  setModalEditarVisible(true);
+                }}
+              >
+                <Text style={styles.tabelaTexto}>{mes.charAt(0).toUpperCase() + mes.slice(1)}</Text>
                 <Text style={styles.tabelaTexto}>{dia}</Text>
                 <Text style={styles.tabelaTexto}>{item.pessoa_nome}</Text>
-              </View>
+              </TouchableOpacity>
             );
           })}
         </View>
       </ScrollView>
 
-      {/* MODAL */}
-      {modalVisible && (
+      {/* MODAL CRIAR */}
+      {modalCriarVisible && (
         <View style={styles.modalOverlay}>
           <View style={styles.modalContent}>
-            <Text style={{ fontSize: 16, fontWeight: "bold", marginBottom: 10 }}>
-              Adicionar Escala
-            </Text>
-
+            <Text style={{ fontSize: 16, fontWeight: "bold", marginBottom: 10 }}>Adicionar Escala</Text>
             <Text>Data (dd/mm/aaaa):</Text>
-            <TextInput
-              value={novaData}
-              onChangeText={setNovaData}
-              placeholder="Ex: 02/10/2025"
-              style={styles.modalInput}
-            />
-
+            <TextInput value={novaData} onChangeText={setNovaData} placeholder="Ex: 02/10/2025" style={styles.modalInput}/>
             <Text>Nome do Usuário:</Text>
-            <TextInput
-              value={buscaUsuario}
-              onChangeText={(text) => {
-                setBuscaUsuario(text);
-                setUsuarioSelecionado(null);
-              }}
-              placeholder="Digite o nome"
-              style={styles.modalInput}
-            />
-            {buscaUsuario.length > 0 && !usuarioSelecionado && (
-              <ScrollView
-                style={{
-                  maxHeight: 100,
-                  marginBottom: 10,
-                  borderWidth: 1,
-                  borderColor: "#ccc",
-                  borderRadius: 5,
-                  backgroundColor: "#f9f9f9",
-                }}
-              >
-                {usuarios
-                  .filter((u) =>
-                    u.nome.toLowerCase().includes(buscaUsuario.toLowerCase())
-                  )
-                  .map((u) => (
-                    <TouchableOpacity
-                      key={u.id}
-                      onPress={() => {
-                        setUsuarioSelecionado(u);
-                        setBuscaUsuario(u.nome);
-                      }}
-                      style={{
-                        paddingVertical: 8,
-                        paddingHorizontal: 10,
-                        borderBottomWidth: 1,
-                        borderBottomColor: "#ddd",
-                      }}
-                    >
-                      <Text>{u.nome}</Text>
-                    </TouchableOpacity>
-                  ))}
+            <TextInput value={buscaUsuario} onChangeText={(text)=>{setBuscaUsuario(text); setUsuarioSelecionado(null);}} placeholder="Digite o nome" style={styles.modalInput}/>
+            {buscaUsuario.length>0 && !usuarioSelecionado && (
+              <ScrollView style={{ maxHeight: 100, marginBottom:10, borderWidth:1, borderColor:"#ccc", borderRadius:5, backgroundColor:"#f9f9f9" }}>
+                {usuarios.filter(u=>u.nome.toLowerCase().includes(buscaUsuario.toLowerCase())).map(u=>(
+                  <TouchableOpacity key={u.id} onPress={()=>{setUsuarioSelecionado(u); setBuscaUsuario(u.nome);}} style={{ paddingVertical:8, paddingHorizontal:10, borderBottomWidth:1, borderBottomColor:"#ddd" }}>
+                    <Text>{u.nome}</Text>
+                  </TouchableOpacity>
+                ))}
               </ScrollView>
             )}
-
             <Text>Ministério:</Text>
-            <TextInput
-              value={buscaMinisterio}
-              onChangeText={(text) => {
-                setBuscaMinisterio(text);
-                setMinisterioSelecionado(null);
-                setNovoMinisterio(text);
-              }}
-              placeholder="Digite ou selecione"
-              style={styles.modalInput}
-            />
-            {buscaMinisterio.length > 0 && !ministerioSelecionado && (
-              <ScrollView
-                style={{
-                  maxHeight: 100,
-                  marginBottom: 10,
-                  borderWidth: 1,
-                  borderColor: "#ccc",
-                  borderRadius: 5,
-                  backgroundColor: "#f9f9f9",
-                }}
-              >
-                {ministerios.map((m) => (
-                  <TouchableOpacity
-                    key={m.id}
-                    onPress={() => {
-                      setMinisterioSelecionado(m);
-                      setBuscaMinisterio(m.ministerio);
-                      setNovoMinisterio(m.ministerio);
-                    }}
-                    style={{
-                      paddingVertical: 8,
-                      paddingHorizontal: 10,
-                      borderBottomWidth: 1,
-                      borderBottomColor: "#ddd",
-                    }}
-                  >
+            <TextInput value={buscaMinisterio} onChangeText={(text)=>{setBuscaMinisterio(text); setMinisterioSelecionado(null); setNovoMinisterio(text);}} placeholder="Digite ou selecione" style={styles.modalInput}/>
+            {buscaMinisterio.length>0 && !ministerioSelecionado && (
+              <ScrollView style={{ maxHeight:100, marginBottom:10, borderWidth:1, borderColor:"#ccc", borderRadius:5, backgroundColor:"#f9f9f9" }}>
+                {ministerios.map(m=>(
+                  <TouchableOpacity key={m.id} onPress={()=>{setMinisterioSelecionado(m); setBuscaMinisterio(m.ministerio); setNovoMinisterio(m.ministerio);}} style={{ paddingVertical:8, paddingHorizontal:10, borderBottomWidth:1, borderBottomColor:"#ddd" }}>
                     <Text>{m.ministerio}</Text>
                   </TouchableOpacity>
                 ))}
               </ScrollView>
             )}
-
-            <View
-              style={{
-                flexDirection: "row",
-                justifyContent: "space-between",
-                marginTop: 15,
-              }}
-            >
-              <Text
-                style={{ color: "#d00", fontWeight: "bold" }}
-                onPress={() => setModalVisible(false)}
-              >
-                Cancelar
-              </Text>
-              <Text
-                style={{ color: "#007aff", fontWeight: "bold" }}
-                onPress={adicionarEscala}
-              >
-                Salvar
-              </Text>
+            <View style={{ flexDirection:"row", justifyContent:"space-between", marginTop:15 }}>
+              <Text style={{ color:"#d00", fontWeight:"bold" }} onPress={()=>setModalCriarVisible(false)}>Cancelar</Text>
+              <Text style={{ color:"#007aff", fontWeight:"bold" }} onPress={adicionarEscala}>Salvar</Text>
             </View>
+          </View>
+        </View>
+      )}
+
+      {/* MODAL EDITAR/APAGAR */}
+      {modalEditarVisible && (
+        <View style={styles.modalOverlay}>
+          <View style={styles.modalContent}>
+            <Text style={{ fontSize:16, fontWeight:"bold", marginBottom:10 }}>Editar/Apagar Escala</Text>
+            <Text>Data (dd/mm/aaaa):</Text>
+            <TextInput value={editarData} onChangeText={setEditarData} placeholder="Ex: 02/10/2025" style={styles.modalInput}/>
+            <Text>Ministério:</Text>
+            <TextInput value={editarMinisterio} onChangeText={setEditarMinisterio} placeholder="Ex: Ministério X" style={styles.modalInput}/>
+            <View style={{ flexDirection:"row", justifyContent:"space-between", marginTop:15 }}>
+              <Text style={{ color:"#d00", fontWeight:"bold" }} onPress={deletarEscala}>Apagar</Text>
+              <Text style={{ color:"#007aff", fontWeight:"bold" }} onPress={atualizarEscala}>Salvar</Text>
+            </View>
+            <Text style={{ color:"#999", marginTop:10, textAlign:"center" }} onPress={()=>setModalEditarVisible(false)}>Cancelar</Text>
           </View>
         </View>
       )}
@@ -519,6 +382,9 @@ export default function InicioAdm({ navigation, route }) {
     </View>
   );
 }
+
+// ... Manter todos os estilos originais
+
 
 const styles = StyleSheet.create({
   container: { flex: 1, backgroundColor: "#f3f3ef" },
