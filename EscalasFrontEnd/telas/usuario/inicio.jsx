@@ -176,25 +176,34 @@ export default function InicioUsuario({ navigation, route }) {
         </View>
       </View>
 
-      {/* CARD COM PRÓXIMA ESCALA */}
+      {/* PRÓXIMA ESCALA */}
       <View style={styles.cardContainer}>
         <View style={styles.card}>
           <View style={styles.cardItem}>
-            <MaterialIcons name="calendar-month" size={24} color="#fff" />
+            <MaterialIcons name="calendar-month" size={24} color="#fff"/>
             <View style={styles.cardItemText}>
-              <Text style={styles.cardTitle}>Próximo Dia Escalado</Text>
+              <Text style={styles.cardTitle}>Dia da Semana</Text>
+              <Text style={styles.cardDate}>
+                {proxima ? proxima.data.toLocaleDateString("pt-BR", { weekday: "long" }).charAt(0).toUpperCase() + proxima.data.toLocaleDateString("pt-BR", { weekday: "long" }).slice(1) : "-"}
+              </Text>
+            </View>
+          </View>
+
+          <View style={styles.cardItem}>
+            <MaterialIcons name="calendar-today" size={24} color="#fff"/>
+            <View style={styles.cardItemText}>
+              <Text style={styles.cardTitle}>Data</Text>
               <Text style={styles.cardDate}>
                 {proxima ? proxima.data.toLocaleDateString("pt-BR") : "-"}
               </Text>
             </View>
           </View>
+
           <View style={styles.cardItem}>
-            <MaterialIcons name="church" size={24} color="#fff" />
+            <MaterialIcons name="church" size={24} color="#fff"/>
             <View style={styles.cardItemText}>
               <Text style={styles.cardTitle}>Ministério</Text>
-              <Text style={styles.cardDate}>
-                {proxima ? proxima.ministerio : "-"}
-              </Text>
+              <Text style={styles.cardDate}>{proxima ? proxima.ministerio : "-"}</Text>
             </View>
           </View>
         </View>
