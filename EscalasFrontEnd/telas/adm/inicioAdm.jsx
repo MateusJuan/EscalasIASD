@@ -153,37 +153,36 @@ export default function InicioAdm({ navigation, route }) {
 
   // === Funções para editar/apagar escala ===
   async function atualizarEscala() {
-    if (!escalaSelecionada) return;
+    if (!escalaSelecionada || !usuarioSelecionado) {
+      Alert.alert("Erro", "Selecione um usuário para a escala.");
+      return;
+    }
 
-    const dataFormatada = editarData.includes("/") 
-      ? editarData.split("/").reverse().join("-") 
-      : editarData;
+    let dataFormatada = editarData.includes("/") ? editarData.split("/").reverse().join("-") : editarData;
 
     try {
-      const res = await fetch(
-        `http://agendas-escalas-iasd-backend.onrender.com/api/escalas/${escalaSelecionada.id}`,
-        {
-          method: "PUT",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({
-            data: dataFormatada,
-            ministerio: editarMinisterio,
-            pessoa_id: escalaSelecionada.pessoa_id, // necessário para o backend
-          }),
-        }
-      );
+      const res = await fetch(`http://agendas-escalas-iasd-backend.onrender.com/api/escalas/${escalaSelecionada.id}`, {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          data: dataFormatada,
+          ministerio: editarMinisterio,
+          pessoa_id: usuarioSelecionado.id // <-- isso garante que o backend receba o usuário
+        }),
+      });
 
       const result = await res.json();
 
       if (res.ok) {
-        // Atualização bem-sucedida: fechar modal e limpar campos
+        // Atualiza a lista local e fecha o modal
+        Alert.alert("Sucesso", "Escala atualizada!");
         setModalEditarVisible(false);
         setEscalaSelecionada(null);
         setEditarData("");
         setEditarMinisterio("");
-        Alert.alert("Sucesso", "Escala atualizada!");
+        setUsuarioSelecionado(null);
+        setBuscaUsuario("");
       } else {
-        // Apenas mostrar erro se realmente houver
         Alert.alert("Erro", result.error || "Falha ao atualizar escala.");
       }
     } catch (e) {
@@ -311,6 +310,8 @@ export default function InicioAdm({ navigation, route }) {
                   setEscalaSelecionada(item);
                   setEditarData(item.data.toLocaleDateString("pt-BR"));
                   setEditarMinisterio(item.ministerio);
+                  setUsuarioSelecionado(usuarios.find(u => u.id === item.pessoa_id)); // <-- seleciona o usuário
+                  setBuscaUsuario(item.pessoa_nome); // mostra o nome no input
                   setModalEditarVisible(true);
                 }}
               >
@@ -367,6 +368,28 @@ export default function InicioAdm({ navigation, route }) {
             <Text style={{ fontSize:16, fontWeight:"bold", marginBottom:10 }}>Editar/Apagar Escala</Text>
             <Text>Data (dd/mm/aaaa):</Text>
             <TextInput value={editarData} onChangeText={setEditarData} placeholder="Ex: 02/10/2025" style={styles.modalInput}/>
+            <Text>Usuário:</Text>
+            <TextInput
+              value={buscaUsuario}
+              onChangeText={(text) => { setBuscaUsuario(text); setUsuarioSelecionado(null); }}
+              placeholder="Digite o nome"
+              style={styles.modalInput}
+            />
+            {buscaUsuario.length > 0 && !usuarioSelecionado && (
+              <ScrollView style={{ maxHeight: 100, marginBottom:10, borderWidth:1, borderColor:"#ccc", borderRadius:5, backgroundColor:"#f9f9f9" }}>
+                {usuarios
+                  .filter(u => u.nome.toLowerCase().includes(buscaUsuario.toLowerCase()))
+                  .map(u => (
+                    <TouchableOpacity
+                      key={u.id}
+                      onPress={() => { setUsuarioSelecionado(u); setBuscaUsuario(u.nome); }}
+                      style={{ paddingVertical:8, paddingHorizontal:10, borderBottomWidth:1, borderBottomColor:"#ddd" }}
+                    >
+                      <Text>{u.nome}</Text>
+                    </TouchableOpacity>
+                ))}
+              </ScrollView>
+            )}
             <Text>Ministério:</Text>
             <TextInput value={editarMinisterio} onChangeText={setEditarMinisterio} placeholder="Ex: Ministério X" style={styles.modalInput}/>
             <View style={{ flexDirection:"row", justifyContent:"space-between", marginTop:15 }}>
@@ -382,9 +405,6 @@ export default function InicioAdm({ navigation, route }) {
     </View>
   );
 }
-
-// ... Manter todos os estilos originais
-
 
 const styles = StyleSheet.create({
   container: { flex: 1, backgroundColor: "#f3f3ef" },
