@@ -137,9 +137,13 @@ export default function InicioUsuario({ navigation, route }) {
       e.data.getFullYear() === anoAtual
   );
 
-  const futuras = escalasUsuarioMes.filter((e) => e.data >= hoje);
-  futuras.sort((a, b) => a.data - b.data);
-  const proxima = futuras[0] || escalasUsuarioMes[0] || null;
+  const hojeSemHora = new Date(hoje.getFullYear(), hoje.getMonth(), hoje.getDate());
+  
+  const futuras = escalasUsuarioMes
+    .filter(e => e.data && e.data >= hojeSemHora) // só datas iguais ou depois de hoje
+    .sort((a, b) => a.data - b.data);
+
+  const proxima = futuras[0] || null; // se não houver nenhuma futura, proxima será null
 
   const escalasFiltradas = escalasUsuarioMes.filter((e) =>
     e.ministerio.toLowerCase().includes(search.toLowerCase())

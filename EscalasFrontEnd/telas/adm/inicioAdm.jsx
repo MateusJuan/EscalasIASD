@@ -215,14 +215,27 @@ export default function InicioAdm({ navigation, route }) {
   const hoje = new Date();
   const mesAtual = hoje.getMonth();
   const anoAtual = hoje.getFullYear();
-  const escalasUsuarioMes = escalas.filter(e => e.pessoa_id === user.id && e.data.getMonth() === mesAtual && e.data.getFullYear() === anoAtual);
-  const futuras = escalasUsuarioMes.filter(e => e.data >= hoje).sort((a,b)=>a.data-b.data);
-  const proxima = futuras[0] || escalasUsuarioMes[0] || null;
-  const escalasGeralMes = escalas.filter(e => e.data.getMonth() === mesAtual && e.data.getFullYear() === anoAtual);
-  const escalasFiltradas = escalasUsuarioMes.filter(e => e.ministerio.toLowerCase().includes(search.toLowerCase()));
-  const escalasGeralFiltradas = escalasGeralMes.filter(e => e.pessoa_nome.toLowerCase().includes(search.toLowerCase()));
-  escalasFiltradas.sort((a,b)=>a.data.getDate()-b.data.getDate());
-  escalasGeralFiltradas.sort((a,b)=>a.data.getDate()-b.data.getDate());
+
+  const escalasUsuarioMes = escalas.filter(
+    (e) =>
+      e.pessoa_id === user.id &&
+      e.data &&
+      e.data.getMonth() === mesAtual &&
+      e.data.getFullYear() === anoAtual
+  );
+  const hojeSemHora = new Date(hoje.getFullYear(), hoje.getMonth(), hoje.getDate());
+
+  const futuras = escalasUsuarioMes
+    .filter(e => e.data && e.data >= hojeSemHora) // só datas iguais ou depois de hoje
+    .sort((a, b) => a.data - b.data);
+
+  const proxima = futuras[0] || null; // se não houver nenhuma futura, proxima será null
+
+    const escalasGeralMes = escalas.filter(e => e.data.getMonth() === mesAtual && e.data.getFullYear() === anoAtual);
+    const escalasFiltradas = escalasUsuarioMes.filter(e => e.ministerio.toLowerCase().includes(search.toLowerCase()));
+    const escalasGeralFiltradas = escalasGeralMes.filter(e => e.pessoa_nome.toLowerCase().includes(search.toLowerCase()));
+    escalasFiltradas.sort((a,b)=>a.data.getDate()-b.data.getDate());
+    escalasGeralFiltradas.sort((a,b)=>a.data.getDate()-b.data.getDate());
 
   return (
     <View style={styles.container}>
