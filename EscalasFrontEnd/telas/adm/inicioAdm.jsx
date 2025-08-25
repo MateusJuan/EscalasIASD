@@ -262,26 +262,25 @@ export default function InicioAdm({ navigation, route }) {
         </View>
         <View style={[styles.tabela, { maxHeight: 200 }]}>
           <View style={styles.tabelaLinhaHeader}>
+            <Text style={styles.tabelaHeaderTexto}>DIA DA SEMANA</Text>
+            <Text style={styles.tabelaHeaderTexto}>DATA</Text>
             <Text style={styles.tabelaHeaderTexto}>MÊS</Text>
-            <Text style={styles.tabelaHeaderTexto}>DIA</Text>
             <Text style={styles.tabelaHeaderTexto}>MINISTÉRIO</Text>
           </View>
-          {escalasFiltradas.length === 0 ? (
-            <Text style={{ padding: 8, textAlign: "center" }}>Nenhuma escala encontrada.</Text>
-          ) : (
-            escalasFiltradas.map((item, index) => {
-              const dataObj = item.data;
-              const mes = dataObj.toLocaleDateString("pt-BR", { month: "long" });
-              const dia = dataObj.getDate();
-              return (
-                <View key={index} style={styles.tabelaLinha}>
-                  <Text style={styles.tabelaTexto}>{mes.charAt(0).toUpperCase() + mes.slice(1)}</Text>
-                  <Text style={styles.tabelaTexto}>{dia}</Text>
-                  <Text style={styles.tabelaTexto}>{item.ministerio}</Text>
-                </View>
-              );
-            })
-          )}
+            {escalasFiltradas.map((item, index) => {
+            const dataObj = item.data;
+            const mes = dataObj.toLocaleDateString("pt-BR", { month: "long" });
+            const dia = dataObj.getDate();
+            const diaSemana = dataObj.toLocaleDateString("pt-BR", { weekday: "long" }); // obtém o dia da semana
+            return (
+              <View key={index} style={styles.tabelaLinha}>
+                <Text style={styles.tabelaTexto}>{diaSemana.charAt(0).toUpperCase() + diaSemana.slice(1)}</Text>
+                <Text style={styles.tabelaTexto}>{dia}</Text>
+                <Text style={styles.tabelaTexto}>{mes.charAt(0).toUpperCase() + mes.slice(1)}</Text>
+                <Text style={styles.tabelaTexto}>{item.pessoa_nome}</Text>
+              </View>
+            );
+          })}
         </View>
 
         {/* ESCALA GERAL DO MÊS + BOTÃO */}
@@ -291,9 +290,10 @@ export default function InicioAdm({ navigation, route }) {
         </View>
         <View style={styles.tabela}>
           <View style={styles.tabelaLinhaHeader}>
+            <Text style={styles.tabelaHeaderTexto}>DIA DA SEMANA</Text>
+            <Text style={styles.tabelaHeaderTexto}>DATA</Text>
             <Text style={styles.tabelaHeaderTexto}>MÊS</Text>
-            <Text style={styles.tabelaHeaderTexto}>DIA</Text>
-            <Text style={styles.tabelaHeaderTexto}>PESSOA</Text>
+            <Text style={styles.tabelaHeaderTexto}>MINISTÉRIO</Text>
           </View>
           {escalasGeralFiltradas.length === 0 && (
             <Text style={{ padding: 8, textAlign: "center" }}>Nenhuma escala encontrada.</Text>
@@ -302,6 +302,7 @@ export default function InicioAdm({ navigation, route }) {
             const dataObj = item.data;
             const mes = dataObj.toLocaleDateString("pt-BR", { month: "long" });
             const dia = dataObj.getDate();
+            const diaSemana = dataObj.toLocaleDateString("pt-BR", { weekday: "long" });
             return (
               <TouchableOpacity
                 key={index}
@@ -310,13 +311,14 @@ export default function InicioAdm({ navigation, route }) {
                   setEscalaSelecionada(item);
                   setEditarData(item.data.toLocaleDateString("pt-BR"));
                   setEditarMinisterio(item.ministerio);
-                  setUsuarioSelecionado(usuarios.find(u => u.id === item.pessoa_id)); // <-- seleciona o usuário
-                  setBuscaUsuario(item.pessoa_nome); // mostra o nome no input
+                  setUsuarioSelecionado(usuarios.find(u => u.id === item.pessoa_id));
+                  setBuscaUsuario(item.pessoa_nome);
                   setModalEditarVisible(true);
                 }}
               >
-                <Text style={styles.tabelaTexto}>{mes.charAt(0).toUpperCase() + mes.slice(1)}</Text>
+                <Text style={styles.tabelaTexto}>{diaSemana.charAt(0).toUpperCase() + diaSemana.slice(1)}</Text>
                 <Text style={styles.tabelaTexto}>{dia}</Text>
+                <Text style={styles.tabelaTexto}>{mes.charAt(0).toUpperCase() + mes.slice(1)}</Text>
                 <Text style={styles.tabelaTexto}>{item.pessoa_nome}</Text>
               </TouchableOpacity>
             );

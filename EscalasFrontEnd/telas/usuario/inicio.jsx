@@ -200,9 +200,10 @@ export default function InicioUsuario({ navigation, route }) {
       <Text style={styles.escalaTexto}>Minha Escala Mensal:</Text>
       <View style={styles.tabela}>
         <View style={styles.tabelaLinhaHeader}>
-          <Text style={styles.tabelaHeaderTexto}>MÊS</Text>
-          <Text style={styles.tabelaHeaderTexto}>DIA</Text>
-          <Text style={styles.tabelaHeaderTexto}>MINISTÉRIO</Text>
+            <Text style={styles.tabelaHeaderTexto}>DIA DA SEMANA</Text>
+            <Text style={styles.tabelaHeaderTexto}>DATA</Text>
+            <Text style={styles.tabelaHeaderTexto}>MÊS</Text>
+            <Text style={styles.tabelaHeaderTexto}>MINISTÉRIO</Text>
         </View>
         <ScrollView style={{ maxHeight: 200 }}>
           {escalasFiltradas.length === 0 && (
@@ -212,15 +213,17 @@ export default function InicioUsuario({ navigation, route }) {
           )}
           {escalasFiltradas.map((item, index) => {
             const dataObj = item.data;
-            const mes = dataObj.toLocaleDateString("pt-BR", { month: "long" });
             const dia = dataObj.getDate();
+            const mes = dataObj.toLocaleDateString("pt-BR", { month: "long" });
+
+            const diasSemana = ["domingo", "segunda", "terça", "quarta", "quinta", "sexta", "sábado"];
+            const diaSemana = diasSemana[dataObj.getDay()];
 
             return (
               <View key={index} style={styles.tabelaLinha}>
-                <Text style={styles.tabelaTexto}>
-                  {mes.charAt(0).toUpperCase() + mes.slice(1)}
-                </Text>
+                <Text style={styles.tabelaTexto}>{diaSemana.charAt(0).toUpperCase() + diaSemana.slice(1)}</Text>
                 <Text style={styles.tabelaTexto}>{dia}</Text>
+                <Text style={styles.tabelaTexto}>{mes.charAt(0).toUpperCase() + mes.slice(1)}</Text>
                 <Text style={styles.tabelaTexto}>{item.ministerio}</Text>
               </View>
             );
