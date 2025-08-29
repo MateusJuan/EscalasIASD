@@ -161,7 +161,7 @@ export default function InicioAdm({ navigation, route }) {
     let dataFormatada = editarData.includes("/") ? editarData.split("/").reverse().join("-") : editarData;
 
     try {
-      const res = await fetch(`http://agendas-escalas-iasd-backend.onrender.com/api/escalas/${escalaSelecionada.id}`, {
+      const res = await fetch(`https://agendas-escalas-iasd-backend.onrender.com/api/escalas/${escalaSelecionada.id}`, {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
@@ -193,7 +193,7 @@ export default function InicioAdm({ navigation, route }) {
   async function deletarEscala() {
     if (!escalaSelecionada) return;
     try {
-      const res = await fetch(`http://agendas-escalas-iasd-backend.onrender.com/api/escalas/${escalaSelecionada.id}`, {
+      const res = await fetch(`https://agendas-escalas-iasd-backend.onrender.com/api/escalas/${escalaSelecionada.id}`, {
         method: "DELETE",
       });
       if (res.ok) {
@@ -318,7 +318,7 @@ export default function InicioAdm({ navigation, route }) {
             <Text style={styles.tabelaHeaderTexto}>DIA DA SEMANA</Text>
             <Text style={styles.tabelaHeaderTexto}>DATA</Text>
             <Text style={styles.tabelaHeaderTexto}>MÊS</Text>
-            <Text style={styles.tabelaHeaderTexto}>MINISTÉRIO</Text>
+            <Text style={styles.tabelaHeaderTexto}>NOME</Text>
           </View>
           {escalasGeralFiltradas.length === 0 && (
             <Text style={{ padding: 8, textAlign: "center" }}>Nenhuma escala encontrada.</Text>
