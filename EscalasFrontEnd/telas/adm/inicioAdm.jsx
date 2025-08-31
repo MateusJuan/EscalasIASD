@@ -434,7 +434,10 @@ export default function InicioAdm({ navigation, route }) {
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: "#f3f3ef" },
+  container: {
+    flex: 1,
+    backgroundColor: "#f3f3ef"
+  },
   topo: {
     backgroundColor: "#2e3e4e",
     flexDirection: "row",
@@ -445,7 +448,11 @@ const styles = StyleSheet.create({
     borderBottomLeftRadius: 20,
     borderBottomRightRadius: 20,
   },
-  logo: { width: 50, height: 50, resizeMode: "contain" },
+  logo: {
+    width: 50,
+    height: 50,
+    resizeMode: "contain"
+  },
   searchContainer: {
     flexDirection: "row",
     backgroundColor: "#fff",
@@ -456,9 +463,18 @@ const styles = StyleSheet.create({
     marginHorizontal: 10,
     height: 35,
   },
-  searchIcon: { marginRight: 5 },
-  input: { flex: 1, height: "100%", fontSize: 14 },
-  cardContainer: { paddingHorizontal: 20, marginTop: 20 },
+  searchIcon: {
+    marginRight: 5
+  },
+  input: {
+    flex: 1,
+    height: "100%",
+    fontSize: 14
+  },
+  cardContainer: {
+    paddingHorizontal: 20,
+    marginTop: 20
+  },
   card: {
     backgroundColor: "#2e3e4e",
     borderRadius: 20,
@@ -470,26 +486,45 @@ const styles = StyleSheet.create({
     borderWidth: 2,
     borderColor: "#2e3e4e",
   },
-  cardItem: { alignItems: "center", justifyContent: "center" },
-  cardItemText: { marginTop: 5, alignItems: "center" },
-  cardTitle: { color: "#fff", fontSize: 10 },
-  cardDate: { color: "#fff", fontSize: 13, fontWeight: "bold" },
-  escalaTexto: { fontSize: 14, fontWeight: "500" },
+  cardItem: {
+    alignItems: "center",
+    justifyContent: "center"
+  },
+  cardItemText: {
+    marginTop: 5,
+    alignItems: "center"
+  },
+  cardTitle: {
+    color: "#fff",
+    fontSize: 10
+  },
+  cardDate: {
+    color: "#fff",
+    fontSize: 13,
+    fontWeight: "bold"
+  },
+  escalaTexto: {
+    fontSize: 14,
+    fontWeight: "500"
+  },
   tabela: {
     marginTop: 10,
     marginHorizontal: 10,
     borderRadius: 8,
     overflow: "hidden",
-    backgroundColor: "#a4a4a4",
+    backgroundColor: "#e0e0e0",
   },
-  tabelaLinhaHeader: { flexDirection: "row", backgroundColor: "#3c2f2f", padding: 8 },
+  tabelaLinhaHeader: {
+    flexDirection: "row",
+    backgroundColor: "#344656",
+    padding: 8,
+  },
   tabelaLinha: {
     flexDirection: "row",
     backgroundColor: "#e0dede",
     padding: 8,
     borderBottomWidth: 1,
     borderBottomColor: "#fff",
-    alignItems: "center", // centraliza verticalmente
   },
   tabelaHeaderTexto: {
     flex: 1,
@@ -500,7 +535,7 @@ const styles = StyleSheet.create({
   },
   tabelaTexto: {
     flex: 1,
-    textAlign: "center", // centraliza horizontalmente
+    textAlign: "center",
     fontSize: 12,
     color: "#000",
   },
