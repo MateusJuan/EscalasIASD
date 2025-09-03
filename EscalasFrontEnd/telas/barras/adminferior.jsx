@@ -1,8 +1,7 @@
-import { View, Text, TouchableOpacity, StyleSheet, Linking } from "react-native";
+import { View, Text, TouchableOpacity, StyleSheet } from "react-native";
 import { MaterialIcons } from "@expo/vector-icons";
 
 export default function AdmInferior({ navigation, route }) {
-  // Pegue o user dos params, se existir
   const user = route?.params?.user;
 
   return (
@@ -23,14 +22,17 @@ export default function AdmInferior({ navigation, route }) {
         <Text style={styles.footerText}>Agenda Mensal</Text>
       </TouchableOpacity>
 
+      {/* Botão de atualização com badge corretamente posicionado */}
       <TouchableOpacity
         style={styles.footerItem}
         onPress={() => navigation.navigate("AtualizarAppAdm")}
       >
-        <MaterialIcons name="update" size={24} color="#fff" />
+        <View style={styles.iconWrapper}>
+          <MaterialIcons name="update" size={28} color="#fff" />
+          <View style={styles.badge} />
+        </View>
         <Text style={styles.footerText}>Atualizar App</Text>
       </TouchableOpacity>
-
 
       <TouchableOpacity
         style={styles.footerItem}
@@ -42,7 +44,6 @@ export default function AdmInferior({ navigation, route }) {
     </View>
   );
 }
-
 
 const styles = StyleSheet.create({
   footer: {
@@ -64,5 +65,19 @@ const styles = StyleSheet.create({
   footerText: {
     color: "#fff",
     fontSize: 12,
+  },
+  iconWrapper: {
+    position: "relative", // necessário para posicionar o badge corretamente
+  },
+  badge: {
+    position: "absolute",
+    top: -4,
+    right: -4,
+    width: 10,
+    height: 10,
+    borderRadius: 5,
+    backgroundColor: "#30ff3aff", // vermelho chamativo
+    borderWidth: 1,
+    borderColor: "#2e3e4e", // cor do fundo do footer
   },
 });

@@ -1,4 +1,4 @@
-import { View, Text, TouchableOpacity, StyleSheet,Linking } from "react-native";
+import { View, Text, TouchableOpacity, StyleSheet } from "react-native";
 import { MaterialIcons } from "@expo/vector-icons";
 
 const linkAPK = "https://github.com/MateusJuan/EscalasIASD/releases/download/v1.0/application-c46658a1-c0f8-4a18-aa77-b68e81aab1fb.apk"
@@ -26,11 +26,15 @@ export default function UsuarioInferior({ navigation }) {
         <Text style={styles.footerText}>Agenda Mensal</Text>
       </TouchableOpacity>
 
+      {/* Botão de atualização com badge corretamente posicionado */}
       <TouchableOpacity
         style={styles.footerItem}
         onPress={() => navigation.navigate("AtualizarAppUsuario")}
       >
-        <MaterialIcons name="update" size={24} color="#fff" />
+        <View style={styles.iconWrapper}>
+          <MaterialIcons name="update" size={28} color="#fff" />
+          <View style={styles.badge} />
+        </View>
         <Text style={styles.footerText}>Atualizar App</Text>
       </TouchableOpacity>
 
@@ -65,5 +69,19 @@ const styles = StyleSheet.create({
   footerText: {
     color: "#fff",
     fontSize: 12,
+  },
+    iconWrapper: {
+    position: "relative", // necessário para posicionar o badge corretamente
+  },
+  badge: {
+    position: "absolute",
+    top: -4,
+    right: -4,
+    width: 10,
+    height: 10,
+    borderRadius: 5,
+    backgroundColor: "#30ff3aff", // vermelho chamativo
+    borderWidth: 1,
+    borderColor: "#2e3e4e", // cor do fundo do footer
   },
 });
