@@ -1,7 +1,7 @@
 import { View, Text, TouchableOpacity, StyleSheet,Linking } from "react-native";
 import { MaterialIcons } from "@expo/vector-icons";
 
-const linkAPK = "https://github.com/MateusJuan/EscalasIASD/releases/download/v1.0/Escalas.IASD.apk"
+const linkAPK = "https://github.com/MateusJuan/EscalasIASD/releases/download/v1.0/application-c46658a1-c0f8-4a18-aa77-b68e81aab1fb.apk"
 
 const baixarAPK = () => {
   Linking.openURL(linkAPK);
@@ -18,20 +18,20 @@ export default function UsuarioInferior({ navigation }) {
         <Text style={styles.footerText}>Início</Text>
       </TouchableOpacity>
 
-      {/*<TouchableOpacity
-        style={styles.footerItem}
-        onPress={baixarAPK}
-      >
-        <MaterialIcons name="download" size={24} color="#fff" />
-        <Text style={styles.footerText}>Atualizar App</Text>
-      </TouchableOpacity>*/}
-
       <TouchableOpacity
         style={styles.footerItem}
         onPress={() => navigation.navigate("AgendaMensalUsuario")}
       >
         <MaterialIcons name="calendar-month" size={24} color="#fff" />
         <Text style={styles.footerText}>Agenda Mensal</Text>
+      </TouchableOpacity>
+
+      <TouchableOpacity
+        style={styles.footerItem}
+        onPress={() => navigation.navigate("AtualizarAppUsuario")}
+      >
+        <MaterialIcons name="update" size={24} color="#fff" />
+        <Text style={styles.footerText}>Atualizar App</Text>
       </TouchableOpacity>
 
       <TouchableOpacity

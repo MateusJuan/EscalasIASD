@@ -1,12 +1,6 @@
 import { View, Text, TouchableOpacity, StyleSheet, Linking } from "react-native";
 import { MaterialIcons } from "@expo/vector-icons";
 
-const linkAPK = "https://github.com/MateusJuan/EscalasIASD/releases/download/v1.0/Escalas.IASD.apk"
-
-const baixarAPK = () => {
-  Linking.openURL(linkAPK);
-};
-
 export default function AdmInferior({ navigation, route }) {
   // Pegue o user dos params, se existir
   const user = route?.params?.user;
@@ -21,14 +15,6 @@ export default function AdmInferior({ navigation, route }) {
         <Text style={styles.footerText}>Início</Text>
       </TouchableOpacity>
 
-      {/*<TouchableOpacity
-         style={styles.footerItem}
-         onPress={baixarAPK}
-       >
-        <MaterialIcons name="download" size={24} color="#fff" />
-        <Text style={styles.footerText}>Atualizar App</Text>
-      </TouchableOpacity>*/}
-
       <TouchableOpacity
         style={styles.footerItem}
         onPress={() => navigation.navigate("AgendaMensalAdm")}
@@ -36,6 +22,15 @@ export default function AdmInferior({ navigation, route }) {
         <MaterialIcons name="calendar-month" size={24} color="#fff" />
         <Text style={styles.footerText}>Agenda Mensal</Text>
       </TouchableOpacity>
+
+      <TouchableOpacity
+        style={styles.footerItem}
+        onPress={() => navigation.navigate("AtualizarAppAdm")}
+      >
+        <MaterialIcons name="update" size={24} color="#fff" />
+        <Text style={styles.footerText}>Atualizar App</Text>
+      </TouchableOpacity>
+
 
       <TouchableOpacity
         style={styles.footerItem}
