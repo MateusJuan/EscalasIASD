@@ -381,8 +381,19 @@ export default function InicioAdm({ navigation, route }) {
               </ScrollView>
             )}
             <View style={{ flexDirection:"row", justifyContent:"space-between", marginTop:15 }}>
-              <Text style={{ color:"#d00", fontWeight:"bold" }} onPress={()=>setModalCriarVisible(false)}>Cancelar</Text>
-              <Text style={{ color:"#007aff", fontWeight:"bold" }} onPress={adicionarEscala}>Salvar</Text>
+              <TouchableOpacity
+                style={[styles.modalButton, { backgroundColor: "#999" }]} // Antes era "#d00"
+                onPress={() => setModalCriarVisible(false)}
+              >
+                <Text style={styles.modalButtonText}>Cancelar</Text>
+              </TouchableOpacity>
+
+              <TouchableOpacity
+                style={[styles.modalButton, { backgroundColor: "#2e3e4e" }]} // Antes era "#007aff"
+                onPress={adicionarEscala}
+              >
+                <Text style={styles.modalButtonText}>Salvar</Text>
+              </TouchableOpacity>
             </View>
           </View>
         </View>
@@ -420,10 +431,26 @@ export default function InicioAdm({ navigation, route }) {
             <Text>Ministério:</Text>
             <TextInput value={editarMinisterio} onChangeText={setEditarMinisterio} placeholder="Ex: Ministério X" style={styles.modalInput}/>
             <View style={{ flexDirection:"row", justifyContent:"space-between", marginTop:15 }}>
-              <Text style={{ color:"#d00", fontWeight:"bold" }} onPress={deletarEscala}>Apagar</Text>
-              <Text style={{ color:"#007aff", fontWeight:"bold" }} onPress={atualizarEscala}>Salvar</Text>
+              <TouchableOpacity
+                style={[styles.modalButton, { backgroundColor: "#a32e2e" }]}
+                onPress={deletarEscala}
+              >
+                <Text style={styles.modalButtonText}>Apagar</Text>
+              </TouchableOpacity>
+
+              <TouchableOpacity
+                style={[styles.modalButton, { backgroundColor: "#2e3e4e" }]}
+                onPress={atualizarEscala}
+              >
+                <Text style={styles.modalButtonText}>Salvar</Text>
+              </TouchableOpacity>
             </View>
-            <Text style={{ color:"#999", marginTop:10, textAlign:"center" }} onPress={()=>setModalEditarVisible(false)}>Cancelar</Text>
+            <TouchableOpacity
+              style={{ marginTop: 10, alignSelf:"center" }}
+              onPress={()=>setModalEditarVisible(false)}
+            >
+              <Text style={{ color:"#999" }}>Cancelar</Text>
+            </TouchableOpacity>
           </View>
         </View>
       )}
@@ -564,4 +591,16 @@ const styles = StyleSheet.create({
     marginBottom: 10,
     backgroundColor: "#f9f9f9",
   },
+  modalButton: {
+  flex: 1,
+  paddingVertical: 10,
+  borderRadius: 5,
+  marginHorizontal: 5,
+  alignItems: "center",
+  },
+  modalButtonText: {
+    color: "#fff",
+    fontWeight: "bold",
+  },
+
 });
