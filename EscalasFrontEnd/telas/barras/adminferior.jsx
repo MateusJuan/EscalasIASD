@@ -76,8 +76,8 @@ const styles = StyleSheet.create({
     width: 10,
     height: 10,
     borderRadius: 5,
-    backgroundColor: "#30ff3aff", // vermelho chamativo
+    backgroundColor: "#30ff3aff",
     borderWidth: 1,
-    borderColor: "#2e3e4e", // cor do fundo do footer
+    borderColor: "#2e3e4e",
   },
 });

@@ -3,10 +3,6 @@ import { MaterialIcons } from "@expo/vector-icons";
 
 const linkAPK = "https://github.com/MateusJuan/EscalasIASD/releases/download/v1.0/application-c46658a1-c0f8-4a18-aa77-b68e81aab1fb.apk"
 
-const baixarAPK = () => {
-  Linking.openURL(linkAPK);
-};
-
 export default function UsuarioInferior({ navigation }) {
   return (
     <View style={styles.footer}>
@@ -23,7 +19,7 @@ export default function UsuarioInferior({ navigation }) {
         onPress={() => navigation.navigate("AgendaMensalUsuario")}
       >
         <MaterialIcons name="calendar-month" size={24} color="#fff" />
-        <Text style={styles.footerText}>Agenda Mensal</Text>
+        <Text style={styles.footerText}>Escalas do Mês</Text>
       </TouchableOpacity>
 
       {/* Botão de atualização com badge corretamente posicionado */}
@@ -71,7 +67,7 @@ const styles = StyleSheet.create({
     fontSize: 12,
   },
     iconWrapper: {
-    position: "relative", // necessário para posicionar o badge corretamente
+    position: "relative",
   },
   badge: {
     position: "absolute",
@@ -80,8 +76,8 @@ const styles = StyleSheet.create({
     width: 10,
     height: 10,
     borderRadius: 5,
-    backgroundColor: "#30ff3aff", // vermelho chamativo
+    backgroundColor: "#30ff3aff",
     borderWidth: 1,
-    borderColor: "#2e3e4e", // cor do fundo do footer
+    borderColor: "#2e3e4e",
   },
 });
