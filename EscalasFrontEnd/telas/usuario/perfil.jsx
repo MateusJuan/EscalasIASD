@@ -182,7 +182,15 @@ export default function Perfil({ navigation }) {
               Igreja: {user?.igreja || "Igreja não informada"}
             </Text>
           </View>
-        </View>
+          {/* Ministério */}
+          <View style={styles.infoItem}>
+            <MaterialIcons name="people" size={24} color="#2e3e4e" />
+            <Text style={styles.infoText}>
+              Ministério: {user?.ministerio || "Ministério não informado"}
+            </Text>
+          </View>
+          </View>
+
 
         <TouchableOpacity style={styles.botaoEditar} onPress={abrirModalEdicao}>
           <MaterialIcons name="edit" size={20} color="#fff" />

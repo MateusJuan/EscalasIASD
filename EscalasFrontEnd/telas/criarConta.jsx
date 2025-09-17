@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import {
   View,
   Text,
@@ -6,7 +6,8 @@ import {
   StyleSheet,
   TouchableOpacity,
   SafeAreaView,
-  Modal
+  Modal,
+  FlatList,
 } from "react-native";
 import { MaskedTextInput } from "react-native-mask-text";
 import axios from "axios";
@@ -19,6 +20,11 @@ export default function CriarConta({ navigation }) {
   const [igreja, setIgreja] = useState("");
   const [dataNascimento, setDataNascimento] = useState("");
   const [senhaVisivel, setSenhaVisivel] = useState(false);
+
+  // Ministérios
+  const [ministerios, setMinisterios] = useState([]);
+  const [buscaMinisterio, setBuscaMinisterio] = useState("");
+  const [ministerioSelecionado, setMinisterioSelecionado] = useState(null);
 
   // Modal de sucesso
   const [modalSucesso, setModalSucesso] = useState(false);
@@ -41,9 +47,40 @@ export default function CriarConta({ navigation }) {
     }, 1000);
   };
 
+  // === Buscar ministérios conforme digita ===
+  useEffect(() => {
+    async function carregarMinisterios() {
+      if (!buscaMinisterio) {
+        setMinisterios([]);
+        return;
+      }
+      try {
+        const res = await fetch(
+          `https://agendas-escalas-iasd-backend.onrender.com/api/ministerios?search=${buscaMinisterio}`
+        );
+        if (!res.ok) return;
+        const data = await res.json();
+        setMinisterios(data);
+      } catch (e) {
+        console.error("Erro ao buscar ministérios:", e);
+      }
+    }
+    carregarMinisterios();
+  }, [buscaMinisterio]);
+
   const handleEnviar = async () => {
     if (!nome || !email || !senha || !igreja || !dataNascimento) {
       mostrarErro("Preencha todos os campos.");
+      return;
+    }
+
+    // Decide qual ministério salvar
+    const ministerioFinal = ministerioSelecionado
+      ? ministerioSelecionado.ministerio
+      : buscaMinisterio;
+
+    if (!ministerioFinal) {
+      mostrarErro("Selecione ou digite um ministério.");
       return;
     }
 
@@ -55,13 +92,17 @@ export default function CriarConta({ navigation }) {
     }
 
     try {
-      await axios.post("https://agendas-escalas-iasd-backend.onrender.com/api/usuarios", {
-        nome,
-        email,
-        senha,
-        igreja,
-        dataNascimento: dataFormatada
-      });
+      await axios.post(
+        "https://agendas-escalas-iasd-backend.onrender.com/api/usuarios",
+        {
+          nome,
+          email,
+          senha,
+          igreja,
+          dataNascimento: dataFormatada,
+          ministerio: ministerioFinal,
+        }
+      );
 
       mostrarSucesso();
     } catch (error) {
@@ -72,13 +113,12 @@ export default function CriarConta({ navigation }) {
 
   return (
     <SafeAreaView style={styles.container}>
-
-    <TouchableOpacity
-      style={styles.voltarBotao}
-      onPress={() => navigation.goBack()}
-    >
-      <Feather name="arrow-left" size={24} color="#000" />
-    </TouchableOpacity>
+      <TouchableOpacity
+        style={styles.voltarBotao}
+        onPress={() => navigation.goBack()}
+      >
+        <Feather name="arrow-left" size={24} color="#000" />
+      </TouchableOpacity>
 
       <Text style={styles.titulo}>Criar Uma Nova Conta</Text>
 
@@ -131,6 +171,7 @@ export default function CriarConta({ navigation }) {
         keyboardType="numeric"
         maxLength={10}
       />
+
       <Text style={styles.label}>IGREJA</Text>
       <TextInput
         style={styles.input}
@@ -138,6 +179,36 @@ export default function CriarConta({ navigation }) {
         value={igreja}
         onChangeText={setIgreja}
       />
+
+      <Text style={styles.label}>MINISTÉRIO</Text>
+      <TextInput
+        style={styles.input}
+        placeholder="Digite ou pesquise ministério"
+        value={buscaMinisterio}
+        onChangeText={(text) => {
+          setBuscaMinisterio(text);
+          setMinisterioSelecionado(null); // limpa seleção ao digitar
+        }}
+      />
+      {ministerios.length > 0 && (
+        <FlatList
+          data={ministerios}
+          keyExtractor={(item, index) => index.toString()}
+          style={styles.listaSugestoes}
+          renderItem={({ item }) => (
+            <TouchableOpacity
+              style={styles.itemSugestao}
+              onPress={() => {
+                setMinisterioSelecionado(item);
+                setBuscaMinisterio(item.ministerio);
+                setMinisterios([]);
+              }}
+            >
+              <Text>{item.ministerio}</Text>
+            </TouchableOpacity>
+          )}
+        />
+      )}
 
       <TouchableOpacity style={styles.botao} onPress={handleEnviar}>
         <Text style={styles.botaoTexto}>ENVIAR</Text>
@@ -165,8 +236,8 @@ export default function CriarConta({ navigation }) {
 }
 
 const styles = StyleSheet.create({
-    voltarBotao: {
-    position: 'absolute',
+  voltarBotao: {
+    position: "absolute",
     top: 10,
     left: 10,
     zIndex: 10,
@@ -196,8 +267,21 @@ const styles = StyleSheet.create({
     backgroundColor: "#f4f5f2",
     padding: 10,
     borderRadius: 4,
-    marginBottom: 15,
+    marginBottom: 10,
     fontSize: 16,
+  },
+  listaSugestoes: {
+    maxHeight: 100,
+    backgroundColor: "#fff",
+    borderWidth: 1,
+    borderColor: "#ccc",
+    marginBottom: 15,
+    borderRadius: 4,
+  },
+  itemSugestao: {
+    padding: 10,
+    borderBottomWidth: 1,
+    borderBottomColor: "#eee",
   },
   senhaContainer: {
     flexDirection: "row",
