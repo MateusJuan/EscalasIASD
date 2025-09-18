@@ -500,35 +500,43 @@ const styles = StyleSheet.create({
   },
   cardContainer: {
     paddingHorizontal: 20,
-    marginTop: 20
+    marginTop: 20,
   },
   card: {
     backgroundColor: "#2e3e4e",
     borderRadius: 20,
-    paddingVertical: 15,
+    paddingVertical: 20,
     paddingHorizontal: 25,
     flexDirection: "row",
     justifyContent: "space-between",
     alignItems: "center",
-    borderWidth: 2,
-    borderColor: "#2e3e4e",
+
+    // Sombras para destaque
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.2,
+    shadowRadius: 6,
+    elevation: 6,
   },
   cardItem: {
     alignItems: "center",
-    justifyContent: "center"
+    justifyContent: "center",
+    flex: 1, // divide bem o espaço entre os itens
   },
   cardItemText: {
-    marginTop: 5,
-    alignItems: "center"
+    marginTop: 8,
+    alignItems: "center",
   },
   cardTitle: {
-    color: "#fff",
-    fontSize: 10
+    color: "#dcdcdc",
+    fontSize: 12,
+    fontWeight: "500",
   },
   cardDate: {
     color: "#fff",
-    fontSize: 13,
-    fontWeight: "bold"
+    fontSize: 15,
+    fontWeight: "bold",
+    marginTop: 2,
   },
   escalaTexto: {
     fontSize: 14,
