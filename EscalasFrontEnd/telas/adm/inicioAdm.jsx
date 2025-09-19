@@ -129,12 +129,19 @@ export default function InicioAdm({ navigation, route }) {
     }
     const ministerioFinal = ministerioSelecionado ? ministerioSelecionado.ministerio : novoMinisterio;
     let dataFormatada = novaData.includes("/") ? novaData.split("/").reverse().join("-") : novaData;
+
     try {
       const res = await fetch("https://agendas-escalas-iasd-backend.onrender.com/api/escalas", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ data: dataFormatada, ministerio: ministerioFinal, pessoa_id: usuarioSelecionado.id }),
+        body: JSON.stringify({
+          data: dataFormatada,
+          ministerio: ministerioFinal,
+          pessoa_id: usuarioSelecionado.id,
+          igreja: user.igreja   // 👈 ADICIONADO AQUI
+        }),
       });
+
       const result = await res.json();
       if (res.ok) {
         Alert.alert("Sucesso", "Escala adicionada com sucesso!");
