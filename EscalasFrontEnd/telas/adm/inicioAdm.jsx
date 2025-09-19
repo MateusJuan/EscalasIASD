@@ -137,9 +137,10 @@ export default function InicioAdm({ navigation, route }) {
         body: JSON.stringify({
           data: dataFormatada,
           ministerio: ministerioFinal,
+          id_ministerio: ministerioSelecionado ? ministerioSelecionado.id : null,
           pessoa_id: usuarioSelecionado.id,
-          igreja: user.igreja   // 👈 ADICIONADO AQUI
-        }),
+          igreja: user.igreja
+        })
       });
 
       const result = await res.json();
