@@ -50,13 +50,16 @@ export default function AgendaMensalAdm({ navigation }) {
     .filter((e) => e.data.getMonth() === mesAtual && e.data.getFullYear() === anoAtual)
     .sort((a, b) => a.data - b.data);
 
-  // Escalas futuras (para o card de "Próxima Escala")
+  // Normaliza o "hoje" para o início do dia
+  hoje.setHours(0, 0, 0, 0);
+
+  // Escalas futuras ou de hoje
   const escalasFuturas = escalas
     .filter((e) => e.data >= hoje)
     .sort((a, b) => a.data - b.data);
 
-  // Próxima escala global
   const proxima = escalasFuturas.length > 0 ? escalasFuturas[0] : null;
+
 
   return (
     <View style={{ flex: 1 }}>
