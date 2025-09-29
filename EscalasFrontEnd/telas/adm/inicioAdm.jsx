@@ -224,6 +224,7 @@ export default function InicioAdm({ navigation, route }) {
   const mesAtual = hoje.getMonth();
   const anoAtual = hoje.getFullYear();
 
+  // Escalas do mês atual
   const escalasUsuarioMes = escalas.filter(
     (e) =>
       e.pessoa_id === user.id &&
@@ -231,6 +232,7 @@ export default function InicioAdm({ navigation, route }) {
       e.data.getMonth() === mesAtual &&
       e.data.getFullYear() === anoAtual
   );
+
   const hojeSemHora = new Date(hoje.getFullYear(), hoje.getMonth(), hoje.getDate());
 
   const futuras = escalasUsuarioMes
@@ -239,7 +241,19 @@ export default function InicioAdm({ navigation, route }) {
 
   const proxima = futuras[0] || null; // se não houver nenhuma futura, proxima será null
 
-    const escalasGeralMes = escalas.filter(e => e.data.getMonth() === mesAtual && e.data.getFullYear() === anoAtual);
+  // Escalas gerais do mês atual
+  const escalasGeralMes = escalas.filter(
+    (e) => e.data.getMonth() === mesAtual && e.data.getFullYear() === anoAtual
+  );
+
+  // Escalas do próximo mês
+  const proximoMes = (mesAtual + 1) % 12;
+  const anoProximoMes = mesAtual === 11 ? anoAtual + 1 : anoAtual;
+
+  const escalasGeralProximoMes = escalas.filter(
+    (e) => e.data.getMonth() === proximoMes && e.data.getFullYear() === anoProximoMes
+  );
+
     const escalasFiltradas = escalasUsuarioMes.filter(e => e.ministerio.toLowerCase().includes(search.toLowerCase()));
     const escalasGeralFiltradas = escalasGeralMes.filter(e => e.pessoa_nome.toLowerCase().includes(search.toLowerCase()));
     escalasFiltradas.sort((a,b)=>a.data.getDate()-b.data.getDate());
@@ -357,6 +371,47 @@ export default function InicioAdm({ navigation, route }) {
             );
           })}
         </View>
+        {/* ESCALA GERAL DO PRÓXIMO MÊS */}
+        {escalasGeralProximoMes.length > 0 && (
+          <>
+            <View style={{ flexDirection: "row", alignItems: "center", marginLeft: 15, marginTop: 20 }}>
+              <Text style={styles.escalaTexto}>Escala Geral do Próximo Mês:</Text>
+            </View>
+            <View style={styles.tabela}>
+              <View style={styles.tabelaLinhaHeader}>
+                <Text style={styles.tabelaHeaderTexto}>DIA DA SEMANA</Text>
+                <Text style={styles.tabelaHeaderTexto}>DATA</Text>
+                <Text style={styles.tabelaHeaderTexto}>MÊS</Text>
+                <Text style={styles.tabelaHeaderTexto}>NOME</Text>
+              </View>
+              {escalasGeralProximoMes.map((item, index) => {
+                const dataObj = item.data;
+                const mes = dataObj.toLocaleDateString("pt-BR", { month: "long" });
+                const dia = dataObj.getDate();
+                const diaSemana = dataObj.toLocaleDateString("pt-BR", { weekday: "long" });
+                return (
+                  <TouchableOpacity
+                    key={index}
+                    style={styles.tabelaLinha}
+                    onPress={() => {
+                      setEscalaSelecionada(item);
+                      setEditarData(item.data.toLocaleDateString("pt-BR"));
+                      setEditarMinisterio(item.ministerio);
+                      setUsuarioSelecionado(usuarios.find(u => u.id === item.pessoa_id));
+                      setBuscaUsuario(item.pessoa_nome);
+                      setModalEditarVisible(true);
+                    }}
+                  >
+                    <Text style={styles.tabelaTexto}>{diaSemana.charAt(0).toUpperCase() + diaSemana.slice(1)}</Text>
+                    <Text style={styles.tabelaTexto}>{dia}</Text>
+                    <Text style={styles.tabelaTexto}>{mes.charAt(0).toUpperCase() + mes.slice(1)}</Text>
+                    <Text style={styles.tabelaTexto}>{item.pessoa_nome}</Text>
+                  </TouchableOpacity>
+                );
+              })}
+            </View>
+          </>
+        )}
       </ScrollView>
 
       {/* MODAL CRIAR */}
