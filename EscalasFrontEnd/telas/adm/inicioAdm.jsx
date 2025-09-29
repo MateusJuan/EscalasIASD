@@ -127,8 +127,9 @@ export default function InicioAdm({ navigation, route }) {
       Alert.alert("Erro", "Preencha todos os campos e selecione um usuário.");
       return;
     }
+
     const ministerioFinal = ministerioSelecionado ? ministerioSelecionado.ministerio : novoMinisterio;
-    let dataFormatada = novaData.includes("/") ? novaData.split("/").reverse().join("-") : novaData;
+    const dataFormatada = novaData.includes("/") ? novaData.split("/").reverse().join("-") : novaData;
 
     try {
       const res = await fetch("https://agendas-escalas-iasd-backend.onrender.com/api/escalas", {
@@ -140,12 +141,11 @@ export default function InicioAdm({ navigation, route }) {
           id_ministerio: ministerioSelecionado ? ministerioSelecionado.id : null,
           pessoa_id: usuarioSelecionado.id,
           igreja: user.igreja
-        })
+        }),
       });
 
-      const result = await res.json();
       if (res.ok) {
-        Alert.alert("Sucesso", "Escala adicionada com sucesso!");
+        // Fecha o modal e limpa os campos
         setModalCriarVisible(false);
         setNovaData("");
         setNovoMinisterio("");
@@ -153,7 +153,11 @@ export default function InicioAdm({ navigation, route }) {
         setBuscaMinisterio("");
         setUsuarioSelecionado(null);
         setMinisterioSelecionado(null);
-      } else Alert.alert("Erro", result.error || "Falha ao adicionar escala.");
+      } else {
+        const result = await res.json().catch(() => ({}));
+        Alert.alert("Erro", result.error || "Falha ao adicionar escala.");
+      }
+
     } catch (e) {
       Alert.alert("Erro", "Erro ao conectar com o servidor.");
     }
