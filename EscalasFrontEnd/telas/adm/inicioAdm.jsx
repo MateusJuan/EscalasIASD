@@ -254,9 +254,15 @@ export default function InicioAdm({ navigation, route }) {
     (e) => e.data.getMonth() === proximoMes && e.data.getFullYear() === anoProximoMes
   );
 
+  const escalasGeralProximoMesFiltradas = escalasGeralProximoMes.filter(
+    e => e.pessoa_nome.toLowerCase().includes(search.toLowerCase())
+  );
+  escalasGeralProximoMes.sort((a, b) => a.data - b.data);
+
+
     const escalasFiltradas = escalasUsuarioMes.filter(e => e.ministerio.toLowerCase().includes(search.toLowerCase()));
     const escalasGeralFiltradas = escalasGeralMes.filter(e => e.pessoa_nome.toLowerCase().includes(search.toLowerCase()));
-    escalasFiltradas.sort((a,b)=>a.data.getDate()-b.data.getDate());
+    escalasGeralFiltradas.sort((a, b) => a.data - b.data);
     escalasGeralFiltradas.sort((a,b)=>a.data.getDate()-b.data.getDate());
 
   return (
