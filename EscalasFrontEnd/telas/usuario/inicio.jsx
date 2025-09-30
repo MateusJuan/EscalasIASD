@@ -149,7 +149,26 @@ export default function InicioUsuario({ navigation, route }) {
     e.ministerio.toLowerCase().includes(search.toLowerCase())
   );
 
+ // Depois dessa parte que já existe:
   escalasFiltradas.sort((a, b) => a.data.getDate() - b.data.getDate());
+
+  // === Escalas do próximo mês ===
+  const proximoMes = (mesAtual + 1) % 12;
+  const anoProximoMes = mesAtual === 11 ? anoAtual + 1 : anoAtual;
+
+  const escalasUsuarioProximoMes = escalas.filter(
+    (e) =>
+      e.pessoa_id === user.id &&
+      e.data &&
+      e.data.getMonth() === proximoMes &&
+      e.data.getFullYear() === anoProximoMes
+  );
+
+  const escalasUsuarioProximoMesFiltradas = escalasUsuarioProximoMes.filter((e) =>
+    e.ministerio.toLowerCase().includes(search.toLowerCase())
+  );
+
+  escalasUsuarioProximoMesFiltradas.sort((a, b) => a.data.getDate() - b.data.getDate());
 
   return (
     <View style={styles.container}>
@@ -243,7 +262,44 @@ export default function InicioUsuario({ navigation, route }) {
           })}
         </ScrollView>
       </View>
+      {/* MINHA ESCALA DO PRÓXIMO MÊS */}
+      <Text style={styles.escalaTexto}>Minha Escala do Próximo Mês:</Text>
+      <View style={styles.tabela}>
+        <View style={styles.tabelaLinhaHeader}>
+          <Text style={styles.tabelaHeaderTexto}>DIA DA SEMANA</Text>
+          <Text style={styles.tabelaHeaderTexto}>DATA</Text>
+          <Text style={styles.tabelaHeaderTexto}>MÊS</Text>
+          <Text style={styles.tabelaHeaderTexto}>MINISTÉRIO</Text>
+        </View>
+        <ScrollView style={{ maxHeight: 200 }}>
+          {escalasUsuarioProximoMesFiltradas.length === 0 && (
+            <Text style={{ padding: 8, textAlign: "center" }}>
+              Nenhuma escala encontrada.
+            </Text>
+          )}
+          {escalasUsuarioProximoMesFiltradas.map((item, index) => {
+            const dataObj = item.data;
+            const dia = dataObj.getDate();
+            const mes = dataObj.toLocaleDateString("pt-BR", { month: "long" });
 
+            const diasSemana = ["domingo","segunda","terça","quarta","quinta","sexta","sábado"];
+            const diaSemana = diasSemana[dataObj.getDay()];
+
+            return (
+              <View key={index} style={styles.tabelaLinha}>
+                <Text style={styles.tabelaTexto}>
+                  {diaSemana.charAt(0).toUpperCase() + diaSemana.slice(1)}
+                </Text>
+                <Text style={styles.tabelaTexto}>{dia}</Text>
+                <Text style={styles.tabelaTexto}>
+                  {mes.charAt(0).toUpperCase() + mes.slice(1)}
+                </Text>
+                <Text style={styles.tabelaTexto}>{item.ministerio}</Text>
+              </View>
+            );
+          })}
+        </ScrollView>
+      </View>
       {/* RODAPÉ */}
       <UsuarioInferior navigation={navigation} />
 
