@@ -23,7 +23,7 @@ export default function UsuarioInferior({ navigation }) {
       </TouchableOpacity>
 
       {/* Botão de atualização com badge corretamente posicionado */}
-      {/*<TouchableOpacity
+      <TouchableOpacity
         style={styles.footerItem}
         onPress={() => navigation.navigate("AtualizarAppUsuario")}
       >
@@ -32,7 +32,7 @@ export default function UsuarioInferior({ navigation }) {
           <View style={styles.badge} />
         </View>
         <Text style={styles.footerText}>Atualizar App</Text>
-      </TouchableOpacity>*/}
+      </TouchableOpacity>
 
       <TouchableOpacity
         style={styles.footerItem}
