@@ -12,6 +12,7 @@ import {
 import { MaskedTextInput } from "react-native-mask-text";
 import axios from "axios";
 import { Feather } from "@expo/vector-icons";
+import cores from "./estilos/cores";
 
 export default function CriarConta({ navigation }) {
   const [nome, setNome] = useState("");
@@ -117,7 +118,7 @@ export default function CriarConta({ navigation }) {
         style={styles.voltarBotao}
         onPress={() => navigation.goBack()}
       >
-        <Feather name="arrow-left" size={24} color="#000" />
+        <Feather name="arrow-left" size={24} color={cores.Titulo} />
       </TouchableOpacity>
 
       <Text style={styles.titulo}>Criar Uma Nova Conta</Text>
@@ -156,7 +157,7 @@ export default function CriarConta({ navigation }) {
           <Feather
             name={senhaVisivel ? "eye" : "eye-off"}
             size={20}
-            color="#666"
+            color={cores.Icones}
           />
         </TouchableOpacity>
       </View>
@@ -217,7 +218,7 @@ export default function CriarConta({ navigation }) {
       {/* Modal de sucesso */}
       <Modal transparent visible={modalSucesso} animationType="fade">
         <View style={styles.modalFundo}>
-          <View style={[styles.modalContainer, { backgroundColor: "#4BB543" }]}>
+          <View style={[styles.modalContainer, { backgroundColor: cores.ModalSucesso }]}>
             <Text style={styles.modalTexto}>Conta criada com sucesso!</Text>
           </View>
         </View>
@@ -226,7 +227,7 @@ export default function CriarConta({ navigation }) {
       {/* Modal de erro */}
       <Modal transparent visible={modalErro} animationType="fade">
         <View style={styles.modalFundo}>
-          <View style={[styles.modalContainer, { backgroundColor: "#FF4C4C" }]}>
+          <View style={[styles.modalContainer, { backgroundColor: cores.ModalErro}]}>
             <Text style={styles.modalTexto}>{erroMensagem}</Text>
           </View>
         </View>
@@ -247,49 +248,49 @@ const styles = StyleSheet.create({
     flex: 1,
     paddingHorizontal: 20,
     justifyContent: "center",
-    backgroundColor: "#f4f5f2",
+    backgroundColor: cores.FundoDeTela,
   },
   titulo: {
     fontSize: 24,
     fontWeight: "bold",
     textAlign: "center",
     marginBottom: 30,
-    color: "#000",
+    color: cores.Titulo,
   },
   label: {
     fontSize: 12,
     marginBottom: 5,
-    color: "#000",
+    color: cores.InputPlaceholder,
   },
   input: {
     borderWidth: 1,
-    borderColor: "#ccc",
-    backgroundColor: "#f4f5f2",
+    borderColor: cores.InputBorda,
+    backgroundColor: cores.FundoDeTela,
     padding: 10,
-    borderRadius: 4,
     marginBottom: 10,
     fontSize: 16,
+    borderRadius: 20,
   },
   listaSugestoes: {
     maxHeight: 100,
-    backgroundColor: "#fff",
+    backgroundColor: cores.FundoDeTela,
     borderWidth: 1,
-    borderColor: "#ccc",
+    borderColor: cores.InputBorda,
     marginBottom: 15,
-    borderRadius: 4,
+    borderRadius: 20,
   },
   itemSugestao: {
     padding: 10,
     borderBottomWidth: 1,
-    borderBottomColor: "#eee",
+    borderBottomColor: cores.ListasBordas,
   },
   senhaContainer: {
     flexDirection: "row",
     alignItems: "center",
     borderWidth: 1,
-    borderColor: "#ccc",
-    backgroundColor: "#f4f5f2",
-    borderRadius: 4,
+    borderColor: cores.InputBorda,
+    backgroundColor: cores.FundoDeTela,
+    borderRadius: 20,
     paddingRight: 10,
     marginBottom: 15,
   },
@@ -297,19 +298,19 @@ const styles = StyleSheet.create({
     paddingHorizontal: 5,
   },
   botao: {
-    backgroundColor: "#344656",
+    backgroundColor: cores.BotaoPadrao,
     padding: 15,
-    borderRadius: 4,
+    borderRadius: 20,
     alignItems: "center",
   },
   botaoTexto: {
-    color: "#fff",
+    color: cores.BotaoTexto,
     fontWeight: "bold",
     fontSize: 16,
   },
   modalFundo: {
     flex: 1,
-    backgroundColor: "rgba(0,0,0,0.5)",
+    backgroundColor: cores.ModalFundo,
     alignItems: "center",
     justifyContent: "center",
   },
@@ -322,7 +323,7 @@ const styles = StyleSheet.create({
   modalTexto: {
     fontSize: 18,
     fontWeight: "bold",
-    color: "#fff",
+    color: cores.BotaoTexto,
     textAlign: "center",
   },
 });

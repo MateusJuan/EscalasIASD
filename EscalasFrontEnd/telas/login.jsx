@@ -12,6 +12,7 @@ import {
 import axios from "axios";
 import { Feather } from "@expo/vector-icons";
 import AsyncStorage from "@react-native-async-storage/async-storage";
+import cores from "./estilos/cores";
 
 export default function Login({ navigation }) {
   const [email, setEmail] = useState("");
@@ -98,7 +99,7 @@ export default function Login({ navigation }) {
       <TextInput
         style={styles.input}
         placeholder="testes123@gmail.com"
-        placeholderTextColor="#aaa"
+        placeholderTextColor={cores.InputPlaceholder}
         value={email}
         onChangeText={setEmail}
         keyboardType="email-address"
@@ -110,7 +111,7 @@ export default function Login({ navigation }) {
         <TextInput
           style={styles.senhaInput}
           placeholder="******"
-          placeholderTextColor="#aaa"
+          placeholderTextColor={cores.InputPlaceholder}
           secureTextEntry={!senhaVisivel}
           value={senha}
           onChangeText={setSenha}
@@ -125,7 +126,7 @@ export default function Login({ navigation }) {
             <Feather
               name={senhaVisivel ? "eye" : "eye-off"}
               size={20}
-              color="#666"
+              color={cores.Icones}
             />
           </TouchableOpacity>
         </Animated.View>
@@ -149,7 +150,7 @@ export default function Login({ navigation }) {
       {/* Modal de sucesso */}
       <Modal transparent visible={modalSucesso} animationType="fade">
         <View style={styles.modalFundo}>
-          <View style={[styles.modalContainer, { backgroundColor: "#4BB543" }]}>
+          <View style={[styles.modalContainer, { backgroundColor: cores.ModalSucesso }]}>
             <Text style={styles.modalTexto}>Bem-vindo(a), {usuarioNome}!</Text>
           </View>
         </View>
@@ -158,7 +159,7 @@ export default function Login({ navigation }) {
       {/* Modal de erro */}
       <Modal transparent visible={modalErro} animationType="fade">
         <View style={styles.modalFundo}>
-          <View style={[styles.modalContainer, { backgroundColor: "#FF4C4C" }]}>
+          <View style={[styles.modalContainer, { backgroundColor: cores.ModalErro }]}>
             <Text style={styles.modalTexto}>{erroMensagem}</Text>
           </View>
         </View>
@@ -170,7 +171,7 @@ export default function Login({ navigation }) {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: "#f4f5f2",
+    backgroundColor: cores.FundoDeTela,
     alignItems: "center",
     justifyContent: "center",
     paddingHorizontal: 30,
@@ -178,74 +179,77 @@ const styles = StyleSheet.create({
   titulo: {
     fontSize: 28,
     fontWeight: "bold",
-    color: "#000",
+    color: cores.Titulo,
     marginBottom: 5,
   },
   subtitulo: {
     fontSize: 14,
-    color: "#333",
+    color: cores.Subtitulo,
     marginBottom: 30,
     textAlign: "center",
   },
   label: {
     alignSelf: "flex-start",
     fontSize: 12,
-    color: "#888",
+    color: cores.InputPlaceholder,
     marginBottom: 5,
   },
   input: {
     borderWidth: 1,
     width: "100%",
-    backgroundColor: "#f4f5f2",
-    borderColor: "#ccc",
+    backgroundColor: cores.FundoDeTela,
+    borderColor: cores.InputBorda,
     paddingHorizontal: 15,
     paddingVertical: 12,
     marginBottom: 20,
     fontSize: 15,
-    color: "#000",
+    borderRadius: 20,
+    color: cores.Titulo,
   },
   senhaContainer: {
     borderWidth: 1,
     width: "100%",
     flexDirection: "row",
     alignItems: "center",
-    backgroundColor: "#f4f5f2",
-    borderColor: "#ccc",
+    backgroundColor: cores.FundoDeTela,
+    borderColor: cores.InputBorda,
     paddingHorizontal: 15,
     marginBottom: 20,
+    borderRadius: 20,
   },
   senhaInput: {
     flex: 1,
     fontSize: 15,
     paddingVertical: 12,
-    color: "#000",
+    color: cores.Titulo,
   },
   esqueciSenha: {
     fontSize: 11,
-    color: "#444",
+    color: cores.Subtitulo,
     marginBottom: 25,
   },
   botao: {
-    backgroundColor: "#344656",
-    paddingVertical: 14,
+    backgroundColor: cores.BotaoPadrao,
+    padding: 15,
+    borderRadius: 20,
     width: "100%",
     alignItems: "center",
   },
   botaoTexto: {
-    color: "#fff",
+    color: cores.BotaoTexto,
     fontWeight: "bold",
     fontSize: 16,
   },
   criarConta: {
     marginTop: 20,
     fontSize: 13,
-    color: "#222",
+    color: cores.Titulo,
     fontWeight: "500",
     letterSpacing: 1,
   },
   modalFundo: {
     flex: 1,
-    backgroundColor: "rgba(0,0,0,0.5)",
+    backgroundColor: cores.ModalFundo,
     alignItems: "center",
     justifyContent: "center",
   },
@@ -258,7 +262,7 @@ const styles = StyleSheet.create({
   modalTexto: {
     fontSize: 18,
     fontWeight: "bold",
-    color: "#fff",
+    color: cores.BotaoTexto,
     textAlign: "center",
   },
 });

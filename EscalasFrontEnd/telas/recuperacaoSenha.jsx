@@ -10,6 +10,7 @@ import {
   Modal,
 } from "react-native";
 import { Feather } from "@expo/vector-icons";
+import cores from "./estilos/cores";
 
 export default function RecuperacaoSenha({ navigation }) {
   const [email, setEmail] = useState("");
@@ -59,7 +60,7 @@ export default function RecuperacaoSenha({ navigation }) {
         style={styles.voltarBotao}
         onPress={() => navigation.goBack()}
       >
-        <Feather name="arrow-left" size={24} color="#000" />
+        <Feather name="arrow-left" size={24} color={cores.Titulo} />
       </TouchableOpacity>
 
       <Text style={styles.titulo}>Recuperar Senha</Text>
@@ -71,7 +72,7 @@ export default function RecuperacaoSenha({ navigation }) {
       <TextInput
         style={styles.input}
         placeholder="seuemail@gmail.com"
-        placeholderTextColor="#aaa"
+        placeholderTextColor={cores.InputPlaceholder}
         value={email}
         onChangeText={setEmail}
         autoCapitalize="none"
@@ -85,7 +86,7 @@ export default function RecuperacaoSenha({ navigation }) {
       {/* Modal de sucesso */}
       <Modal transparent visible={modalSucesso} animationType="fade">
         <View style={styles.modalFundo}>
-          <View style={[styles.modalContainer, { backgroundColor: "#4BB543" }]}>
+          <View style={[styles.modalContainer, { backgroundColor: cores.ModalSucesso }]}>
             <Text style={styles.modalTexto}>
               Uma nova senha foi enviada para seu e-mail!
             </Text>
@@ -96,7 +97,7 @@ export default function RecuperacaoSenha({ navigation }) {
       {/* Modal de erro */}
       <Modal transparent visible={modalErro} animationType="fade">
         <View style={styles.modalFundo}>
-          <View style={[styles.modalContainer, { backgroundColor: "#FF4C4C" }]}>
+          <View style={[styles.modalContainer, { backgroundColor: cores.ModalErro }]}>
             <Text style={styles.modalTexto}>{erroMensagem}</Text>
           </View>
         </View>
@@ -115,7 +116,7 @@ const styles = StyleSheet.create({
   },
   container: {
     flex: 1,
-    backgroundColor: "#f4f5f2",
+    backgroundColor: cores.FundoDeTela,
     alignItems: "center",
     justifyContent: "center",
     paddingHorizontal: 30,
@@ -123,46 +124,48 @@ const styles = StyleSheet.create({
   titulo: {
     fontSize: 26,
     fontWeight: "bold",
-    color: "#000",
+    color: cores.Titulo,
     marginBottom: 5,
   },
   subtitulo: {
     fontSize: 14,
-    color: "#333",
+    color: cores.Subtitulo,
     marginBottom: 30,
     textAlign: "center",
   },
   label: {
     alignSelf: "flex-start",
     fontSize: 12,
-    color: "#888",
+    color: cores.InputPlaceholder,
     marginBottom: 5,
   },
   input: {
     borderWidth: 1,
     width: "100%",
-    backgroundColor: "#f4f5f2",
-    borderColor: "#ccc",
+    backgroundColor: cores.FundoDeTela,
+    borderColor: cores.InputBorda,
     paddingHorizontal: 15,
     paddingVertical: 12,
     marginBottom: 20,
     fontSize: 15,
-    color: "#000",
+    borderRadius: 20,
+    color: cores.InputTexto,
   },
   botao: {
-    backgroundColor: "#344656",
+    backgroundColor: cores.BotaoPadrao,
     paddingVertical: 14,
+    borderRadius: 20,
     width: "100%",
     alignItems: "center",
   },
   textoBotao: {
-    color: "#fff",
+    color: cores.BotaoTexto,
     fontWeight: "bold",
     fontSize: 16,
   },
   modalFundo: {
     flex: 1,
-    backgroundColor: "rgba(0,0,0,0.5)",
+    backgroundColor: cores.ModalFundo,
     alignItems: "center",
     justifyContent: "center",
   },
@@ -175,7 +178,7 @@ const styles = StyleSheet.create({
   modalTexto: {
     fontSize: 16,
     fontWeight: "bold",
-    color: "#fff",
+    color: cores.BotaoTexto,
     textAlign: "center",
   },
 });

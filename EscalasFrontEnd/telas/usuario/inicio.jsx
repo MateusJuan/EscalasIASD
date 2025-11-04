@@ -12,6 +12,7 @@ import {
 import { MaterialIcons } from "@expo/vector-icons";
 import UsuarioInferior from "../barras/usuarioinferior";
 import AsyncStorage from "@react-native-async-storage/async-storage";
+import cores from "../estilos/cores";
 
 // Função para criar datas de forma segura
 function parseDataSeguro(dataStr) {
@@ -120,7 +121,7 @@ export default function InicioUsuario({ navigation, route }) {
       <View
         style={[styles.container, { justifyContent: "center", alignItems: "center" }]}
       >
-        <ActivityIndicator size="large" color="#2e3e4e" />
+        <ActivityIndicator size="large" color={cores.BotaoPadrao} />
       </View>
     );
   }
@@ -182,12 +183,12 @@ export default function InicioUsuario({ navigation, route }) {
           <MaterialIcons
             name="search"
             size={16}
-            color="#6c6c6c"
+            color={cores.Icones}
             style={styles.searchIcon}
           />
           <TextInput
             placeholder="Pesquisar ministério"
-            placeholderTextColor="#6c6c6c"
+            placeholderTextColor={cores.Icones}
             style={styles.input}
             value={search}
             onChangeText={setSearch}
@@ -199,7 +200,7 @@ export default function InicioUsuario({ navigation, route }) {
       <View style={styles.cardContainer}>
         <View style={styles.card}>
           <View style={styles.cardItem}>
-            <MaterialIcons name="calendar-month" size={24} color="#fff"/>
+            <MaterialIcons name="calendar-month" size={24} color={cores.IconesPadrao}/>
             <View style={styles.cardItemText}>
               <Text style={styles.cardTitle}>Dia da Semana</Text>
               <Text style={styles.cardDate}>
@@ -209,7 +210,7 @@ export default function InicioUsuario({ navigation, route }) {
           </View>
 
           <View style={styles.cardItem}>
-            <MaterialIcons name="calendar-today" size={24} color="#fff"/>
+            <MaterialIcons name="calendar-today" size={24} color={cores.IconesPadrao}/>
             <View style={styles.cardItemText}>
               <Text style={styles.cardTitle}>Data</Text>
               <Text style={styles.cardDate}>
@@ -219,7 +220,7 @@ export default function InicioUsuario({ navigation, route }) {
           </View>
 
           <View style={styles.cardItem}>
-            <MaterialIcons name="church" size={24} color="#fff"/>
+            <MaterialIcons name="church" size={24} color={cores.IconesPadrao}/>
             <View style={styles.cardItemText}>
               <Text style={styles.cardTitle}>Ministério</Text>
               <Text style={styles.cardDate}>{proxima ? proxima.ministerio : "-"}</Text>
@@ -326,10 +327,10 @@ export default function InicioUsuario({ navigation, route }) {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: "#f3f3ef",
+    backgroundColor: cores.FundoDeTela,
   },
   topo: {
-    backgroundColor: "#2e3e4e",
+    backgroundColor: cores.Barras,
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "space-between",
@@ -345,7 +346,7 @@ const styles = StyleSheet.create({
   },
   searchContainer: {
     flexDirection: "row",
-    backgroundColor: "#fff",
+    backgroundColor: cores.FundoDeTela,
     alignItems: "center",
     borderRadius: 20,
     paddingHorizontal: 10,
@@ -366,7 +367,7 @@ const styles = StyleSheet.create({
     marginTop: 20
   },
   card: {
-    backgroundColor: "#2e3e4e",
+    backgroundColor: cores.Barras,
     borderRadius: 20,
     paddingVertical: 15,
     paddingHorizontal: 25,
@@ -374,7 +375,7 @@ const styles = StyleSheet.create({
     justifyContent: "space-between",
     alignItems: "center",
     borderWidth: 2,
-    borderColor: "#2e3e4e",
+    borderColor: cores.Barras,
   },
   cardItem: {
     alignItems: "center",
@@ -385,11 +386,11 @@ const styles = StyleSheet.create({
     alignItems: "center"
   },
   cardTitle: {
-    color: "#fff",
+    color: cores.IconesPadrao,
     fontSize: 10
   },
   cardDate: {
-    color: "#fff",
+    color: cores.IconesPadrao,
     fontSize: 13,
     fontWeight: "bold"
   },
@@ -404,24 +405,24 @@ const styles = StyleSheet.create({
     marginHorizontal: 10,
     borderRadius: 8,
     overflow: "hidden",
-    backgroundColor: "#e0e0e0",
+    backgroundColor: cores.FundoTabela,
   },
   tabelaLinhaHeader: {
     flexDirection: "row",
-    backgroundColor: "#344656",
+    backgroundColor: cores.Barras,
     padding: 8,
   },
   tabelaLinha: {
     flexDirection: "row",
-    backgroundColor: "#e0dede",
+    backgroundColor: cores.FundoTabela,
     padding: 8,
     borderBottomWidth: 1,
-    borderBottomColor: "#fff",
+    borderBottomColor: cores.ListasBordas,
   },
   tabelaHeaderTexto: {
     flex: 1,
     fontWeight: "bold",
-    color: "#fff",
+    color: cores.IconesPadrao,
     textAlign: "center",
     fontSize: 12,
   },
@@ -429,16 +430,16 @@ const styles = StyleSheet.create({
     flex: 1,
     textAlign: "center",
     fontSize: 12,
-    color: "#000",
+    color: cores.Titulo,
   },
   modalBackground: {
     flex: 1,
-    backgroundColor: "rgba(0,0,0,0.3)",
+    backgroundColor: cores.ModalFundo,
     justifyContent: "center",
     paddingHorizontal: 20,
   },
   modalContainer: {
-    backgroundColor: "#fff",
+    backgroundColor: cores.modalContainer,
     borderRadius: 20,
     padding: 20,
     alignItems: "center",
@@ -446,7 +447,7 @@ const styles = StyleSheet.create({
   modalTexto: {
     fontSize: 16,
     fontWeight: "bold",
-    color: "#fff",
+    color: cores.IconesPadrao,
     textAlign: "center",
   },
 });
