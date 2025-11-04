@@ -200,7 +200,7 @@ export default function InicioUsuario({ navigation, route }) {
       <View style={styles.cardContainer}>
         <View style={styles.card}>
           <View style={styles.cardItem}>
-            <MaterialIcons name="calendar-month" size={24} color={cores.IconesPadrao}/>
+            <MaterialIcons name="calendar-today" size={24} color={cores.IconesPadrao}/>
             <View style={styles.cardItemText}>
               <Text style={styles.cardTitle}>Dia da Semana</Text>
               <Text style={styles.cardDate}>
@@ -210,7 +210,7 @@ export default function InicioUsuario({ navigation, route }) {
           </View>
 
           <View style={styles.cardItem}>
-            <MaterialIcons name="calendar-today" size={24} color={cores.IconesPadrao}/>
+            <MaterialIcons name="calendar-month" size={24} color={cores.IconesPadrao}/>
             <View style={styles.cardItemText}>
               <Text style={styles.cardTitle}>Data</Text>
               <Text style={styles.cardDate}>
