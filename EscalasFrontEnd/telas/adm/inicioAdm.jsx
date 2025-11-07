@@ -245,18 +245,27 @@ export default function InicioAdm({ navigation, route }) {
 
   const proxima = futuras[0] || null; // se não houver nenhuma futura, proxima será null
 
-  // Escalas gerais do mês atual
+  // Escalas gerais do mês atual (apenas da mesma igreja do usuário)
   const escalasGeralMes = escalas.filter(
-    (e) => e.data.getMonth() === mesAtual && e.data.getFullYear() === anoAtual
+    (e) =>
+      e.data.getMonth() === mesAtual &&
+      e.data.getFullYear() === anoAtual &&
+      e.igreja === user.igreja
   );
+
 
   // Escalas do próximo mês
   const proximoMes = (mesAtual + 1) % 12;
   const anoProximoMes = mesAtual === 11 ? anoAtual + 1 : anoAtual;
 
+  // Escalas do próximo mês (apenas da mesma igreja do usuário)
   const escalasGeralProximoMes = escalas.filter(
-    (e) => e.data.getMonth() === proximoMes && e.data.getFullYear() === anoProximoMes
+    (e) =>
+      e.data.getMonth() === proximoMes &&
+      e.data.getFullYear() === anoProximoMes &&
+      e.igreja === user.igreja
   );
+
 
   const escalasGeralProximoMesFiltradas = escalasGeralProximoMes.filter(
     e => e.pessoa_nome.toLowerCase().includes(search.toLowerCase())
@@ -268,6 +277,18 @@ export default function InicioAdm({ navigation, route }) {
     const escalasGeralFiltradas = escalasGeralMes.filter(e => e.pessoa_nome.toLowerCase().includes(search.toLowerCase()));
     escalasGeralFiltradas.sort((a, b) => a.data - b.data);
     escalasGeralFiltradas.sort((a,b)=>a.data.getDate()-b.data.getDate());
+
+    // Função de máscara de data
+    function formatarData(text) {
+      let data = text.replace(/\D/g, ""); // remove tudo que não for número
+      if (data.length > 2 && data.length <= 4) {
+        data = data.replace(/(\d{2})(\d+)/, "$1/$2");
+      } else if (data.length > 4) {
+        data = data.replace(/(\d{2})(\d{2})(\d{0,4})/, "$1/$2/$3");
+      }
+      return data;
+    }
+
 
   return (
     <View style={styles.container}>
@@ -430,7 +451,14 @@ export default function InicioAdm({ navigation, route }) {
           <View style={styles.modalContent}>
             <Text style={{ fontSize: 16, fontWeight: "bold", marginBottom: 10 }}>Adicionar Escala</Text>
             <Text>Data (dd/mm/aaaa):</Text>
-            <TextInput value={novaData} onChangeText={setNovaData} placeholder="Ex: 02/10/2025" style={styles.modalInput}/>
+            <TextInput
+              value={novaData}
+              onChangeText={(text) => setNovaData(formatarData(text))}
+              placeholder="Ex: 02/10/2025"
+              keyboardType="numeric"
+              maxLength={10}
+              style={styles.modalInput}
+            />
             <Text>Nome do Usuário:</Text>
             <TextInput value={buscaUsuario} onChangeText={(text)=>{setBuscaUsuario(text); setUsuarioSelecionado(null);}} placeholder="Digite o nome" style={styles.modalInput}/>
             {buscaUsuario.length>0 && !usuarioSelecionado && (
@@ -478,7 +506,14 @@ export default function InicioAdm({ navigation, route }) {
           <View style={styles.modalContent}>
             <Text style={{ fontSize:16, fontWeight:"bold", marginBottom:10 }}>Editar/Apagar Escala</Text>
             <Text>Data (dd/mm/aaaa):</Text>
-            <TextInput value={editarData} onChangeText={setEditarData} placeholder="Ex: 02/10/2025" style={styles.modalInput}/>
+            <TextInput
+              value={editarData}
+              onChangeText={(text) => setEditarData(formatarData(text))}
+              placeholder="Ex: 02/10/2025"
+              keyboardType="numeric"
+              maxLength={10}
+              style={styles.modalInput}
+            />
             <Text>Usuário:</Text>
             <TextInput
               value={buscaUsuario}
