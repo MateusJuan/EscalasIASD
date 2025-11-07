@@ -209,10 +209,10 @@ export default function Perfil({ navigation }) {
         <Text
           style={styles.rodapeTexto}
           onPress={() =>
-            Linking.openURL("https://escalas-web.vercel.app/")
+            Linking.openURL("https://escalasfrontend--4o14gq74br.expo.app")
           }
         >
-          Nosso Site: https://escalas-web.vercel.app/
+          Nosso Site: https://escalasfrontend--4o14gq74br.expo.app/
         </Text>
       </ScrollView>
 

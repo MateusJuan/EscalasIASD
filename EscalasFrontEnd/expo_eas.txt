@@ -3,3 +3,8 @@ eas build --platform android --profile production
 
 Atualizar aplicativos sem gerar Aok(Mudanças somente visuais sem instalar ou atualizar bibliotecas):
 eas update --branch production --message "Mudança X"
+
+
+web:
+npx expo export --platform web 
+eas deploy
