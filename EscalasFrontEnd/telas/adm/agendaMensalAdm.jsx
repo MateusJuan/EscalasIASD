@@ -8,34 +8,61 @@ import {
 } from "react-native";
 import { useEffect as useEf, useState } from "react";
 import { MaterialIcons } from "@expo/vector-icons";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 import AdmInferior from "../barras/adminferior";
 
 export default function AgendaMensalAdm({ navigation }) {
   const [escalas, setEscalas] = useState(null);
+  const [user, setUser] = useState(null); // ✅ Estado para o usuário logado
 
   useEf(() => {
     async function carregarEscalas() {
       try {
-        const res = await fetch("https://agendas-escalas-iasd-backend.onrender.com/api/escalas");
+        // Busca o usuário logado no AsyncStorage
+        const userStr = await AsyncStorage.getItem("usuarioLogado");
+        const userData = userStr ? JSON.parse(userStr) : null;
+        setUser(userData);
+
+        // Busca as escalas do backend
+        const res = await fetch(
+          "https://agendas-escalas-iasd-backend.onrender.com/api/escalas"
+        );
         const data = await res.json();
         console.log("Escalas do backend:", data);
 
+        // Converte a data para objeto Date
         const escalasComData = data.map((e) => {
-          const [ano, mes, dia] = e.data.split("-").map(Number);
-          return { ...e, data: new Date(ano, mes - 1, dia) };
+          let dataFormatada;
+          if (e.data.includes("-")) {
+            // formato yyyy-mm-dd
+            const [ano, mes, dia] = e.data.split("-").map(Number);
+            dataFormatada = new Date(ano, mes - 1, dia);
+          } else if (e.data.includes("/")) {
+            // formato dd/mm/yyyy
+            const [dia, mes, ano] = e.data.split("/").map(Number);
+            dataFormatada = new Date(ano, mes - 1, dia);
+          }
+          return { ...e, data: dataFormatada };
         });
+
         setEscalas(escalasComData);
       } catch (err) {
         Alert.alert("Erro", "Não foi possível carregar as escalas.");
         setEscalas([]);
       }
     }
+
     carregarEscalas();
   }, []);
 
   if (escalas === null) {
     return (
-      <View style={[styles.container, { justifyContent: "center", alignItems: "center" }]}>
+      <View
+        style={[
+          styles.container,
+          { justifyContent: "center", alignItems: "center" },
+        ]}
+      >
         <ActivityIndicator size="large" color="#2e3e4e" />
       </View>
     );
@@ -45,26 +72,36 @@ export default function AgendaMensalAdm({ navigation }) {
   const mesAtual = hoje.getMonth();
   const anoAtual = hoje.getFullYear();
 
-  // Escalas do mês atual (para tabela)
-  const escalasMes = escalas
-    .filter((e) => e.data.getMonth() === mesAtual && e.data.getFullYear() === anoAtual)
-    .sort((a, b) => a.data - b.data);
+  // Escalas gerais do mês atual (apenas da mesma igreja do usuário)
+  const escalasMes =
+    user && escalas
+      ? escalas.filter(
+          (e) =>
+            e.data.getMonth() === mesAtual &&
+            e.data.getFullYear() === anoAtual &&
+            e.igreja === user.igreja
+        )
+      : [];
 
   // Normaliza o "hoje" para o início do dia
   hoje.setHours(0, 0, 0, 0);
 
-  // Escalas futuras ou de hoje
-  const escalasFuturas = escalas
-    .filter((e) => e.data >= hoje)
-    .sort((a, b) => a.data - b.data);
+  // Escalas futuras ou de hoje (da mesma igreja)
+  const escalasFuturas =
+    user && escalas
+      ? escalas
+          .filter((e) => e.data >= hoje && e.igreja === user.igreja)
+          .sort((a, b) => a.data - b.data)
+      : [];
 
   const proxima = escalasFuturas.length > 0 ? escalasFuturas[0] : null;
-
 
   return (
     <View style={{ flex: 1 }}>
       <View style={styles.container}>
-        <Text style={{ fontSize: 16 }}>Escala Mensal da Igreja</Text>
+        <Text style={{ fontSize: 16, fontWeight: "600", color: "#2e3e4e" }}>
+          Escala Mensal da Igreja
+        </Text>
 
         {/* PRÓXIMA ESCALA */}
         <View style={styles.cardContainer}>
@@ -75,7 +112,9 @@ export default function AgendaMensalAdm({ navigation }) {
                 <Text style={styles.cardTitle}>Dia da Semana</Text>
                 <Text style={styles.cardDate}>
                   {proxima
-                    ? proxima.data.toLocaleDateString("pt-BR", { weekday: "long" }).replace(/^./, (c) => c.toUpperCase())
+                    ? proxima.data
+                        .toLocaleDateString("pt-BR", { weekday: "long" })
+                        .replace(/^./, (c) => c.toUpperCase())
                     : "-"}
                 </Text>
               </View>
@@ -95,20 +134,25 @@ export default function AgendaMensalAdm({ navigation }) {
               <MaterialIcons name="church" size={24} color="#fff" />
               <View style={styles.cardItemText}>
                 <Text style={styles.cardTitle}>Ministério</Text>
-                <Text style={styles.cardDate}>{proxima ? proxima.ministerio : "-"}</Text>
+                <Text style={styles.cardDate}>
+                  {proxima ? proxima.ministerio : "-"}
+                </Text>
               </View>
             </View>
+
             <View style={styles.cardItem}>
               <MaterialIcons name="person" size={24} color="#fff" />
               <View style={styles.cardItemText}>
                 <Text style={styles.cardTitle}>Nome</Text>
-                <Text style={styles.cardDate}>{proxima ? proxima.pessoa_nome : "-"}</Text>
+                <Text style={styles.cardDate}>
+                  {proxima ? proxima.pessoa_nome : "-"}
+                </Text>
               </View>
             </View>
           </View>
         </View>
 
-        {/* Escala Geral */}
+        {/* ESCALAS GERAIS DO MÊS */}
         <View style={styles.tabelaWrapper}>
           <ScrollView>
             <View style={styles.tabelaLinhaHeader}>
@@ -117,19 +161,28 @@ export default function AgendaMensalAdm({ navigation }) {
               <Text style={styles.tabelaHeaderTexto}>MINISTÉRIO</Text>
               <Text style={styles.tabelaHeaderTexto}>NOME</Text>
             </View>
+
             {escalasMes.length === 0 ? (
-              <Text style={{ textAlign: "center", margin: 10 }}>Nenhuma escala encontrada.</Text>
+              <Text style={{ textAlign: "center", margin: 10 }}>
+                Nenhuma escala encontrada.
+              </Text>
             ) : (
               escalasMes.map((item, index) => {
-                const mes = item.data.toLocaleDateString("pt-BR", { month: "long" });
+                const mes = item.data.toLocaleDateString("pt-BR", {
+                  month: "long",
+                });
                 const dia = item.data.getDate();
-                const diaSemana = item.data.toLocaleDateString("pt-BR", { weekday: "long" });
+                const diaSemana = item.data.toLocaleDateString("pt-BR", {
+                  weekday: "long",
+                });
                 return (
                   <View key={index} style={styles.tabelaLinha}>
                     <Text style={styles.tabelaTexto}>
                       {diaSemana.charAt(0).toUpperCase() + diaSemana.slice(1)}
                     </Text>
-                    <Text style={styles.tabelaTexto}>{dia} / {mes}</Text>
+                    <Text style={styles.tabelaTexto}>
+                      {dia} / {mes}
+                    </Text>
                     <Text style={styles.tabelaTexto}>{item.ministerio}</Text>
                     <Text style={styles.tabelaTexto}>{item.pessoa_nome}</Text>
                   </View>
@@ -159,7 +212,7 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderColor: "#ccc",
     borderRadius: 10,
-    overflow: "hidden", // evita que o conteúdo vaze da borda arredondada
+    overflow: "hidden",
   },
   tabelaLinhaHeader: {
     flexDirection: "row",
@@ -188,7 +241,7 @@ const styles = StyleSheet.create({
   },
   cardContainer: {
     marginTop: 20,
-    width: "100%", // ocupa toda a largura disponível
+    width: "100%",
   },
   card: {
     backgroundColor: "#2e3e4e",
@@ -198,8 +251,6 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     justifyContent: "space-between",
     alignItems: "center",
-
-    // Sombras para destaque
     shadowColor: "#000",
     shadowOffset: { width: 0, height: 4 },
     shadowOpacity: 0.2,
@@ -209,7 +260,7 @@ const styles = StyleSheet.create({
   cardItem: {
     alignItems: "center",
     justifyContent: "center",
-    flex: 1, // divide bem o espaço entre os itens
+    flex: 1,
   },
   cardItemText: {
     marginTop: 8,

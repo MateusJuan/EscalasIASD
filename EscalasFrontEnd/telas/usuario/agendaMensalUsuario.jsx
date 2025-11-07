@@ -8,21 +8,39 @@ import {
 } from "react-native";
 import { useEffect as useEf, useState } from "react";
 import { MaterialIcons } from "@expo/vector-icons";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 import UsuarioInferior from "../barras/usuarioinferior";
 
 export default function AgendaMensalUsuario({ navigation }) {
   const [escalas, setEscalas] = useState(null);
+  const [user, setUser] = useState(null); // ✅ Estado do usuário logado
 
   // carregar escalas do backend
   useEf(() => {
     async function carregarEscalas() {
       try {
-        const res = await fetch("https://agendas-escalas-iasd-backend.onrender.com/api/escalas");
+        // busca usuário logado
+        const userStr = await AsyncStorage.getItem("usuarioLogado");
+        const userData = userStr ? JSON.parse(userStr) : null;
+        setUser(userData);
+
+        // busca escalas do backend
+        const res = await fetch(
+          "https://agendas-escalas-iasd-backend.onrender.com/api/escalas"
+        );
         const data = await res.json();
+
         // converter datas
         const escalasComData = data.map((e) => {
-          const [ano, mes, dia] = e.data.split("-").map(Number);
-          return { ...e, data: new Date(ano, mes - 1, dia) };
+          let dataFormatada;
+          if (e.data.includes("-")) {
+            const [ano, mes, dia] = e.data.split("-").map(Number);
+            dataFormatada = new Date(ano, mes - 1, dia);
+          } else if (e.data.includes("/")) {
+            const [dia, mes, ano] = e.data.split("/").map(Number);
+            dataFormatada = new Date(ano, mes - 1, dia);
+          }
+          return { ...e, data: dataFormatada };
         });
         setEscalas(escalasComData);
       } catch (err) {
@@ -35,7 +53,12 @@ export default function AgendaMensalUsuario({ navigation }) {
 
   if (escalas === null) {
     return (
-      <View style={[styles.container, { justifyContent: "center", alignItems: "center" }]}>
+      <View
+        style={[
+          styles.container,
+          { justifyContent: "center", alignItems: "center" },
+        ]}
+      >
         <ActivityIndicator size="large" color="#2e3e4e" />
       </View>
     );
@@ -46,25 +69,36 @@ export default function AgendaMensalUsuario({ navigation }) {
   const mesAtual = hoje.getMonth();
   const anoAtual = hoje.getFullYear();
 
-  const escalasMes = escalas
-    .filter((e) => e.data.getMonth() === mesAtual && e.data.getFullYear() === anoAtual)
-    .sort((a, b) => a.data - b.data);
+  // Escalas gerais do mês atual (apenas da mesma igreja do usuário)
+  const escalasMes =
+    user && escalas
+      ? escalas.filter(
+          (e) =>
+            e.data.getMonth() === mesAtual &&
+            e.data.getFullYear() === anoAtual &&
+            e.igreja === user.igreja
+        )
+      : [];
 
   // Normaliza o "hoje" para o início do dia
   hoje.setHours(0, 0, 0, 0);
 
-  // Escalas futuras ou de hoje
-  const escalasFuturas = escalas
-    .filter((e) => e.data >= hoje)
-    .sort((a, b) => a.data - b.data);
+  // Escalas futuras ou de hoje (filtradas pela igreja)
+  const escalasFuturas =
+    user && escalas
+      ? escalas
+          .filter((e) => e.data >= hoje && e.igreja === user.igreja)
+          .sort((a, b) => a.data - b.data)
+      : [];
 
   const proxima = escalasFuturas.length > 0 ? escalasFuturas[0] : null;
-
 
   return (
     <View style={{ flex: 1 }}>
       <View style={styles.container}>
-        <Text style={{ fontSize: 16 }}>Escala Mensal da Igreja</Text>
+        <Text style={{ fontSize: 16, fontWeight: "600", color: "#2e3e4e" }}>
+          Escala Mensal da Igreja
+        </Text>
 
         {/* PRÓXIMA ESCALA */}
         <View style={styles.cardContainer}>
@@ -75,7 +109,9 @@ export default function AgendaMensalUsuario({ navigation }) {
                 <Text style={styles.cardTitle}>Dia da Semana</Text>
                 <Text style={styles.cardDate}>
                   {proxima
-                    ? proxima.data.toLocaleDateString("pt-BR", { weekday: "long" }).replace(/^./, (c) => c.toUpperCase())
+                    ? proxima.data
+                        .toLocaleDateString("pt-BR", { weekday: "long" })
+                        .replace(/^./, (c) => c.toUpperCase())
                     : "-"}
                 </Text>
               </View>
@@ -95,20 +131,25 @@ export default function AgendaMensalUsuario({ navigation }) {
               <MaterialIcons name="church" size={24} color="#fff" />
               <View style={styles.cardItemText}>
                 <Text style={styles.cardTitle}>Ministério</Text>
-                <Text style={styles.cardDate}>{proxima ? proxima.ministerio : "-"}</Text>
+                <Text style={styles.cardDate}>
+                  {proxima ? proxima.ministerio : "-"}
+                </Text>
               </View>
             </View>
+
             <View style={styles.cardItem}>
               <MaterialIcons name="person" size={24} color="#fff" />
               <View style={styles.cardItemText}>
                 <Text style={styles.cardTitle}>Nome</Text>
-                <Text style={styles.cardDate}>{proxima ? proxima.pessoa_nome : "-"}</Text>
+                <Text style={styles.cardDate}>
+                  {proxima ? proxima.pessoa_nome : "-"}
+                </Text>
               </View>
             </View>
           </View>
         </View>
 
-        {/* Escala Geral do Mês */}
+        {/* Escalas Gerais do Mês */}
         <View style={styles.tabelaWrapper}>
           <ScrollView>
             <View style={styles.tabelaLinhaHeader}>
@@ -117,19 +158,28 @@ export default function AgendaMensalUsuario({ navigation }) {
               <Text style={styles.tabelaHeaderTexto}>MINISTÉRIO</Text>
               <Text style={styles.tabelaHeaderTexto}>NOME</Text>
             </View>
+
             {escalasMes.length === 0 ? (
-              <Text style={{ textAlign: "center", margin: 10 }}>Nenhuma escala encontrada.</Text>
+              <Text style={{ textAlign: "center", margin: 10 }}>
+                Nenhuma escala encontrada.
+              </Text>
             ) : (
               escalasMes.map((item, index) => {
-                const mes = item.data.toLocaleDateString("pt-BR", { month: "long" });
+                const mes = item.data.toLocaleDateString("pt-BR", {
+                  month: "long",
+                });
                 const dia = item.data.getDate();
-                const diaSemana = item.data.toLocaleDateString("pt-BR", { weekday: "long" });
+                const diaSemana = item.data.toLocaleDateString("pt-BR", {
+                  weekday: "long",
+                });
                 return (
                   <View key={index} style={styles.tabelaLinha}>
                     <Text style={styles.tabelaTexto}>
                       {diaSemana.charAt(0).toUpperCase() + diaSemana.slice(1)}
                     </Text>
-                    <Text style={styles.tabelaTexto}>{dia} / {mes}</Text>
+                    <Text style={styles.tabelaTexto}>
+                      {dia} / {mes}
+                    </Text>
                     <Text style={styles.tabelaTexto}>{item.ministerio}</Text>
                     <Text style={styles.tabelaTexto}>{item.pessoa_nome}</Text>
                   </View>
