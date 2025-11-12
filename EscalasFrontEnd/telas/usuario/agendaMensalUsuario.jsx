@@ -39,7 +39,12 @@ export default function AgendaMensalUsuario({ navigation }) {
           } else if (e.data.includes("/")) {
             const [dia, mes, ano] = e.data.split("/").map(Number);
             dataFormatada = new Date(ano, mes - 1, dia);
+          } else {
+            // fallback: tenta criar diretamente
+            dataFormatada = new Date(e.data);
           }
+          // normalizar para início do dia (opcional, mas útil para comparações)
+          dataFormatada.setHours(0, 0, 0, 0);
           return { ...e, data: dataFormatada };
         });
         setEscalas(escalasComData);
@@ -69,26 +74,28 @@ export default function AgendaMensalUsuario({ navigation }) {
   const mesAtual = hoje.getMonth();
   const anoAtual = hoje.getFullYear();
 
-  // Escalas gerais do mês atual (apenas da mesma igreja do usuário)
-  const escalasMes =
-    user && escalas
-      ? escalas.filter(
-          (e) =>
-            e.data.getMonth() === mesAtual &&
-            e.data.getFullYear() === anoAtual &&
-            e.igreja === user.igreja
-        )
-      : [];
-
-  // Normaliza o "hoje" para o início do dia
+  // Normaliza o "hoje" para o início do dia (usar antes de comparar)
   hoje.setHours(0, 0, 0, 0);
 
-  // Escalas futuras ou de hoje (filtradas pela igreja)
+  // Escalas gerais do mês atual (apenas da mesma igreja do usuário) — agora ordenadas
+  const escalasMes =
+    user && escalas
+      ? escalas
+          .filter(
+            (e) =>
+              e.data.getMonth() === mesAtual &&
+              e.data.getFullYear() === anoAtual &&
+              e.igreja === user.igreja
+          )
+          .sort((a, b) => a.data.getTime() - b.data.getTime())
+      : [];
+
+  // Escalas futuras ou de hoje (filtradas pela igreja) — já ordenadas
   const escalasFuturas =
     user && escalas
       ? escalas
-          .filter((e) => e.data >= hoje && e.igreja === user.igreja)
-          .sort((a, b) => a.data - b.data)
+          .filter((e) => e.data.getTime() >= hoje.getTime() && e.igreja === user.igreja)
+          .sort((a, b) => a.data.getTime() - b.data.getTime())
       : [];
 
   const proxima = escalasFuturas.length > 0 ? escalasFuturas[0] : null;
@@ -173,7 +180,7 @@ export default function AgendaMensalUsuario({ navigation }) {
                   weekday: "long",
                 });
                 return (
-                  <View key={index} style={styles.tabelaLinha}>
+                  <View key={item.id || index} style={styles.tabelaLinha}>
                     <Text style={styles.tabelaTexto}>
                       {diaSemana.charAt(0).toUpperCase() + diaSemana.slice(1)}
                     </Text>

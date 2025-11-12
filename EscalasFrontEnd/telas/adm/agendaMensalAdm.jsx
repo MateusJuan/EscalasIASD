@@ -13,35 +13,34 @@ import AdmInferior from "../barras/adminferior";
 
 export default function AgendaMensalAdm({ navigation }) {
   const [escalas, setEscalas] = useState(null);
-  const [user, setUser] = useState(null); // ✅ Estado para o usuário logado
+  const [user, setUser] = useState(null);
 
   useEf(() => {
     async function carregarEscalas() {
       try {
-        // Busca o usuário logado no AsyncStorage
         const userStr = await AsyncStorage.getItem("usuarioLogado");
         const userData = userStr ? JSON.parse(userStr) : null;
         setUser(userData);
 
-        // Busca as escalas do backend
         const res = await fetch(
           "https://agendas-escalas-iasd-backend.onrender.com/api/escalas"
         );
         const data = await res.json();
         console.log("Escalas do backend:", data);
 
-        // Converte a data para objeto Date
+        // Converter as datas corretamente
         const escalasComData = data.map((e) => {
           let dataFormatada;
           if (e.data.includes("-")) {
-            // formato yyyy-mm-dd
             const [ano, mes, dia] = e.data.split("-").map(Number);
             dataFormatada = new Date(ano, mes - 1, dia);
           } else if (e.data.includes("/")) {
-            // formato dd/mm/yyyy
             const [dia, mes, ano] = e.data.split("/").map(Number);
             dataFormatada = new Date(ano, mes - 1, dia);
+          } else {
+            dataFormatada = new Date(e.data);
           }
+          dataFormatada.setHours(0, 0, 0, 0);
           return { ...e, data: dataFormatada };
         });
 
@@ -71,27 +70,27 @@ export default function AgendaMensalAdm({ navigation }) {
   const hoje = new Date();
   const mesAtual = hoje.getMonth();
   const anoAtual = hoje.getFullYear();
-
-  // Escalas gerais do mês atual (apenas da mesma igreja do usuário)
-  const escalasMes =
-    user && escalas
-      ? escalas.filter(
-          (e) =>
-            e.data.getMonth() === mesAtual &&
-            e.data.getFullYear() === anoAtual &&
-            e.igreja === user.igreja
-        )
-      : [];
-
-  // Normaliza o "hoje" para o início do dia
   hoje.setHours(0, 0, 0, 0);
 
-  // Escalas futuras ou de hoje (da mesma igreja)
+  // Escalas do mês atual — agora ordenadas por data
+  const escalasMes =
+    user && escalas
+      ? escalas
+          .filter(
+            (e) =>
+              e.data.getMonth() === mesAtual &&
+              e.data.getFullYear() === anoAtual &&
+              e.igreja === user.igreja
+          )
+          .sort((a, b) => a.data.getTime() - b.data.getTime())
+      : [];
+
+  // Escalas futuras — também ordenadas
   const escalasFuturas =
     user && escalas
       ? escalas
-          .filter((e) => e.data >= hoje && e.igreja === user.igreja)
-          .sort((a, b) => a.data - b.data)
+          .filter((e) => e.data.getTime() >= hoje.getTime() && e.igreja === user.igreja)
+          .sort((a, b) => a.data.getTime() - b.data.getTime())
       : [];
 
   const proxima = escalasFuturas.length > 0 ? escalasFuturas[0] : null;
@@ -176,7 +175,7 @@ export default function AgendaMensalAdm({ navigation }) {
                   weekday: "long",
                 });
                 return (
-                  <View key={index} style={styles.tabelaLinha}>
+                  <View key={item.id || index} style={styles.tabelaLinha}>
                     <Text style={styles.tabelaTexto}>
                       {diaSemana.charAt(0).toUpperCase() + diaSemana.slice(1)}
                     </Text>
