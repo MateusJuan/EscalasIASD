@@ -13,6 +13,8 @@ import axios from "axios";
 import { Feather } from "@expo/vector-icons";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import cores from "./estilos/cores";
+import * as Notifications from "expo-notifications";
+import * as Device from "expo-device";
 
 export default function Login({ navigation }) {
   const [email, setEmail] = useState("");
@@ -43,6 +45,27 @@ export default function Login({ navigation }) {
     ]).start();
   };
 
+    async function obterExpoToken() {
+    if (!Device.isDevice) return null;
+
+    const { status: existingStatus } = await Notifications.getPermissionsAsync();
+    let finalStatus = existingStatus;
+
+    if (existingStatus !== "granted") {
+      const { status } = await Notifications.requestPermissionsAsync();
+      finalStatus = status;
+    }
+
+    if (finalStatus !== "granted") {
+      console.log("Permissão negada para notificações");
+      return null;
+    }
+
+    const token = (await Notifications.getExpoPushTokenAsync()).data;
+    return token;
+  }
+
+
   async function login() {
     if (!email || !senha) {
       mostrarErro("Preencha todos os campos.");
@@ -50,9 +73,12 @@ export default function Login({ navigation }) {
     }
 
     try {
+      // Obter token do dispositivo
+      const expo_push_token = await obterExpoToken();
+
       const response = await axios.post(
         "https://agendas-escalas-iasd-backend.onrender.com/api/login",
-        { email, senha }
+        { email, senha, expo_push_token }
       );
 
       const { token, user } = response.data;
@@ -61,11 +87,9 @@ export default function Login({ navigation }) {
         throw new Error("Resposta inválida do servidor");
       }
 
-      // Salva usuário e token
       await AsyncStorage.setItem("usuarioLogado", JSON.stringify(user));
       await AsyncStorage.setItem("token", token);
 
-      // Modal de sucesso
       setUsuarioNome(user.nome);
       setModalSucesso(true);
 
