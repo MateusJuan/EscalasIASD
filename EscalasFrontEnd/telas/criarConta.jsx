@@ -126,6 +126,17 @@ const [igrejaSelecionada, setIgrejaSelecionada] = useState(null);
     try {
       setCarregando(true);
 
+      console.log({
+        nome,
+        email,
+        senha,
+        dataNascimento,
+        ministerio: ministerioFinal,
+        igreja_id: igrejaSelecionada?.id,
+        igreja_nome: buscaIgreja,
+      });
+
+
       await axios.post(
         "https://agendas-escalas-iasd-backend.onrender.com/api/usuarios",
         {
