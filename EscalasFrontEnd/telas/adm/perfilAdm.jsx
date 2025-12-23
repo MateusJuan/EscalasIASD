@@ -5,7 +5,6 @@ import {
   StyleSheet,
   Image,
   TouchableOpacity,
-  SafeAreaView,
   ActivityIndicator,
   Modal,
   TextInput,
@@ -17,6 +16,7 @@ import AsyncStorage from "@react-native-async-storage/async-storage";
 import AdmInferior from "../barras/adminferior";
 import axios from "axios";
 import { Linking } from "react-native";
+import { SafeAreaView } from "react-native-safe-area-context";
 
 export default function Perfil({ navigation }) {
   const [user, setUser] = useState(null);

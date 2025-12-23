@@ -1,6 +1,6 @@
 import { StatusBar } from 'expo-status-bar';
 import { useEffect, useState } from 'react';
-import { StyleSheet, Text, View, Image, ActivityIndicator } from 'react-native';
+import { StyleSheet, Text, View, Image} from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import cores from './estilos/cores';
 

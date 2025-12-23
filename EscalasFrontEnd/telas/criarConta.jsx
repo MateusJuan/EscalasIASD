@@ -5,7 +5,6 @@ import {
   TextInput,
   StyleSheet,
   TouchableOpacity,
-  SafeAreaView,
   Modal,
   FlatList,
 } from "react-native";
@@ -13,6 +12,7 @@ import { MaskedTextInput } from "react-native-mask-text";
 import axios from "axios";
 import { Feather } from "@expo/vector-icons";
 import cores from "./estilos/cores";
+import { SafeAreaView } from "react-native-safe-area-context";
 
 export default function CriarConta({ navigation }) {
   const [nome, setNome] = useState("");
@@ -21,6 +21,8 @@ export default function CriarConta({ navigation }) {
   const [igreja, setIgreja] = useState("");
   const [dataNascimento, setDataNascimento] = useState("");
   const [senhaVisivel, setSenhaVisivel] = useState(false);
+  const [carregando, setCarregando] = useState(false);
+  
 
   // Ministérios
   const [ministerios, setMinisterios] = useState([]);
@@ -33,6 +35,12 @@ export default function CriarConta({ navigation }) {
   // Modal de erro
   const [modalErro, setModalErro] = useState(false);
   const [erroMensagem, setErroMensagem] = useState("");
+
+  // Igrejas
+const [igrejas, setIgrejas] = useState([]);
+const [buscaIgreja, setBuscaIgreja] = useState("");
+const [igrejaSelecionada, setIgrejaSelecionada] = useState(null);
+
 
   const mostrarErro = (mensagem) => {
     setErroMensagem(mensagem);
@@ -69,13 +77,37 @@ export default function CriarConta({ navigation }) {
     carregarMinisterios();
   }, [buscaMinisterio]);
 
+  // === Buscar igrejas conforme digita ===
+  useEffect(() => {
+    async function carregarIgrejas() {
+      if (!buscaIgreja) {
+        setIgrejas([]);
+        return;
+      }
+
+      try {
+        const res = await fetch(
+          `https://agendas-escalas-iasd-backend.onrender.com/api/igrejas?search=${buscaIgreja}`
+        );
+        if (!res.ok) return;
+
+        const data = await res.json();
+        setIgrejas(data);
+      } catch (e) {
+        console.error("Erro ao buscar igrejas:", e);
+      }
+    }
+
+    carregarIgrejas();
+  }, [buscaIgreja]);
+
+
   const handleEnviar = async () => {
-    if (!nome || !email || !senha || !igreja || !dataNascimento) {
+    if (!nome || !email || !senha || !buscaIgreja || !dataNascimento) {
       mostrarErro("Preencha todos os campos.");
       return;
     }
 
-    // Decide qual ministério salvar
     const ministerioFinal = ministerioSelecionado
       ? ministerioSelecionado.ministerio
       : buscaMinisterio;
@@ -85,7 +117,6 @@ export default function CriarConta({ navigation }) {
       return;
     }
 
-    // Converte dd/mm/yyyy para yyyy-mm-dd
     let dataFormatada = dataNascimento;
     if (dataNascimento.includes("/")) {
       const [dia, mes, ano] = dataNascimento.split("/");
@@ -93,24 +124,37 @@ export default function CriarConta({ navigation }) {
     }
 
     try {
+      setCarregando(true);
+
       await axios.post(
         "https://agendas-escalas-iasd-backend.onrender.com/api/usuarios",
         {
           nome,
           email,
           senha,
-          igreja,
           dataNascimento: dataFormatada,
           ministerio: ministerioFinal,
+
+          // 🔥 IGREJA CORRETA
+          igreja_id: igrejaSelecionada ? igrejaSelecionada.id : null,
+          igreja_nome: igrejaSelecionada ? null : buscaIgreja,
         }
       );
 
       mostrarSucesso();
     } catch (error) {
       console.error(error);
-      mostrarErro("Não foi possível criar a conta.");
+
+      if (error.response?.data?.error) {
+        mostrarErro(error.response.data.error);
+      } else {
+        mostrarErro("Não foi possível criar a conta.");
+      }
+    } finally {
+      setCarregando(false);
     }
   };
+
 
   return (
     <SafeAreaView style={styles.container}>
@@ -173,13 +217,37 @@ export default function CriarConta({ navigation }) {
         maxLength={10}
       />
 
-      <Text style={styles.label}>IGREJA</Text>
-      <TextInput
-        style={styles.input}
-        placeholder="Nome da Igreja"
-        value={igreja}
-        onChangeText={setIgreja}
+    <Text style={styles.label}>IGREJA</Text>
+    <TextInput
+      style={styles.input}
+      placeholder="Digite ou pesquise igreja"
+      value={buscaIgreja}
+      onChangeText={(text) => {
+        setBuscaIgreja(text);
+        setIgrejaSelecionada(null);
+      }}
+    />
+
+    {igrejas.length > 0 && (
+      <FlatList
+        data={igrejas}
+        keyExtractor={(item) => item.id.toString()}
+        style={styles.listaSugestoes}
+        renderItem={({ item }) => (
+          <TouchableOpacity
+            style={styles.itemSugestao}
+            onPress={() => {
+              setIgrejaSelecionada(item);
+              setBuscaIgreja(item.nome);
+              setIgrejas([]);
+            }}
+          >
+            <Text>{item.nome}</Text>
+          </TouchableOpacity>
+        )}
       />
+    )}
+
 
       <Text style={styles.label}>MINISTÉRIO</Text>
       <TextInput
@@ -211,9 +279,16 @@ export default function CriarConta({ navigation }) {
         />
       )}
 
-      <TouchableOpacity style={styles.botao} onPress={handleEnviar}>
-        <Text style={styles.botaoTexto}>ENVIAR</Text>
-      </TouchableOpacity>
+    <TouchableOpacity
+      style={[styles.botao, carregando && { opacity: 0.6 }]}
+      disabled={carregando}
+      onPress={handleEnviar}
+    >
+      <Text style={styles.botaoTexto}>
+        {carregando ? "ENVIANDO..." : "ENVIAR"}
+      </Text>
+    </TouchableOpacity>
+
 
       {/* Modal de sucesso */}
       <Modal transparent visible={modalSucesso} animationType="fade">

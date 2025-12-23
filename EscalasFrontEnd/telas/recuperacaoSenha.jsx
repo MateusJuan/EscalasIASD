@@ -1,7 +1,6 @@
 import axios from "axios";
 import { useState } from "react";
 import {
-  SafeAreaView,
   StyleSheet,
   Text,
   TextInput,
@@ -11,6 +10,7 @@ import {
 } from "react-native";
 import { Feather } from "@expo/vector-icons";
 import cores from "./estilos/cores";
+import { SafeAreaView } from "react-native-safe-area-context";
 
 export default function RecuperacaoSenha({ navigation }) {
   const [email, setEmail] = useState("");

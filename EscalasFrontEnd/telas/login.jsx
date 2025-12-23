@@ -1,6 +1,5 @@
 import { useState } from "react";
 import {
-  SafeAreaView,
   StyleSheet,
   Text,
   TextInput,
@@ -13,6 +12,7 @@ import axios from "axios";
 import { Feather } from "@expo/vector-icons";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import cores from "./estilos/cores";
+import { SafeAreaView } from "react-native-safe-area-context";
 
 export default function Login({ navigation }) {
   const [email, setEmail] = useState("");
