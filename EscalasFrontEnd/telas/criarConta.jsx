@@ -228,36 +228,40 @@ const [igrejaSelecionada, setIgrejaSelecionada] = useState(null);
         maxLength={10}
       />
 
-    <Text style={styles.label}>IGREJA</Text>
-    <TextInput
-      style={styles.input}
-      placeholder="Digite ou pesquise igreja"
-      value={buscaIgreja}
-      onChangeText={(text) => {
-        setBuscaIgreja(text);
-        setIgrejaSelecionada(null);
-      }}
-    />
+<View>
+  <Text style={styles.label}>IGREJA</Text>
+  <TextInput
+    style={styles.input}
+    placeholder="Digite ou pesquise igreja"
+    value={buscaIgreja}
+    onChangeText={(text) => {
+      setBuscaIgreja(text);
+      setIgrejaSelecionada(null);
+    }}
+  />
 
-    {igrejas.length > 0 && (
-      <FlatList
-        data={igrejas}
-        keyExtractor={(item) => item.id.toString()}
-        style={styles.listaSugestoes}
-        renderItem={({ item }) => (
-          <TouchableOpacity
-            style={styles.itemSugestao}
-            onPress={() => {
-              setIgrejaSelecionada(item);
-              setBuscaIgreja(item.nome);
-              setIgrejas([]);
-            }}
-          >
-            <Text>{item.nome}</Text>
-          </TouchableOpacity>
-        )}
-      />
-    )}
+  {igrejas.length > 0 && (
+    <FlatList
+      data={igrejas}
+      keyExtractor={(item) => String(item.id)}
+      style={styles.listaSugestoes}
+      renderItem={({ item }) => (
+        <TouchableOpacity
+          style={styles.itemSugestao}
+          onPress={() => {
+            setIgrejaSelecionada(item);
+            setBuscaIgreja(item.nome);
+            setIgrejas([]);
+          }}
+        >
+          <Text>{item.nome}</Text>
+        </TouchableOpacity>
+      )}
+    />
+  )}
+</View>
+
+
 
 
       <Text style={styles.label}>MINISTÉRIO</Text>
