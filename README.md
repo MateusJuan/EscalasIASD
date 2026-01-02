@@ -1,33 +1,37 @@
-📅 EscalasIASD
+# 📅 EscalasIASD
 
-Aplicativo para visualizar e gerenciar escalas/horários de atividades da Igreja Adventista do Sétimo Dia (IASD).
+Aplicativo para visualizar e gerenciar **escalas** de atividades da **Igreja**.
 
-Este projeto contém a interface front-end do app e uma versão APK publicada (v1.0). 
-GitHub
+Este projeto contém a interface **front-end** do aplicativo e uma versão **APK publicada (v1.0)**.
 
-🧠 Sobre
+---
 
-O EscalasIASD é uma aplicação desenvolvida para facilitar o acesso às escalas de serviços, cultos, eventos e atividades da IASD diretamente no celular ou navegador. Seu foco principal é tornar a consulta de horários mais rápida e organizada para membros e líderes da igreja.
+## 🧠 Sobre
 
-📦 Funcionalidades
+O **EscalasIASD** é uma aplicação desenvolvida para facilitar o acesso às escalas de serviços, cultos, eventos e atividades da Igreja diretamente no **celular ou navegador**.
+> ⚠️ O site (versão web) ainda está em desenvolvimento.
 
-✨ Principais recursos
 
-📋 Visualização de escalas e horários de eventos
+Seu foco principal é tornar a consulta de horários mais **rápida, prática e organizada**, auxiliando tanto **membros** quanto **líderes da igreja**.
 
-📱 Interface intuitiva para dispositivos móveis
+---
 
-📦 APK disponível para instalação offline
+## 📦 Funcionalidades
 
-🔄 Atualização dinâmica de dados (quando conectado)
+### ✨ Principais recursos
 
-📁 Estrutura do Projeto
+- 📋 Visualização de escalas de eventos e cultos
+- 📱 Interface intuitiva e responsiva para dispositivos móveis
+- 📦 APK disponível para instalação  
+- 🔄 Atualização dinâmica de dados (quando conectado à internet)
+
+---
+
+## 📁 Estrutura do Projeto
+
+```text
 EscalasIASD/
 ├─ EscalasFrontEnd/       # Código front-end principal (JavaScript)
 ├─ .gitattributes
 ├─ README.md              # Este arquivo
 └─ Releases/              # APK e versões publicadas
-
-
-🔹 O front-end está em JavaScript e pode ser usado com frameworks como React ou React Native, dependendo da configuração local. 
-GitHub
