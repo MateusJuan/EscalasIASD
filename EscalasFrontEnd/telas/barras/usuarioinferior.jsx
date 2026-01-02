@@ -18,8 +18,9 @@ function isVersionAtLeast(current, required) {
   return true;
 }*/
 
-export default function UsuarioInferior({ navigation }) {
-    const user = route?.params?.user;
+export default function UsuarioInferior({ navigation, route }) {
+  const user = route?.params?.user;
+
   
     /*// 👇 versão REAL instalada no celular
     const appVersion = Application.nativeApplicationVersion ?? "0.0.0";

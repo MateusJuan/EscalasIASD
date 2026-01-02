@@ -143,6 +143,17 @@ export default function Perfil({ navigation }) {
       </SafeAreaView>
     );
   }
+//Logout
+const fazerLogout = async () => {
+  setConfirmarSair(false);
+
+  await AsyncStorage.clear();
+
+  navigation.reset({
+    index: 0,
+    routes: [{ name: "Login" }],
+  });
+};
 
   return (
     <SafeAreaView style={styles.container}>
@@ -308,14 +319,7 @@ export default function Perfil({ navigation }) {
             <View style={styles.modalButtons}>
               <TouchableOpacity
                 style={[styles.modalButton, { backgroundColor: "#2e3e4e" }]}
-                onPress={async () => {
-                  await AsyncStorage.removeItem("usuarioLogado");
-                  setConfirmarSair(false);
-                  navigation.reset({
-                    index: 0,
-                    routes: [{ name: "Login" }],
-                  });
-                }}
+                onPress={fazerLogout}
               >
                 <Text style={styles.modalButtonText}>Sair</Text>
               </TouchableOpacity>

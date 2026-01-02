@@ -13,7 +13,7 @@
       }
     },
     "owner": "matewx_j",
-    "runtimeVersion": "1.1.0",
+    "runtimeVersion": { "policy": "sdkVersion" },
     "updates": {
       "url": "https://u.expo.dev/f7177ff5-2c05-46b4-9892-aa8b47a18299"
     },

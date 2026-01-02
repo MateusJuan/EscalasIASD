@@ -6,7 +6,7 @@ export default function AgendaMensalUsuario({ navigation }) {
   const fadeAnim = useRef(new Animated.Value(0)).current;
 
   const linkAPK =
-    "https://github.com/MateusJuan/EscalasIASD/releases/download/v1.0/application-bc9ab990-bb9c-42bf-8b91-cbd7dcb3a7a2.apk";
+    "https://github.com/MateusJuan/EscalasIASD/releases/download/v1.0/application-ad001593-0cc6-4cd2-91c2-b3e3db6cf47b.apk";
 
   const baixarAPK = () => {
     Linking.openURL(linkAPK);

@@ -18,7 +18,7 @@ function isVersionAtLeast(current, required) {
   return true;
 }*/
 
-export default function AdmInferior({ navigation, route }) {
+export default function UsuarioInferior({ navigation, route }) {
   const user = route?.params?.user;
 
   /*// 👇 versão REAL instalada no celular
