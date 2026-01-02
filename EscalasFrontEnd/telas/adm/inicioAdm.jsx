@@ -13,6 +13,7 @@ import { MaterialIcons } from "@expo/vector-icons";
 import AdmInferior from "../barras/adminferior";
 import { useState, useEffect } from "react";
 import AsyncStorage from "@react-native-async-storage/async-storage";
+import DateTimePicker from "@react-native-community/datetimepicker"
 
 export default function InicioAdm({ navigation, route }) {
   const [user, setUser] = useState(route.params?.user || null);
@@ -40,6 +41,11 @@ export default function InicioAdm({ navigation, route }) {
   const [ministerios, setMinisterios] = useState([]);
   const [ministerioSelecionado, setMinisterioSelecionado] = useState(null);
 
+  // Calendário (DateTimePicker)
+  const [mostrarCalendario, setMostrarCalendario] = useState(false);
+  const [dataSelecionada, setDataSelecionada] = useState(new Date());
+
+
   function parseDataBR(dataStr) {
     if (!dataStr) return null;
     let data;
@@ -53,6 +59,26 @@ export default function InicioAdm({ navigation, route }) {
       if (data.getDate() !== dia || data.getMonth() !== mes - 1 || data.getFullYear() !== ano) return null;
     } else return null;
     return data;
+  }
+  function onChangeCalendario(event, selectedDate) {
+    if (event.type === "dismissed") {
+      setMostrarCalendario(false);
+      return;
+    }
+
+    const currentDate = selectedDate || dataSelecionada;
+    setMostrarCalendario(false);
+    setDataSelecionada(currentDate);
+
+    // Formata para dd/mm/aaaa
+    const dia = String(currentDate.getDate()).padStart(2, "0");
+    const mes = String(currentDate.getMonth() + 1).padStart(2, "0");
+    const ano = currentDate.getFullYear();
+
+    const dataFormatada = `${dia}/${mes}/${ano}`;
+
+    setNovaData(dataFormatada); // <-- já preenche o input
+    setModalCriarVisible(true); // <-- abre o modal que você já tem
   }
 
   // === Carregar usuário logado ===
@@ -364,7 +390,7 @@ export default function InicioAdm({ navigation, route }) {
         {/* ESCALA GERAL DO MÊS + BOTÃO */}
         <View style={{ flexDirection: "row", alignItems: "center", marginLeft: 15, marginTop: 20 }}>
           <Text style={styles.escalaTexto}>Escala Geral do Mês:</Text>
-          <MaterialIcons name="add-circle" size={24} color="#2e3e4e" style={{ marginLeft: 8 }} onPress={() => setModalCriarVisible(true)}/>
+          <MaterialIcons name="add-circle" size={24} color="#2e3e4e" style={{ marginLeft: 8 }} onPress={() => setMostrarCalendario(true)} />
         </View>
         <View style={styles.tabela}>
           <View style={styles.tabelaLinhaHeader}>
@@ -562,6 +588,17 @@ export default function InicioAdm({ navigation, route }) {
           </View>
         </View>
       )}
+
+    {mostrarCalendario && (
+        <DateTimePicker
+              value={dataSelecionada}
+              mode="date"
+              display="calendar"
+              minimumDate={new Date()}
+              onChange={onChangeCalendario}
+            />
+      )}
+
 
       <AdmInferior navigation={navigation} route={{ params: { user } }} />
     </View>
