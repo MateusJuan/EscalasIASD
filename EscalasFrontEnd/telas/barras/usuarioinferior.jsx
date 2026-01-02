@@ -1,9 +1,35 @@
 import { View, Text, TouchableOpacity, StyleSheet } from "react-native";
 import { MaterialIcons } from "@expo/vector-icons";
 
-const linkAPK = "https://github.com/MateusJuan/EscalasIASD/releases/download/v1.0/application-c46658a1-c0f8-4a18-aa77-b68e81aab1fb.apk"
+// Verificaçã de versão da biblioteca minima existente
+/*import * as Application from "expo-application";
+
+  // 👇 versão mínima exigida
+const versao_do_app = "1.1.0";
+
+function isVersionAtLeast(current, required) {
+  const c = current.split(".").map(Number);
+  const r = required.split(".").map(Number);
+
+  for (let i = 0; i < r.length; i++) {
+    if ((c[i] || 0) > r[i]) return true;
+    if ((c[i] || 0) < r[i]) return false;
+  }
+  return true;
+}*/
 
 export default function UsuarioInferior({ navigation }) {
+    const user = route?.params?.user;
+  
+    /*// 👇 versão REAL instalada no celular
+    const appVersion = Application.nativeApplicationVersion ?? "0.0.0";
+  
+    // 👇 TRUE = já tem a lib | FALSE = precisa atualizar
+    const possuiVersaoAtualizada = isVersionAtLeast(
+      appVersion,
+      versao_do_app
+    );*/
+
   return (
     <View style={styles.footer}>
       <TouchableOpacity
@@ -22,17 +48,19 @@ export default function UsuarioInferior({ navigation }) {
         <Text style={styles.footerText}>Escalas do Mês</Text>
       </TouchableOpacity>
 
-      {/* Botão de atualização com badge corretamente posicionado */}
-      {/*<TouchableOpacity
-        style={styles.footerItem}
-        onPress={() => navigation.navigate("AtualizarAppUsuario")}
-      >
-        <View style={styles.iconWrapper}>
-          <MaterialIcons name="update" size={28} color="#fff" />
-          <View style={styles.badge} />
-        </View>
-        <Text style={styles.footerText}>Atualizar App</Text>
-      </TouchableOpacity>*/}
+       {/* 🔥 SÓ MOSTRA SE NÃO TIVER A LIB ATUALIZADA */}
+      {/*{!possuiVersaoAtualizada && (*/}
+        <TouchableOpacity
+          style={styles.footerItem}
+          onPress={() => navigation.navigate("AtualizarAppUsuario")}
+        >
+          <View style={styles.iconWrapper}>
+            <MaterialIcons name="update" size={28} color="#fff" />
+            <View style={styles.badge} />
+          </View>
+          <Text style={styles.footerText}>Atualizar App</Text>
+        </TouchableOpacity>
+      {/*})}*/}
 
       <TouchableOpacity
         style={styles.footerItem}
