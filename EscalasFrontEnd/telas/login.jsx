@@ -14,6 +14,10 @@ import AsyncStorage from "@react-native-async-storage/async-storage";
 import cores from "./estilos/cores";
 import { SafeAreaView } from "react-native-safe-area-context";
 
+//notificações:
+import { obterExpoPushToken } from "./utils/notifications_Push_Token";
+
+
 export default function Login({ navigation }) {
   const [email, setEmail] = useState("");
   const [senha, setSenha] = useState("");
@@ -43,6 +47,7 @@ export default function Login({ navigation }) {
     ]).start();
   };
 
+//função login com token de notificação push:
   async function login() {
     if (!email || !senha) {
       mostrarErro("Preencha todos os campos.");
@@ -50,37 +55,37 @@ export default function Login({ navigation }) {
     }
 
     try {
+      const expo_push_token = await obterExpoPushToken();
+
       const response = await axios.post(
         "https://agendas-escalas-iasd-backend.onrender.com/api/login",
-        { email, senha }
+        {
+          email,
+          senha,
+          expo_push_token,
+        }
       );
 
       const { token, user } = response.data;
 
-      if (!user || !user.nome) {
-        throw new Error("Resposta inválida do servidor");
-      }
-
-      // Salva usuário e token
       await AsyncStorage.setItem("usuarioLogado", JSON.stringify(user));
       await AsyncStorage.setItem("token", token);
 
-      // Modal de sucesso
       setUsuarioNome(user.nome);
       setModalSucesso(true);
 
       setTimeout(() => {
         setModalSucesso(false);
-        if (user.tipo === "adm" || user.tipo === "developer") {
-          navigation.replace("InicioAdm", { user });
-        } else {
-          navigation.replace("InicioUsuario", { user });
-        }
+        navigation.replace(
+          user.tipo === "adm" || user.tipo === "developer"
+            ? "InicioAdm"
+            : "InicioUsuario",
+          { user }
+        );
       }, 2000);
 
     } catch (error) {
       mostrarErro("Email ou senha incorretos.");
-      console.error(error);
     }
   }
 

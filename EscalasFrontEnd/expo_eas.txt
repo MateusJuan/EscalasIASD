@@ -1,5 +1,5 @@
 Gerar apk (Escalas):
-eas build --platform android --profile production
+npx eas-cli build --platform android --profile production
 
 Atualizar aplicativos sem gerar Aok(Mudanças somente visuais sem instalar ou atualizar bibliotecas):
 eas update --branch production --message "Mudança X"
