@@ -95,35 +95,55 @@ export default function Perfil({ navigation }) {
   };
 
   const salvarEdicao = async () => {
-    if (!nomeEdit.trim() || !emailEdit.trim() || !igrejaEdit.trim() || !dataNascimentoEdit.trim()) {
+    // validações básicas
+    if (
+      !nomeEdit.trim() ||
+      !emailEdit.trim() ||
+      !igrejaEdit.trim() ||
+      !dataNascimentoEdit.trim()
+    ) {
       mostrarErro("Preencha todos os campos obrigatórios.");
       return;
     }
+
     if (!validarEmail(emailEdit)) {
       mostrarErro("Email inválido.");
       return;
     }
+
     if (senhaEdit !== confirmaSenhaEdit) {
       mostrarErro("As senhas não coincidem.");
       return;
     }
 
     try {
+      // payload SEM senha por padrão
+      const payload = {
+        nome: nomeEdit.trim(),
+        email: emailEdit.trim().toLowerCase(),
+        dataNascimento: dataNascimentoEdit,
+        igreja: igrejaEdit.trim(),
+      };
+
+      // 👉 só envia senha se o usuário digitou uma nova
+      if (senhaEdit && senhaEdit.trim()) {
+        payload.senha = senhaEdit;
+      }
+
       const response = await axios.put(
         `https://agendas-escalas-iasd-backend.onrender.com/api/usuarios/${user.id}`,
-        {
-          nome: nomeEdit,
-          email: emailEdit,
-          dataNascimento: dataNascimentoEdit,
-          igreja: igrejaEdit,
-          senha: senhaEdit ? senhaEdit : user.senha,
-        }
+        payload
       );
 
       if (response.status === 200) {
         const usuarioAtualizado = response.data;
+
         setUser(usuarioAtualizado);
-        await AsyncStorage.setItem("usuarioLogado", JSON.stringify(usuarioAtualizado));
+        await AsyncStorage.setItem(
+          "usuarioLogado",
+          JSON.stringify(usuarioAtualizado)
+        );
+
         setModalVisible(false);
         mostrarSucesso("Dados atualizados com sucesso!");
       }

@@ -57,14 +57,12 @@ export default function Login({ navigation }) {
     try {
       const expo_push_token = await obterExpoPushToken();
 
-      const response = await axios.post(
-        "https://agendas-escalas-iasd-backend.onrender.com/api/login",
-        {
-          email,
-          senha,
-          expo_push_token,
-        }
-      );
+      const response = await axios.post("https://agendas-escalas-iasd-backend.onrender.com/api/login", {
+        email,
+        senha,
+        expo_push_token,
+      });
+
 
       const { token, user } = response.data;
 
@@ -77,7 +75,7 @@ export default function Login({ navigation }) {
       setTimeout(() => {
         setModalSucesso(false);
         navigation.replace(
-          user.tipo === "adm" || user.tipo === "developer"
+          user.tipo === "adm" || user.tipo === "usuario"
             ? "InicioAdm"
             : "InicioUsuario",
           { user }
@@ -85,9 +83,16 @@ export default function Login({ navigation }) {
       }, 2000);
 
     } catch (error) {
-      mostrarErro("Email ou senha incorretos.");
-    }
-  }
+      console.log("Erro login:", error);
+
+      if (error.response) {
+        mostrarErro(error.response.data?.message || "Erro no login.");
+      } else if (error.request) {
+        mostrarErro("Erro de conexão com o servidor.");
+      } else {
+        mostrarErro("Erro inesperado.");
+      }
+    }}
 
   const mostrarErro = (mensagem) => {
     setErroMensagem(mensagem);
