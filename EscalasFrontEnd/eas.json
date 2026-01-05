@@ -1,6 +1,10 @@
 {
+  "cli": {
+    "appVersionSource": "remote"
+  },
   "build": {
     "production": {
+      "node": "20.11.1",
       "android": {
         "buildType": "apk"
       },
