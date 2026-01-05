@@ -17,7 +17,6 @@ import { SafeAreaView } from "react-native-safe-area-context";
 //notificações:
 import { obterExpoPushToken } from "./utils/notifications_Push_Token";
 
-
 export default function Login({ navigation }) {
   const [email, setEmail] = useState("");
   const [senha, setSenha] = useState("");
@@ -54,15 +53,24 @@ export default function Login({ navigation }) {
       return;
     }
 
+    let expo_push_token = "";
+
+    // 🔒 NÃO deixa o push token quebrar o login
     try {
-      const expo_push_token = await obterExpoPushToken();
+      expo_push_token = await obterExpoPushToken();
+    } catch (e) {
+      console.log("Erro ao obter push token:", e);
+    }
 
-      const response = await axios.post("https://agendas-escalas-iasd-backend.onrender.com/api/login", {
-        email,
-        senha,
-        expo_push_token,
-      });
-
+    try {
+      const response = await axios.post(
+        "https://agendas-escalas-iasd-backend.onrender.com/api/login",
+        {
+          email,
+          senha,
+          expo_push_token, // pode ser "" sem problema
+        }
+      );
 
       const { token, user } = response.data;
 
@@ -72,18 +80,18 @@ export default function Login({ navigation }) {
       setUsuarioNome(user.nome);
       setModalSucesso(true);
 
-      setTimeout(() => {
-        setModalSucesso(false);
-        navigation.replace(
-          user.tipo === "adm" || user.tipo === "usuario"
-            ? "InicioAdm"
-            : "InicioUsuario",
-          { user }
-        );
-      }, 2000);
+        setTimeout(() => {
+          setModalSucesso(false);
+
+          if (user.tipo === "adm") {
+            navigation.replace("InicioAdm", { user });
+          } else if (user.tipo === "usuario") {
+            navigation.replace("InicioUsuario", { user });
+          }
+        }, 2000);
 
     } catch (error) {
-      console.log("Erro login:", error);
+      console.log("ERRO LOGIN COMPLETO:", error);
 
       if (error.response) {
         mostrarErro(error.response.data?.message || "Erro no login.");
@@ -92,7 +100,8 @@ export default function Login({ navigation }) {
       } else {
         mostrarErro("Erro inesperado.");
       }
-    }}
+    }
+  }
 
   const mostrarErro = (mensagem) => {
     setErroMensagem(mensagem);
