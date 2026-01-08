@@ -6,7 +6,7 @@ export default function AgendaMensalUsuario({ navigation }) {
   const fadeAnim = useRef(new Animated.Value(0)).current;
 
   const linkAPK =
-    "https://github.com/MateusJuan/EscalasIASD/releases/download/v1.0/application-ad001593-0cc6-4cd2-91c2-b3e3db6cf47b.apk";
+    "https://github.com/MateusJuan/EscalasIASD/releases/download/V1.1/application-5a697761-d204-4f81-bca2-26a4ccefa696.apk";
 
   const baixarAPK = () => {
     Linking.openURL(linkAPK);
@@ -36,7 +36,7 @@ export default function AgendaMensalUsuario({ navigation }) {
       <View style={styles.container}>
         <Text style={styles.title}>📥 Atualização Disponível</Text>
         <Animated.Text style={[styles.animText, { opacity: fadeAnim }]}>
-          Versão do dia 01/01/2026
+          Versão do dia 07/01/2026
         </Animated.Text>
 
         <TouchableOpacity style={styles.button} onPress={baixarAPK}>
