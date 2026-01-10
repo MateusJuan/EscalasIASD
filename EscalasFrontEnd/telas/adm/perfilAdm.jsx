@@ -219,10 +219,10 @@ const fazerLogout = async () => {
         <Text
           style={styles.rodapeTexto}
           onPress={() =>
-            Linking.openURL("https://escalasfrontend--4o14gq74br.expo.app/")
+            Linking.openURL("https://escalasiasdweb-1.onrender.com")
           }
         >
-          Nosso Site: https://escalasfrontend--4o14gq74br.expo.app/
+          Nosso Site é https://escalasiasdweb-1.onrender.com, mas ele ainda está em desenvolvimento!
         </Text>
       </ScrollView>
 
