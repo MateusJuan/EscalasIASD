@@ -65,26 +65,30 @@ export default function Login({ navigation }) {
           expo_push_token,
         }
       );
+      console.log("RESPOSTA LOGIN:", response.data);
 
-      const { token, user } = response.data;
 
-      await AsyncStorage.setItem("usuarioLogado", JSON.stringify(user));
+      // PEGAR OS DADOS AQUI
+      const { token, user: usuario } = response.data;
+
+      await AsyncStorage.setItem("usuarioLogado", JSON.stringify(usuario));
       await AsyncStorage.setItem("token", token);
 
-      setUsuarioNome(user.nome);
+      setUsuarioNome(usuario.nome);
       setModalSucesso(true);
 
       setTimeout(() => {
         setModalSucesso(false);
-        navigation.replace(
-          user.tipo === "adm" || user.tipo === "developer"
-            ? "InicioAdm"
-            : "InicioUsuario",
-          { user }
-        );
+
+        if (usuario.tipo === "adm") {
+          navigation.replace("InicioAdm");
+        } else {
+          navigation.replace("InicioUsuario");
+        }
       }, 2000);
 
     } catch (error) {
+      console.log("ERRO LOGIN:", error);
       mostrarErro("Email ou senha incorretos.");
     }
   }
