@@ -55,16 +55,24 @@ export default function Login({ navigation }) {
     }
 
     try {
-      const expo_push_token = await obterExpoPushToken();
+      let expo_push_token = null;
 
-      const response = await axios.post(
-        "https://agendas-escalas-iasd-backend.onrender.com/api/login",
-        {
-          email,
-          senha,
-          expo_push_token,
+        try {
+          expo_push_token = await obterExpoPushToken();
+        } catch (e) {
+          console.log("Erro ao obter push token:", e);
         }
-      );
+
+
+        const response = await axios.post(
+          "https://agendas-escalas-iasd-backend.onrender.com/api/login",
+          {
+            email,
+            senha,
+            expo_push_token, // pode ir null
+          }
+        );
+
       console.log("RESPOSTA LOGIN:", response.data);
 
 
