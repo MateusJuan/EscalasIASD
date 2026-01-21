@@ -147,7 +147,11 @@ export default function Perfil({ navigation }) {
 const fazerLogout = async () => {
   setConfirmarSair(false);
 
-  await AsyncStorage.clear();
+  await AsyncStorage.multiRemove([
+    "usuarioLogado",
+    "token",
+    "ultimaEscalaId",
+  ]);
 
   navigation.reset({
     index: 0,
@@ -219,10 +223,10 @@ const fazerLogout = async () => {
         <Text
           style={styles.rodapeTexto}
           onPress={() =>
-            Linking.openURL("https://escalasiasdweb-1.onrender.com")
+            Linking.openURL("https://escalas-web.vercel.app/")
           }
         >
-          Nosso Site é https://escalasiasdweb-1.onrender.com, mas ele ainda está em desenvolvimento!
+          Nosso Site é https://escalas-web.vercel.app/, mas ele ainda está em desenvolvimento!
         </Text>
       </ScrollView>
 

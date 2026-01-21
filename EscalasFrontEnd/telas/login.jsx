@@ -15,7 +15,6 @@ import cores from "./estilos/cores";
 import { SafeAreaView } from "react-native-safe-area-context";
 
 //notificações:
-import { obterExpoPushToken } from "./utils/notifications_Push_Token";
 
 
 export default function Login({ navigation }) {
@@ -58,7 +57,7 @@ export default function Login({ navigation }) {
       let expo_push_token = null;
 
         try {
-          expo_push_token = await obterExpoPushToken();
+          expo_push_token = null;
         } catch (e) {
           console.log("Erro ao obter push token:", e);
         }

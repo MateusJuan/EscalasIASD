@@ -22,7 +22,7 @@
     "expo-application": "~7.0.8",
     "expo-device": "~8.0.10",
     "expo-font": "^14.0.10",
-    "expo-notifications": "~0.32.15",
+    "expo-notifications": "~0.32.16",
     "expo-status-bar": "^3.0.9",
     "expo-updates": "^29.0.15",
     "jsonwebtoken": "^9.0.2",
