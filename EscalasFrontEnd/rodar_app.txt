@@ -1,0 +1,1 @@
+"C:\Users\Mateus Juan\AppData\Local\Android\Sdk\emulator\emulator" -avd Pixel_5
