@@ -50,7 +50,7 @@ export default function UsuarioInferior({ navigation, route }) {
 
        {/* 🔥 SÓ MOSTRA SE NÃO TIVER A LIB ATUALIZADA */}
      {/* {!possuiVersaoAtualizada && (*/}
-        <TouchableOpacity
+        {/*<TouchableOpacity
           style={styles.footerItem}
           onPress={() => navigation.navigate("AtualizarAppAdm")}
         >
@@ -59,7 +59,7 @@ export default function UsuarioInferior({ navigation, route }) {
             <View style={styles.badge} />
           </View>
           <Text style={styles.footerText}>Atualizar App</Text>
-        </TouchableOpacity>
+        </TouchableOpacity>/*}
       {/*})}*/}
 
       <TouchableOpacity

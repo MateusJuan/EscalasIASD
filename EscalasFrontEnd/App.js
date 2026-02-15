@@ -37,7 +37,7 @@ Notifications.setNotificationHandler({
 /* =========================
    FUNÇÃO DE NOTIFICAÇÃO
 ========================= */
-async function notificarNovaEscala(escala) {
+export async function notificarNovaEscala(escala) {
   await Notifications.scheduleNotificationAsync({
     content: {
       title: "📅 Nova escala criada",
@@ -53,60 +53,16 @@ async function notificarNovaEscala(escala) {
 export default function App() {
 
   useEffect(() => {
-  async function solicitarPermissao() {
-    const { status } = await Notifications.requestPermissionsAsync();
-    if (status !== "granted") {
-      console.log("Permissão de notificação negada");
-    }
-  }
-
-  solicitarPermissao();
-}, []);
-
-
-  useEffect(() => {
-    let interval;
-
-    async function verificarNovasEscalas() {
-      try {
-        const userStr = await AsyncStorage.getItem("usuarioLogado");
-        if (!userStr) return;
-
-        const user = JSON.parse(userStr);
-
-        const res = await fetch(
-          "https://agendas-escalas-iasd-backend.onrender.com/api/escalas"
-        );
-        const data = await res.json();
-
-        const escalasDaIgreja = data.filter(
-          (e) => e.igreja === user.igreja
-        );
-
-        const ultimaSalva = await AsyncStorage.getItem("ultimaEscalaId");
-        const ultimaId = ultimaSalva ? Number(ultimaSalva) : 0;
-
-        const novas = escalasDaIgreja.filter((e) => e.id > ultimaId);
-
-        if (novas.length > 0) {
-          const ultima = novas[novas.length - 1];
-
-          await notificarNovaEscala(ultima);
-          await AsyncStorage.setItem(
-            "ultimaEscalaId",
-            String(ultima.id)
-          );
-        }
-      } catch (err) {
-        console.log("Erro ao verificar escalas:", err);
+    async function solicitarPermissao() {
+      const { status } = await Notifications.requestPermissionsAsync();
+      if (status !== "granted") {
+        console.log("Permissão de notificação negada");
       }
     }
 
-    interval = setInterval(verificarNovasEscalas, 60000); // 1 min
-
-    return () => clearInterval(interval);
+    solicitarPermissao();
   }, []);
-    
+
   return (
     <NavigationContainer>
       <Stack.Navigator initialRouteName="CarregandoApp">
