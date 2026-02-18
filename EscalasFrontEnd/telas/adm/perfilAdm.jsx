@@ -220,14 +220,14 @@ const fazerLogout = async () => {
           <MaterialIcons name="delete" size={20} color="#fff" />
           <Text style={styles.botaoTexto}>Excluir Conta</Text>
         </TouchableOpacity>
-        <Text
+        {/*<Text
           style={styles.rodapeTexto}
           onPress={() =>
             Linking.openURL("https://escalas-web.vercel.app/")
           }
         >
           Nosso Site é https://escalas-web.vercel.app/, mas ele ainda está em desenvolvimento!
-        </Text>
+        </Text>*/}
       </ScrollView>
 
       {/* Modal de edição */}
