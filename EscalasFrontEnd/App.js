@@ -1,6 +1,7 @@
 import { NavigationContainer } from "@react-navigation/native";
 import { createNativeStackNavigator } from "@react-navigation/native-stack";
 import { useEffect } from "react";
+import { Platform } from "react-native";
 
 // Notificações
 import * as Notifications from "expo-notifications";
@@ -19,6 +20,8 @@ import AgendaMensalUsuario from "./telas/usuario/agendaMensalUsuario";
 import AgendaMensalAdm from "./telas/adm/agendaMensalAdm";
 import AtualizarAppUsuario from "./telas/usuario/atualizarApp";
 import AtualizarAppAdm from "./telas/adm/atualizarAppAdm";
+import ProgramaCulto from "./telas/usuario/programaCulto";
+import ProgramaCultoAdm from "./telas/adm/ProgramaCultoAdm";
 
 const Stack = createNativeStackNavigator();
 
@@ -35,7 +38,8 @@ Notifications.setNotificationHandler({
 });
 
 /* =========================
-   FUNÇÃO DE NOTIFICAÇÃO
+   FUNÇÃO DE NOTIFICAÇÃO LOCAL
+   (útil para disparar do próprio app)
 ========================= */
 export async function notificarNovaEscala(escala) {
   await Notifications.scheduleNotificationAsync({
@@ -53,14 +57,39 @@ export async function notificarNovaEscala(escala) {
 export default function App() {
 
   useEffect(() => {
-    async function solicitarPermissao() {
-      const { status } = await Notifications.requestPermissionsAsync();
-      if (status !== "granted") {
-        console.log("Permissão de notificação negada");
+    async function configurarNotificacoes() {
+      try {
+        // 1. Solicitar permissão
+        const { status } = await Notifications.requestPermissionsAsync();
+        if (status !== "granted") {
+          console.warn("⚠️ Permissão de notificação negada");
+          return;
+        }
+
+        // 2. Canal Android (obrigatório para Android 8+)
+        if (Platform.OS === "android") {
+          await Notifications.setNotificationChannelAsync("default", {
+            name: "Escalas",
+            importance: Notifications.AndroidImportance.MAX,
+            vibrationPattern: [0, 250, 250, 250],
+            lightColor: "#FF231F7C",
+            sound: true,
+          });
+        }
+
+        // 3. Pegar token Expo Push
+        const { data: expoPushToken } = await Notifications.getExpoPushTokenAsync();
+        console.log("✅ Expo Push Token:", expoPushToken);
+
+        // 4. Salvar no AsyncStorage para usar na tela de login
+        await AsyncStorage.setItem("expo_push_token", expoPushToken);
+
+      } catch (err) {
+        console.error("❌ Erro ao configurar notificações:", err.message);
       }
     }
 
-    solicitarPermissao();
+    configurarNotificacoes();
   }, []);
 
   return (
@@ -74,57 +103,67 @@ export default function App() {
         <Stack.Screen
           name="Login"
           component={Login}
-          options={{headerShown: false}}
+          options={{ headerShown: false }}
         />
         <Stack.Screen
           name="CriarConta"
           component={CriarConta}
-          options={{headerShown: false}}
+          options={{ headerShown: false }}
         />
         <Stack.Screen
           name="RecuperacaoSenha"
           component={RecuperacaoSenha}
-          options={{headerShown: false}}
+          options={{ headerShown: false }}
         />
         <Stack.Screen
           name="InicioUsuario"
           component={InicioUsuario}
-          options={{headerShown: false}}
+          options={{ headerShown: false }}
         />
         <Stack.Screen
           name="InicioAdm"
           component={InicioAdm}
-          options={{headerShown: false}}
+          options={{ headerShown: false }}
         />
         <Stack.Screen
           name="Perfil"
           component={Perfil}
-          options={{headerShown: false}}
+          options={{ headerShown: false }}
         />
         <Stack.Screen
           name="PerfilAdmin"
           component={PerfilAdmin}
-          options={{headerShown: false}}
+          options={{ headerShown: false }}
         />
         <Stack.Screen
           name="AgendaMensalUsuario"
           component={AgendaMensalUsuario}
-          options={{headerShown: false}}
+          options={{ headerShown: false }}
         />
         <Stack.Screen
           name="AgendaMensalAdm"
           component={AgendaMensalAdm}
-          options={{headerShown: false}}
+          options={{ headerShown: false }}
         />
         <Stack.Screen
           name="AtualizarAppUsuario"
           component={AtualizarAppUsuario}
-          options={{headerShown: false}}
+          options={{ headerShown: false }}
         />
         <Stack.Screen
           name="AtualizarAppAdm"
           component={AtualizarAppAdm}
-          options={{headerShown: false}}
+          options={{ headerShown: false }}
+        />
+        <Stack.Screen
+          name="ProgramaCulto"
+          component={ProgramaCulto}
+          options={{ headerShown: false }}
+        />
+        <Stack.Screen
+          name="ProgramaCultoAdm"
+          component={ProgramaCultoAdm}
+          options={{ headerShown: false }}
         />
       </Stack.Navigator>
     </NavigationContainer>

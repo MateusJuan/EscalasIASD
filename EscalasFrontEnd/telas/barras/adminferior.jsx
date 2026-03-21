@@ -39,6 +39,16 @@ export default function UsuarioInferior({ navigation, route }) {
         <MaterialIcons name="home" size={24} color="#fff" />
         <Text style={styles.footerText}>Início</Text>
       </TouchableOpacity>
+        <TouchableOpacity
+          style={styles.footerItem}
+          onPress={() => navigation.navigate("ProgramaCultoAdm", { user })}
+        >
+          <View style={styles.iconWrapper}>
+            <MaterialIcons name="list" size={28} color="#fff" />
+            <View style={styles.badge} />
+          </View>
+          <Text style={styles.footerText}>Programa do Culto</Text>
+        </TouchableOpacity>
 
       <TouchableOpacity
         style={styles.footerItem}
@@ -47,20 +57,6 @@ export default function UsuarioInferior({ navigation, route }) {
         <MaterialIcons name="calendar-month" size={24} color="#fff" />
         <Text style={styles.footerText}>Agenda Mensal</Text>
       </TouchableOpacity>
-
-       {/* 🔥 SÓ MOSTRA SE NÃO TIVER A LIB ATUALIZADA */}
-     {/* {!possuiVersaoAtualizada && (*/}
-        {/*<TouchableOpacity
-          style={styles.footerItem}
-          onPress={() => navigation.navigate("AtualizarAppAdm")}
-        >
-          <View style={styles.iconWrapper}>
-            <MaterialIcons name="update" size={28} color="#fff" />
-            <View style={styles.badge} />
-          </View>
-          <Text style={styles.footerText}>Atualizar App</Text>
-        </TouchableOpacity>/*}
-      {/*})}*/}
 
       <TouchableOpacity
         style={styles.footerItem}

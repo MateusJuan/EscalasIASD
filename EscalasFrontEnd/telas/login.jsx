@@ -14,20 +14,15 @@ import AsyncStorage from "@react-native-async-storage/async-storage";
 import cores from "./estilos/cores";
 import { SafeAreaView } from "react-native-safe-area-context";
 
-//notificações:
-
-
 export default function Login({ navigation }) {
   const [email, setEmail] = useState("");
   const [senha, setSenha] = useState("");
   const [senhaVisivel, setSenhaVisivel] = useState(false);
   const scaleAnim = useState(new Animated.Value(1))[0];
 
-  // Modal de sucesso
   const [modalSucesso, setModalSucesso] = useState(false);
   const [usuarioNome, setUsuarioNome] = useState("");
 
-  // Modal de erro
   const [modalErro, setModalErro] = useState(false);
   const [erroMensagem, setErroMensagem] = useState("");
 
@@ -46,7 +41,6 @@ export default function Login({ navigation }) {
     ]).start();
   };
 
-//função login com token de notificação push:
   async function login() {
     if (!email || !senha) {
       mostrarErro("Preencha todos os campos.");
@@ -54,28 +48,24 @@ export default function Login({ navigation }) {
     }
 
     try {
+      // ✅ Lê o token salvo pelo App.js no AsyncStorage
       let expo_push_token = null;
+      try {
+        expo_push_token = await AsyncStorage.getItem("expo_push_token");
+        console.log("Token push recuperado:", expo_push_token);
+      } catch (e) {
+        console.warn("Não foi possível obter o push token:", e.message);
+      }
 
-        try {
-          expo_push_token = null;
-        } catch (e) {
-          console.log("Erro ao obter push token:", e);
+      const response = await axios.post(
+        "https://agendas-escalas-iasd-backend.onrender.com/api/login",
+        {
+          email,
+          senha,
+          expo_push_token, // null se não disponível, backend já trata isso
         }
+      );
 
-
-        const response = await axios.post(
-          "https://agendas-escalas-iasd-backend.onrender.com/api/login",
-          {
-            email,
-            senha,
-            expo_push_token, // pode ir null
-          }
-        );
-
-      console.log("RESPOSTA LOGIN:", response.data);
-
-
-      // PEGAR OS DADOS AQUI
       const { token, user: usuario } = response.data;
 
       await AsyncStorage.setItem("usuarioLogado", JSON.stringify(usuario));
@@ -86,7 +76,6 @@ export default function Login({ navigation }) {
 
       setTimeout(() => {
         setModalSucesso(false);
-
         if (usuario.tipo === "adm") {
           navigation.replace("InicioAdm");
         } else {
@@ -95,7 +84,7 @@ export default function Login({ navigation }) {
       }, 2000);
 
     } catch (error) {
-      console.log("ERRO LOGIN:", error);
+      console.log("ERRO LOGIN:", error?.response?.data || error.message);
       mostrarErro("Email ou senha incorretos.");
     }
   }
