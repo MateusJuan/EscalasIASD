@@ -1,7 +1,7 @@
 Gerar aab (Escalas):
 eas build -p android --profile production
 
-Atualizar aplicativos sem gerar Aok(Mudanças somente visuais sem instalar ou atualizar bibliotecas):
+Atualizar aplicativos sem gerar Apk(Mudanças somente visuais sem instalar ou atualizar bibliotecas):
 eas update --branch production --message "Mudança X"
 
 

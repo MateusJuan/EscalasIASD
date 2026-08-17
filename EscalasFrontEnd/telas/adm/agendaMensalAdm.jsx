@@ -1,5 +1,4 @@
 import {
-  StyleSheet,
   Text,
   View,
   ScrollView,
@@ -10,8 +9,11 @@ import { useEffect as useEf, useState } from "react";
 import { MaterialIcons } from "@expo/vector-icons";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import AdmInferior from "../barras/adminferior";
+import { useCores, useEstilos } from "../estilos/cores";
 
 export default function AgendaMensalAdm({ navigation }) {
+  const cores = useCores();
+  const styles = useEstilos(estilosAgenda);
   const [escalas, setEscalas] = useState(null);
   const [user, setUser] = useState(null);
 
@@ -62,7 +64,7 @@ export default function AgendaMensalAdm({ navigation }) {
           { justifyContent: "center", alignItems: "center" },
         ]}
       >
-        <ActivityIndicator size="large" color="#2e3e4e" />
+        <ActivityIndicator size="large" color={cores.IconesTema} />
       </View>
     );
   }
@@ -96,9 +98,9 @@ export default function AgendaMensalAdm({ navigation }) {
   const proxima = escalasFuturas.length > 0 ? escalasFuturas[0] : null;
 
   return (
-    <View style={{ flex: 1 }}>
+    <View style={{ flex: 1, backgroundColor: cores.FundoDeTela }}>
       <View style={styles.container}>
-        <Text style={{ fontSize: 16, fontWeight: "600", color: "#2e3e4e" }}>
+        <Text style={styles.tituloPagina}>
           Escala Mensal da Igreja
         </Text>
 
@@ -106,7 +108,7 @@ export default function AgendaMensalAdm({ navigation }) {
         <View style={styles.cardContainer}>
           <View style={styles.card}>
             <View style={styles.cardItem}>
-              <MaterialIcons name="calendar-today" size={24} color="#fff" />
+              <MaterialIcons name="calendar-today" size={24} color={cores.IconesPadrao} />
               <View style={styles.cardItemText}>
                 <Text style={styles.cardTitle}>Dia da Semana</Text>
                 <Text style={styles.cardDate}>
@@ -120,7 +122,7 @@ export default function AgendaMensalAdm({ navigation }) {
             </View>
 
             <View style={styles.cardItem}>
-              <MaterialIcons name="calendar-month" size={24} color="#fff" />
+              <MaterialIcons name="calendar-month" size={24} color={cores.IconesPadrao} />
               <View style={styles.cardItemText}>
                 <Text style={styles.cardTitle}>Data</Text>
                 <Text style={styles.cardDate}>
@@ -130,7 +132,7 @@ export default function AgendaMensalAdm({ navigation }) {
             </View>
 
             <View style={styles.cardItem}>
-              <MaterialIcons name="church" size={24} color="#fff" />
+              <MaterialIcons name="church" size={24} color={cores.IconesPadrao} />
               <View style={styles.cardItemText}>
                 <Text style={styles.cardTitle}>Ministério</Text>
                 <Text style={styles.cardDate}>
@@ -140,7 +142,7 @@ export default function AgendaMensalAdm({ navigation }) {
             </View>
 
             <View style={styles.cardItem}>
-              <MaterialIcons name="person" size={24} color="#fff" />
+              <MaterialIcons name="person" size={24} color={cores.IconesPadrao} />
               <View style={styles.cardItemText}>
                 <Text style={styles.cardTitle}>Nome</Text>
                 <Text style={styles.cardDate}>
@@ -162,7 +164,7 @@ export default function AgendaMensalAdm({ navigation }) {
             </View>
 
             {escalasMes.length === 0 ? (
-              <Text style={{ textAlign: "center", margin: 10 }}>
+              <Text style={styles.textoVazio}>
                 Nenhuma escala encontrada.
               </Text>
             ) : (
@@ -197,30 +199,37 @@ export default function AgendaMensalAdm({ navigation }) {
   );
 }
 
-const styles = StyleSheet.create({
+function estilosAgenda(cores) {
+  return {
   container: {
     flex: 1,
-    backgroundColor: "#f4f5f2",
+    backgroundColor: cores.FundoDeTela,
     alignItems: "center",
     paddingHorizontal: 10,
     paddingTop: 20,
+  },
+  tituloPagina: {
+    fontSize: 16,
+    fontWeight: "600",
+    color: cores.Titulo,
   },
   tabelaWrapper: {
     width: "100%",
     marginTop: 20,
     borderWidth: 1,
-    borderColor: "#ccc",
+    borderColor: cores.ListasBordas,
     borderRadius: 10,
     overflow: "hidden",
+    backgroundColor: cores.FundoTabela,
   },
   tabelaLinhaHeader: {
     flexDirection: "row",
     justifyContent: "space-around",
-    backgroundColor: "#2e3e4e",
+    backgroundColor: cores.Barras,
     paddingVertical: 8,
   },
   tabelaHeaderTexto: {
-    color: "#fff",
+    color: cores.IconesPadrao,
     fontWeight: "bold",
     fontSize: 12,
     textAlign: "center",
@@ -231,19 +240,25 @@ const styles = StyleSheet.create({
     justifyContent: "space-around",
     paddingVertical: 6,
     borderBottomWidth: 1,
-    borderColor: "#ddd",
+    borderColor: cores.ListasBordas,
   },
   tabelaTexto: {
     flex: 1,
     textAlign: "center",
     fontSize: 12,
+    color: cores.Titulo,
+  },
+  textoVazio: {
+    textAlign: "center",
+    margin: 10,
+    color: cores.TextoSecundario,
   },
   cardContainer: {
     marginTop: 20,
     width: "100%",
   },
   card: {
-    backgroundColor: "#2e3e4e",
+    backgroundColor: cores.Barras,
     borderRadius: 20,
     paddingVertical: 20,
     paddingHorizontal: 25,
@@ -266,14 +281,15 @@ const styles = StyleSheet.create({
     alignItems: "center",
   },
   cardTitle: {
-    color: "#dcdcdc",
+    color: cores.IconesPadrao,
     fontSize: 12,
     fontWeight: "500",
   },
   cardDate: {
-    color: "#fff",
+    color: cores.IconesPadrao,
     fontSize: 15,
     fontWeight: "bold",
     marginTop: 2,
   },
-});
+  };
+}

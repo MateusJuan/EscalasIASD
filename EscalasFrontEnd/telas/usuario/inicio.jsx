@@ -2,7 +2,6 @@ import React, { useEffect, useState } from "react";
 import {
   View,
   Text,
-  StyleSheet,
   TextInput,
   Image,
   ScrollView,
@@ -12,7 +11,7 @@ import {
 import { MaterialIcons } from "@expo/vector-icons";
 import UsuarioInferior from "../barras/usuarioinferior";
 import AsyncStorage from "@react-native-async-storage/async-storage";
-import cores from "../estilos/cores";
+import { useCores, useEstilos } from "../estilos/cores";
 
 // Função para criar datas de forma segura
 function parseDataSeguro(dataStr) {
@@ -40,6 +39,8 @@ function parseDataSeguro(dataStr) {
 }
 
 export default function InicioUsuario({ navigation, route }) {
+  const cores = useCores();
+  const styles = useEstilos(estilosInicio);
   const [user, setUser] = useState(route.params?.user || null);
   const [escalas, setEscalas] = useState(null);
   const [search, setSearch] = useState("");
@@ -109,7 +110,7 @@ export default function InicioUsuario({ navigation, route }) {
   if (!user || !user.id) {
     return (
       <View style={styles.container}>
-        <Text style={{ marginTop: 50, textAlign: "center" }}>
+        <Text style={{ marginTop: 50, textAlign: "center", color: cores.Texto }}>
           Usuário não encontrado. Por favor, faça login novamente.
         </Text>
       </View>
@@ -240,7 +241,7 @@ export default function InicioUsuario({ navigation, route }) {
         </View>
         <ScrollView style={{ maxHeight: 200 }}>
           {escalasFiltradas.length === 0 && (
-            <Text style={{ padding: 8, textAlign: "center" }}>
+            <Text style={{ padding: 8, textAlign: "center", color: cores.TextoSecundario }}>
               Nenhuma escala encontrada.
             </Text>
           )}
@@ -274,7 +275,7 @@ export default function InicioUsuario({ navigation, route }) {
         </View>
         <ScrollView style={{ maxHeight: 200 }}>
           {escalasUsuarioProximoMesFiltradas.length === 0 && (
-            <Text style={{ padding: 8, textAlign: "center" }}>
+            <Text style={{ padding: 8, textAlign: "center", color: cores.TextoSecundario }}>
               Nenhuma escala encontrada.
             </Text>
           )}
@@ -324,7 +325,8 @@ export default function InicioUsuario({ navigation, route }) {
   );
 }
 
-const styles = StyleSheet.create({
+function estilosInicio(cores) {
+  return {
   container: {
     flex: 1,
     backgroundColor: cores.FundoDeTela,
@@ -360,7 +362,8 @@ const styles = StyleSheet.create({
   input: {
     flex: 1,
     height: "100%",
-    fontSize: 14
+    fontSize: 14,
+    color: cores.InputTexto,
   },
   cardContainer: {
     paddingHorizontal: 20,
@@ -398,7 +401,8 @@ const styles = StyleSheet.create({
     marginTop: 20,
     marginLeft: 15,
     fontSize: 14,
-    fontWeight: "500"
+    fontWeight: "500",
+    color: cores.Texto,
   },
   tabela: {
     marginTop: 10,
@@ -439,7 +443,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: 20,
   },
   modalContainer: {
-    backgroundColor: cores.modalContainer,
+    backgroundColor: cores.ModalContainer,
     borderRadius: 20,
     padding: 20,
     alignItems: "center",
@@ -450,4 +454,5 @@ const styles = StyleSheet.create({
     color: cores.IconesPadrao,
     textAlign: "center",
   },
-});
+  };
+}

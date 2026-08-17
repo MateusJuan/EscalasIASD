@@ -1,6 +1,5 @@
 import { useState } from "react";
 import {
-  StyleSheet,
   Text,
   TextInput,
   TouchableOpacity,
@@ -11,10 +10,12 @@ import {
 import axios from "axios";
 import { Feather } from "@expo/vector-icons";
 import AsyncStorage from "@react-native-async-storage/async-storage";
-import cores from "./estilos/cores";
+import { useCores, useEstilos } from "./estilos/cores";
 import { SafeAreaView } from "react-native-safe-area-context";
 
 export default function Login({ navigation }) {
+  const cores = useCores();
+  const styles = useEstilos(estilosLogin);
   const [email, setEmail] = useState("");
   const [senha, setSenha] = useState("");
   const [senhaVisivel, setSenhaVisivel] = useState(false);
@@ -173,7 +174,8 @@ export default function Login({ navigation }) {
   );
 }
 
-const styles = StyleSheet.create({
+function estilosLogin(cores) {
+  return {
   container: {
     flex: 1,
     backgroundColor: cores.FundoDeTela,
@@ -270,4 +272,5 @@ const styles = StyleSheet.create({
     color: cores.BotaoTexto,
     textAlign: "center",
   },
-});
+  };
+}

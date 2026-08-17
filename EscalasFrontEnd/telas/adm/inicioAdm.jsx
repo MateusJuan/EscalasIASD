@@ -1,7 +1,6 @@
 import {
   View,
   Text,
-  StyleSheet,
   TextInput,
   Image,
   ScrollView,
@@ -13,9 +12,13 @@ import { MaterialIcons } from "@expo/vector-icons";
 import AdmInferior from "../barras/adminferior";
 import { useState, useEffect } from "react";
 import AsyncStorage from "@react-native-async-storage/async-storage";
-import DateTimePicker from "@react-native-community/datetimepicker"
+import DateTimePicker from "@react-native-community/datetimepicker";
+import { useCores, useEstilos, useTema } from "../estilos/cores";
 
 export default function InicioAdm({ navigation, route }) {
+  const cores = useCores();
+  const { escuro } = useTema();
+  const styles = useEstilos(estilosInicioAdm);
   const [user, setUser] = useState(route.params?.user || null);
   const [escalas, setEscalas] = useState(null);
   const [search, setSearch] = useState("");
@@ -246,8 +249,8 @@ export default function InicioAdm({ navigation, route }) {
     }
   }
 
-  if (!user || !user.id) return <View style={styles.container}><Text style={{ marginTop: 50, textAlign: "center" }}>Usuário não encontrado. Por favor, faça login novamente.</Text></View>;
-  if (escalas === null) return <View style={[styles.container, { justifyContent: "center", alignItems: "center" }]}><ActivityIndicator size="large" color="#2e3e4e" /></View>;
+  if (!user || !user.id) return <View style={styles.container}><Text style={{ marginTop: 50, textAlign: "center", color: cores.Texto }}>Usuário não encontrado. Por favor, faça login novamente.</Text></View>;
+  if (escalas === null) return <View style={[styles.container, { justifyContent: "center", alignItems: "center" }]}><ActivityIndicator size="large" color={cores.IconesTema} /></View>;
 
   // === Processamento das escalas do usuário e do mês ===
   const hoje = new Date();
@@ -322,8 +325,8 @@ export default function InicioAdm({ navigation, route }) {
       <View style={styles.topo}>
         <Image source={require("../../img/Logo Circular.png")} style={styles.logo}/>
         <View style={styles.searchContainer}>
-          <MaterialIcons name="search" size={16} color="#6c6c6c" style={styles.searchIcon}/>
-          <TextInput placeholder="Pesquisar ministério ou nome" placeholderTextColor="#6c6c6c" style={styles.input} value={search} onChangeText={setSearch}/>
+          <MaterialIcons name="search" size={16} color={cores.Icones} style={styles.searchIcon}/>
+          <TextInput placeholder="Pesquisar ministério ou nome" placeholderTextColor={cores.Icones} style={styles.input} value={search} onChangeText={setSearch}/>
         </View>
       </View>
 
@@ -332,7 +335,7 @@ export default function InicioAdm({ navigation, route }) {
       <View style={styles.cardContainer}>
         <View style={styles.card}>
           <View style={styles.cardItem}>
-            <MaterialIcons name="calendar-today" size={24} color="#fff"/>
+            <MaterialIcons name="calendar-today" size={24} color={cores.IconesPadrao}/>
             <View style={styles.cardItemText}>
               <Text style={styles.cardTitle}>Dia da Semana</Text>
               <Text style={styles.cardDate}>
@@ -342,7 +345,7 @@ export default function InicioAdm({ navigation, route }) {
           </View>
 
           <View style={styles.cardItem}>
-            <MaterialIcons name="calendar-month" size={24} color="#fff"/>
+            <MaterialIcons name="calendar-month" size={24} color={cores.IconesPadrao}/>
             <View style={styles.cardItemText}>
               <Text style={styles.cardTitle}>Data</Text>
               <Text style={styles.cardDate}>
@@ -352,7 +355,7 @@ export default function InicioAdm({ navigation, route }) {
           </View>
 
           <View style={styles.cardItem}>
-            <MaterialIcons name="church" size={24} color="#fff"/>
+            <MaterialIcons name="church" size={24} color={cores.IconesPadrao}/>
             <View style={styles.cardItemText}>
               <Text style={styles.cardTitle}>Ministério</Text>
               <Text style={styles.cardDate}>{proxima ? proxima.ministerio : "-"}</Text>
@@ -390,7 +393,7 @@ export default function InicioAdm({ navigation, route }) {
         {/* ESCALA GERAL DO MÊS + BOTÃO */}
         <View style={{ flexDirection: "row", alignItems: "center", marginLeft: 15, marginTop: 20 }}>
           <Text style={styles.escalaTexto}>Escala Geral do Mês:</Text>
-          <MaterialIcons name="add-circle" size={24} color="#2e3e4e" style={{ marginLeft: 8 }} onPress={() => setMostrarCalendario(true)} />
+          <MaterialIcons name="add-circle" size={24} color={cores.IconesTema} style={{ marginLeft: 8 }} onPress={() => setMostrarCalendario(true)} />
         </View>
         <View style={styles.tabela}>
           <View style={styles.tabelaLinhaHeader}>
@@ -400,7 +403,7 @@ export default function InicioAdm({ navigation, route }) {
             <Text style={styles.tabelaHeaderTexto}>NOME</Text>
           </View>
           {escalasGeralFiltradas.length === 0 && (
-            <Text style={{ padding: 8, textAlign: "center" }}>Nenhuma escala encontrada.</Text>
+            <Text style={{ padding: 8, textAlign: "center", color: cores.TextoSecundario }}>Nenhuma escala encontrada.</Text>
           )}
           {escalasGeralFiltradas.map((item, index) => {
             const dataObj = item.data;
@@ -475,34 +478,35 @@ export default function InicioAdm({ navigation, route }) {
       {modalCriarVisible && (
         <View style={styles.modalOverlay}>
           <View style={styles.modalContent}>
-            <Text style={{ fontSize: 16, fontWeight: "bold", marginBottom: 10 }}>Adicionar Escala</Text>
-            <Text>Data (dd/mm/aaaa):</Text>
+            <Text style={{ fontSize: 16, fontWeight: "bold", marginBottom: 10, color: cores.Titulo }}>Adicionar Escala</Text>
+            <Text style={{ color: cores.Texto }}>Data (dd/mm/aaaa):</Text>
             <TextInput
               value={novaData}
               onChangeText={(text) => setNovaData(formatarData(text))}
               placeholder="Ex: 02/10/2025"
+              placeholderTextColor={cores.InputPlaceholder}
               keyboardType="numeric"
               maxLength={10}
               style={styles.modalInput}
             />
-            <Text>Nome do Usuário:</Text>
-            <TextInput value={buscaUsuario} onChangeText={(text)=>{setBuscaUsuario(text); setUsuarioSelecionado(null);}} placeholder="Digite o nome" style={styles.modalInput}/>
+            <Text style={{ color: cores.Texto }}>Nome do Usuário:</Text>
+            <TextInput value={buscaUsuario} onChangeText={(text)=>{setBuscaUsuario(text); setUsuarioSelecionado(null);}} placeholder="Digite o nome" placeholderTextColor={cores.InputPlaceholder} style={styles.modalInput}/>
             {buscaUsuario.length>0 && !usuarioSelecionado && (
-              <ScrollView style={{ maxHeight: 100, marginBottom:10, borderWidth:1, borderColor:"#ccc", borderRadius:5, backgroundColor:"#f9f9f9" }}>
+              <ScrollView style={{ maxHeight: 100, marginBottom:10, borderWidth:1, borderColor: cores.InputBorda, borderRadius:5, backgroundColor: cores.FundoInput }}>
                 {usuarios.filter(u=>u.nome.toLowerCase().includes(buscaUsuario.toLowerCase())).map(u=>(
-                  <TouchableOpacity key={u.id} onPress={()=>{setUsuarioSelecionado(u); setBuscaUsuario(u.nome);}} style={{ paddingVertical:8, paddingHorizontal:10, borderBottomWidth:1, borderBottomColor:"#ddd" }}>
-                    <Text>{u.nome}</Text>
+                  <TouchableOpacity key={u.id} onPress={()=>{setUsuarioSelecionado(u); setBuscaUsuario(u.nome);}} style={{ paddingVertical:8, paddingHorizontal:10, borderBottomWidth:1, borderBottomColor: cores.ListasBordas }}>
+                    <Text style={{ color: cores.Texto }}>{u.nome}</Text>
                   </TouchableOpacity>
                 ))}
               </ScrollView>
             )}
-            <Text>Ministério:</Text>
-            <TextInput value={buscaMinisterio} onChangeText={(text)=>{setBuscaMinisterio(text); setMinisterioSelecionado(null); setNovoMinisterio(text);}} placeholder="Digite ou selecione" style={styles.modalInput}/>
+            <Text style={{ color: cores.Texto }}>Ministério:</Text>
+            <TextInput value={buscaMinisterio} onChangeText={(text)=>{setBuscaMinisterio(text); setMinisterioSelecionado(null); setNovoMinisterio(text);}} placeholder="Digite ou selecione" placeholderTextColor={cores.InputPlaceholder} style={styles.modalInput}/>
             {buscaMinisterio.length>0 && !ministerioSelecionado && (
-              <ScrollView style={{ maxHeight:100, marginBottom:10, borderWidth:1, borderColor:"#ccc", borderRadius:5, backgroundColor:"#f9f9f9" }}>
+              <ScrollView style={{ maxHeight:100, marginBottom:10, borderWidth:1, borderColor: cores.InputBorda, borderRadius:5, backgroundColor: cores.FundoInput }}>
                 {ministerios.map(m=>(
-                  <TouchableOpacity key={m.id} onPress={()=>{setMinisterioSelecionado(m); setBuscaMinisterio(m.ministerio); setNovoMinisterio(m.ministerio);}} style={{ paddingVertical:8, paddingHorizontal:10, borderBottomWidth:1, borderBottomColor:"#ddd" }}>
-                    <Text>{m.ministerio}</Text>
+                  <TouchableOpacity key={m.id} onPress={()=>{setMinisterioSelecionado(m); setBuscaMinisterio(m.ministerio); setNovoMinisterio(m.ministerio);}} style={{ paddingVertical:8, paddingHorizontal:10, borderBottomWidth:1, borderBottomColor: cores.ListasBordas }}>
+                    <Text style={{ color: cores.Texto }}>{m.ministerio}</Text>
                   </TouchableOpacity>
                 ))}
               </ScrollView>
@@ -516,7 +520,7 @@ export default function InicioAdm({ navigation, route }) {
               </TouchableOpacity>
 
               <TouchableOpacity
-                style={[styles.modalButton, { backgroundColor: "#2e3e4e" }]} // Antes era "#007aff"
+                style={[styles.modalButton, { backgroundColor: cores.Barras }]} // Antes era "#007aff"
                 onPress={adicionarEscala}
               >
                 <Text style={styles.modalButtonText}>Salvar</Text>
@@ -530,17 +534,18 @@ export default function InicioAdm({ navigation, route }) {
       {modalEditarVisible && (
         <View style={styles.modalOverlay}>
           <View style={styles.modalContent}>
-            <Text style={{ fontSize:16, fontWeight:"bold", marginBottom:10 }}>Editar/Apagar Escala</Text>
-            <Text>Data (dd/mm/aaaa):</Text>
+            <Text style={{ fontSize:16, fontWeight:"bold", marginBottom:10, color: cores.Titulo }}>Editar/Apagar Escala</Text>
+            <Text style={{ color: cores.Texto }}>Data (dd/mm/aaaa):</Text>
             <TextInput
               value={editarData}
               onChangeText={(text) => setEditarData(formatarData(text))}
               placeholder="Ex: 02/10/2025"
+              placeholderTextColor={cores.InputPlaceholder}
               keyboardType="numeric"
               maxLength={10}
               style={styles.modalInput}
             />
-            <Text>Usuário:</Text>
+            <Text style={{ color: cores.Texto }}>Usuário:</Text>
             <TextInput
               value={buscaUsuario}
               onChangeText={(text) => { setBuscaUsuario(text); setUsuarioSelecionado(null); }}
@@ -548,21 +553,21 @@ export default function InicioAdm({ navigation, route }) {
               style={styles.modalInput}
             />
             {buscaUsuario.length > 0 && !usuarioSelecionado && (
-              <ScrollView style={{ maxHeight: 100, marginBottom:10, borderWidth:1, borderColor:"#ccc", borderRadius:5, backgroundColor:"#f9f9f9" }}>
+              <ScrollView style={{ maxHeight: 100, marginBottom:10, borderWidth:1, borderColor: cores.InputBorda, borderRadius:5, backgroundColor: cores.FundoInput }}>
                 {usuarios
                   .filter(u => u.nome.toLowerCase().includes(buscaUsuario.toLowerCase()))
                   .map(u => (
                     <TouchableOpacity
                       key={u.id}
                       onPress={() => { setUsuarioSelecionado(u); setBuscaUsuario(u.nome); }}
-                      style={{ paddingVertical:8, paddingHorizontal:10, borderBottomWidth:1, borderBottomColor:"#ddd" }}
+                      style={{ paddingVertical:8, paddingHorizontal:10, borderBottomWidth:1, borderBottomColor: cores.ListasBordas }}
                     >
-                      <Text>{u.nome}</Text>
+                      <Text style={{ color: cores.Texto }}>{u.nome}</Text>
                     </TouchableOpacity>
                 ))}
               </ScrollView>
             )}
-            <Text>Ministério:</Text>
+            <Text style={{ color: cores.Texto }}>Ministério:</Text>
             <TextInput value={editarMinisterio} onChangeText={setEditarMinisterio} placeholder="Ex: Ministério X" style={styles.modalInput}/>
             <View style={{ flexDirection:"row", justifyContent:"space-between", marginTop:15 }}>
               <TouchableOpacity
@@ -573,7 +578,7 @@ export default function InicioAdm({ navigation, route }) {
               </TouchableOpacity>
 
               <TouchableOpacity
-                style={[styles.modalButton, { backgroundColor: "#2e3e4e" }]}
+                style={[styles.modalButton, { backgroundColor: cores.Barras }]}
                 onPress={atualizarEscala}
               >
                 <Text style={styles.modalButtonText}>Salvar</Text>
@@ -583,7 +588,7 @@ export default function InicioAdm({ navigation, route }) {
               style={{ marginTop: 10, alignSelf:"center" }}
               onPress={()=>setModalEditarVisible(false)}
             >
-              <Text style={{ color:"#999" }}>Cancelar</Text>
+              <Text style={{ color: cores.TextoSecundario }}>Cancelar</Text>
             </TouchableOpacity>
           </View>
         </View>
@@ -594,6 +599,7 @@ export default function InicioAdm({ navigation, route }) {
               value={dataSelecionada}
               mode="date"
               display="calendar"
+              themeVariant={escuro ? "dark" : "light"}
               minimumDate={new Date()}
               onChange={onChangeCalendario}
             />
@@ -605,13 +611,14 @@ export default function InicioAdm({ navigation, route }) {
   );
 }
 
-const styles = StyleSheet.create({
+function estilosInicioAdm(cores) {
+  return {
   container: {
     flex: 1,
-    backgroundColor: "#f3f3ef"
+    backgroundColor: cores.FundoDeTela
   },
   topo: {
-    backgroundColor: "#2e3e4e",
+    backgroundColor: cores.Barras,
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "space-between",
@@ -627,7 +634,7 @@ const styles = StyleSheet.create({
   },
   searchContainer: {
     flexDirection: "row",
-    backgroundColor: "#fff",
+    backgroundColor: cores.FundoCard,
     alignItems: "center",
     borderRadius: 20,
     paddingHorizontal: 10,
@@ -641,14 +648,15 @@ const styles = StyleSheet.create({
   input: {
     flex: 1,
     height: "100%",
-    fontSize: 14
+    fontSize: 14,
+    color: cores.InputTexto,
   },
   cardContainer: {
     paddingHorizontal: 20,
     marginTop: 20,
   },
   card: {
-    backgroundColor: "#2e3e4e",
+    backgroundColor: cores.Barras,
     borderRadius: 20,
     paddingVertical: 20,
     paddingHorizontal: 25,
@@ -673,43 +681,44 @@ const styles = StyleSheet.create({
     alignItems: "center",
   },
   cardTitle: {
-    color: "#dcdcdc",
+    color: cores.IconesPadrao,
     fontSize: 12,
     fontWeight: "500",
   },
   cardDate: {
-    color: "#fff",
+    color: cores.IconesPadrao,
     fontSize: 15,
     fontWeight: "bold",
     marginTop: 2,
   },
   escalaTexto: {
     fontSize: 14,
-    fontWeight: "500"
+    fontWeight: "500",
+    color: cores.Texto,
   },
   tabela: {
     marginTop: 10,
     marginHorizontal: 10,
     borderRadius: 8,
     overflow: "hidden",
-    backgroundColor: "#e0e0e0",
+    backgroundColor: cores.FundoTabela,
   },
   tabelaLinhaHeader: {
     flexDirection: "row",
-    backgroundColor: "#344656",
+    backgroundColor: cores.BotaoPadrao,
     padding: 8,
   },
   tabelaLinha: {
     flexDirection: "row",
-    backgroundColor: "#e0dede",
+    backgroundColor: cores.FundoTabela,
     padding: 8,
     borderBottomWidth: 1,
-    borderBottomColor: "#fff",
+    borderBottomColor: cores.ListasBordas,
   },
   tabelaHeaderTexto: {
     flex: 1,
     fontWeight: "bold",
-    color: "#fff",
+    color: cores.IconesPadrao,
     textAlign: "center",
     fontSize: 12,
   },
@@ -717,7 +726,7 @@ const styles = StyleSheet.create({
     flex: 1,
     textAlign: "center",
     fontSize: 12,
-    color: "#000",
+    color: cores.Titulo,
   },
   modalOverlay: {
     position: "absolute",
@@ -725,24 +734,25 @@ const styles = StyleSheet.create({
     left: 0,
     right: 0,
     bottom: 0,
-    backgroundColor: "rgba(0,0,0,0.5)",
+    backgroundColor: cores.ModalFundo,
     justifyContent: "center",
     alignItems: "center",
     padding: 20,
   },
   modalContent: {
-    backgroundColor: "#fff",
+    backgroundColor: cores.ModalContainer,
     padding: 20,
     borderRadius: 10,
     width: "100%",
   },
   modalInput: {
     borderWidth: 1,
-    borderColor: "#ccc",
+    borderColor: cores.InputBorda,
     borderRadius: 5,
     padding: 8,
     marginBottom: 10,
-    backgroundColor: "#f9f9f9",
+    backgroundColor: cores.FundoInput,
+    color: cores.InputTexto,
   },
   modalButton: {
   flex: 1,
@@ -752,8 +762,9 @@ const styles = StyleSheet.create({
   alignItems: "center",
   },
   modalButtonText: {
-    color: "#fff",
+    color: cores.BotaoTexto,
     fontWeight: "bold",
   },
 
-});
+  };
+}

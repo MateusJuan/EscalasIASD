@@ -1,7 +1,6 @@
 import axios from "axios";
 import { useState } from "react";
 import {
-  StyleSheet,
   Text,
   TextInput,
   TouchableOpacity,
@@ -9,10 +8,12 @@ import {
   Modal,
 } from "react-native";
 import { Feather } from "@expo/vector-icons";
-import cores from "./estilos/cores";
+import { useCores, useEstilos } from "./estilos/cores";
 import { SafeAreaView } from "react-native-safe-area-context";
 
 export default function RecuperacaoSenha({ navigation }) {
+  const cores = useCores();
+  const styles = useEstilos(estilosRecuperacao);
   const [email, setEmail] = useState("");
 
   // Modais
@@ -106,7 +107,8 @@ export default function RecuperacaoSenha({ navigation }) {
   );
 }
 
-const styles = StyleSheet.create({
+function estilosRecuperacao(cores) {
+  return {
   voltarBotao: {
     position: 'absolute',
     top: 10,
@@ -181,4 +183,5 @@ const styles = StyleSheet.create({
     color: cores.BotaoTexto,
     textAlign: "center",
   },
-});
+  };
+}

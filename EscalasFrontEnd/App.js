@@ -1,13 +1,11 @@
-import { NavigationContainer } from "@react-navigation/native";
+import { NavigationContainer, DefaultTheme, DarkTheme } from "@react-navigation/native";
 import { createNativeStackNavigator } from "@react-navigation/native-stack";
 import { useEffect } from "react";
-import { Platform } from "react-native";
+import { isRunningInExpoGo } from "expo";
+import { StatusBar } from "expo-status-bar";
+import { SafeAreaProvider } from "react-native-safe-area-context";
+import { TemaProvider, useTema } from "./telas/estilos/cores";
 
-// Notificações
-import * as Notifications from "expo-notifications";
-import AsyncStorage from "@react-native-async-storage/async-storage";
-
-// Telas
 import CarregandoApp from "./telas/carregando";
 import Login from "./telas/login";
 import CriarConta from "./telas/criarConta";
@@ -24,66 +22,23 @@ import ProgramaCulto from "./telas/usuario/programaCulto";
 import ProgramaCultoAdm from "./telas/adm/ProgramaCultoAdm";
 
 const Stack = createNativeStackNavigator();
+const isExpoGo = isRunningInExpoGo();
 
-/* =========================
-   CONFIG GLOBAL DE NOTIFICAÇÃO
-========================= */
-Notifications.setNotificationHandler({
-  handleNotification: async () => ({
-    shouldShowBanner: true,
-    shouldShowList: true,
-    shouldPlaySound: true,
-    shouldSetBadge: false,
-  }),
-});
-
-/* =========================
-   FUNÇÃO DE NOTIFICAÇÃO LOCAL
-   (útil para disparar do próprio app)
-========================= */
 export async function notificarNovaEscala(escala) {
-  await Notifications.scheduleNotificationAsync({
-    content: {
-      title: "📅 Nova escala criada",
-      body: `${escala.ministerio} - ${escala.pessoa_nome}`,
-    },
-    trigger: null,
-  });
+  if (isExpoGo) return;
+  const { notificarNovaEscala: enviar } = require("./telas/utils/notificacoes");
+  return enviar(escala);
 }
 
-/* =========================
-   APP
-========================= */
 export default function App() {
-
   useEffect(() => {
+    if (isExpoGo) return;
+
     async function configurarNotificacoes() {
       try {
-        // 1. Solicitar permissão
-        const { status } = await Notifications.requestPermissionsAsync();
-        if (status !== "granted") {
-          console.warn("⚠️ Permissão de notificação negada");
-          return;
-        }
-
-        // 2. Canal Android (obrigatório para Android 8+)
-        if (Platform.OS === "android") {
-          await Notifications.setNotificationChannelAsync("default", {
-            name: "Escalas",
-            importance: Notifications.AndroidImportance.MAX,
-            vibrationPattern: [0, 250, 250, 250],
-            lightColor: "#FF231F7C",
-            sound: true,
-          });
-        }
-
-        // 3. Pegar token Expo Push
-        const { data: expoPushToken } = await Notifications.getExpoPushTokenAsync();
-        console.log("✅ Expo Push Token:", expoPushToken);
-
-        // 4. Salvar no AsyncStorage para usar na tela de login
-        await AsyncStorage.setItem("expo_push_token", expoPushToken);
-
+        const { configurarHandler, registrarPush } = require("./telas/utils/notificacoes");
+        configurarHandler();
+        await registrarPush();
       } catch (err) {
         console.error("❌ Erro ao configurar notificações:", err.message);
       }
@@ -93,7 +48,32 @@ export default function App() {
   }, []);
 
   return (
-    <NavigationContainer>
+    <SafeAreaProvider>
+      <TemaProvider>
+        <AppNavegacao />
+      </TemaProvider>
+    </SafeAreaProvider>
+  );
+}
+
+function AppNavegacao() {
+  const { cores, escuro } = useTema();
+  const navTheme = {
+    ...(escuro ? DarkTheme : DefaultTheme),
+    colors: {
+      ...(escuro ? DarkTheme.colors : DefaultTheme.colors),
+      background: cores.FundoDeTela,
+      card: cores.Barras,
+      text: cores.Titulo,
+      primary: cores.BotaoPadrao,
+      border: cores.ListasBordas,
+    },
+  };
+
+  return (
+    <>
+      <StatusBar style={escuro ? "light" : "dark"} backgroundColor={cores.Barras} />
+      <NavigationContainer theme={navTheme}>
       <Stack.Navigator initialRouteName="CarregandoApp">
         <Stack.Screen
           name="CarregandoApp"
@@ -166,6 +146,7 @@ export default function App() {
           options={{ headerShown: false }}
         />
       </Stack.Navigator>
-    </NavigationContainer>
+      </NavigationContainer>
+    </>
   );
 }

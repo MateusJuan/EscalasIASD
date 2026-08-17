@@ -1,10 +1,12 @@
 import { StatusBar } from 'expo-status-bar';
 import { useEffect, useState } from 'react';
-import { StyleSheet, Text, View, Image} from 'react-native';
+import { Text, View, Image} from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import cores from './estilos/cores';
+import { useCores, useEstilos } from './estilos/cores';
 
 export default function CarregandoApp({ navigation }) {
+  const cores = useCores();
+  const styles = useEstilos(estilosCarregando);
   const [carregando, setCarregando] = useState(true);
 
   useEffect(() => {
@@ -55,21 +57,23 @@ export default function CarregandoApp({ navigation }) {
   );
 }
 
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: cores.FundoDeTela,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  image: {
-    width: 200,
-    height: 200,
-    marginBottom: 20,
-    borderRadius: 20,
-  },
-  text: {
-    fontSize: 18,
-    color: cores.TextoPrincipal,
-  },
-});
+function estilosCarregando(cores) {
+  return {
+    container: {
+      flex: 1,
+      backgroundColor: cores.FundoDeTela,
+      alignItems: 'center',
+      justifyContent: 'center',
+    },
+    image: {
+      width: 200,
+      height: 200,
+      marginBottom: 20,
+      borderRadius: 20,
+    },
+    text: {
+      fontSize: 18,
+      color: cores.TextoPrincipal,
+    },
+  };
+}

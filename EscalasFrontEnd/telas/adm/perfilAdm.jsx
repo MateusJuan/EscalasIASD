@@ -2,7 +2,6 @@ import React, { useEffect, useState } from "react";
 import {
   View,
   Text,
-  StyleSheet,
   Image,
   TouchableOpacity,
   ActivityIndicator,
@@ -15,10 +14,12 @@ import { Feather } from "@expo/vector-icons";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import AdmInferior from "../barras/adminferior";
 import axios from "axios";
-import { Linking } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
+import { useCores, useEstilos } from "../estilos/cores";
 
 export default function Perfil({ navigation }) {
+  const cores = useCores();
+  const styles = useEstilos(estilosPerfil);
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
 
@@ -139,7 +140,7 @@ export default function Perfil({ navigation }) {
   if (loading) {
     return (
       <SafeAreaView style={[styles.container, { justifyContent: "center" }]}>
-        <ActivityIndicator size="large" color="#2e3e4e" />
+        <ActivityIndicator size="large" color={cores.IconesTema} />
       </SafeAreaView>
     );
   }
@@ -176,7 +177,7 @@ const fazerLogout = async () => {
         </View>
         {/*Email Usuario*/}
         <View style={styles.infoItem}>
-          <MaterialIcons name="email" size={24} color="#2e3e4e" />
+          <MaterialIcons name="email" size={24} color={cores.IconesTema} />
           <Text style={styles.infoText}>
             Email: {user?.email || "Email não informado"}
           </Text>
@@ -184,7 +185,7 @@ const fazerLogout = async () => {
         <View style={styles.infoContainer}>
           {/* Data de nascimento */}
           <View style={styles.infoItem}>
-            <MaterialIcons name="cake" size={24} color="#2e3e4e" />
+            <MaterialIcons name="cake" size={24} color={cores.IconesTema} />
             <Text style={styles.infoText}>
               Data de Nascimento: {user?.dataNascimento || "Não informado"}
             </Text>
@@ -192,14 +193,14 @@ const fazerLogout = async () => {
 
           {/* Igreja */}
           <View style={styles.infoItem}>
-            <MaterialIcons name="church" size={24} color="#2e3e4e" />
+            <MaterialIcons name="church" size={24} color={cores.IconesTema} />
             <Text style={styles.infoText}>
               Igreja: {user?.igreja || "Igreja não informada"}
             </Text>
           </View>
           {/* Ministério */}
           <View style={styles.infoItem}>
-            <MaterialIcons name="people" size={24} color="#2e3e4e" />
+            <MaterialIcons name="people" size={24} color={cores.IconesTema} />
             <Text style={styles.infoText}>
               Ministério: {user?.ministerio || "Ministério não informado"}
             </Text>
@@ -207,17 +208,17 @@ const fazerLogout = async () => {
         </View>
 
         <TouchableOpacity style={styles.botaoEditar} onPress={abrirModalEdicao}>
-          <MaterialIcons name="edit" size={20} color="#fff" />
+          <MaterialIcons name="edit" size={20} color={cores.IconesPadrao} />
           <Text style={styles.botaoTexto}>Editar Conta</Text>
         </TouchableOpacity>
 
         <TouchableOpacity style={styles.logoutButton} onPress={handleLogout}>
-          <MaterialIcons name="logout" size={20} color="#fff" />
+          <MaterialIcons name="logout" size={20} color={cores.IconesPadrao} />
           <Text style={styles.logoutText}>Sair</Text>
         </TouchableOpacity>
 
         <TouchableOpacity style={styles.botaoExcluir} onPress={excluirConta}>
-          <MaterialIcons name="delete" size={20} color="#fff" />
+          <MaterialIcons name="delete" size={20} color={cores.IconesPadrao} />
           <Text style={styles.botaoTexto}>Excluir Conta</Text>
         </TouchableOpacity>
         {/*<Text
@@ -255,6 +256,7 @@ const fazerLogout = async () => {
                 value={igrejaEdit}
                 onChangeText={setIgrejaEdit}
                 placeholder="Informe sua igreja"
+                placeholderTextColor={cores.InputPlaceholder}
               />
 
               <Text style={styles.label}>Data de Nascimento</Text>
@@ -263,6 +265,7 @@ const fazerLogout = async () => {
                 value={dataNascimentoEdit}
                 onChangeText={setDataNascimentoEdit}
                 placeholder="DD/MM/AAAA"
+                placeholderTextColor={cores.InputPlaceholder}
               />
 
               <Text style={styles.label}>Nova Senha</Text>
@@ -275,7 +278,7 @@ const fazerLogout = async () => {
                   secureTextEntry={!senhaVisivel}
                 />
                 <TouchableOpacity onPress={() => setSenhaVisivel(!senhaVisivel)}>
-                  <Feather name={senhaVisivel ? "eye" : "eye-off"} size={20} />
+                  <Feather name={senhaVisivel ? "eye" : "eye-off"} size={20} color={cores.Icones} />
                 </TouchableOpacity>
               </View>
 
@@ -289,13 +292,13 @@ const fazerLogout = async () => {
                   secureTextEntry={!confirmaSenhaVisivel}
                 />
                 <TouchableOpacity onPress={() => setConfirmaSenhaVisivel(!confirmaSenhaVisivel)}>
-                  <Feather name={confirmaSenhaVisivel ? "eye" : "eye-off"} size={20} />
+                  <Feather name={confirmaSenhaVisivel ? "eye" : "eye-off"} size={20} color={cores.Icones} />
                 </TouchableOpacity>
               </View>
 
               <View style={styles.modalButtons}>
                 <TouchableOpacity
-                  style={[styles.modalButton, { backgroundColor: "#2e3e4e" }]}
+                  style={[styles.modalButton, { backgroundColor: cores.Barras }]}
                   onPress={salvarEdicao}
                 >
                   <Text style={styles.modalButtonText}>Salvar</Text>
@@ -317,12 +320,12 @@ const fazerLogout = async () => {
         <View style={styles.modalBackground}>
           <View style={styles.modalContainer}>
             <Text style={styles.modalTitle}>Sair da conta?</Text>
-            <Text style={{ textAlign: "center", marginBottom: 20 }}>
+            <Text style={{ textAlign: "center", marginBottom: 20, color: cores.Texto }}>
               Deseja realmente sair do aplicativo?
             </Text>
             <View style={styles.modalButtons}>
               <TouchableOpacity
-                style={[styles.modalButton, { backgroundColor: "#2e3e4e" }]}
+                style={[styles.modalButton, { backgroundColor: cores.Barras }]}
                 onPress={fazerLogout}
               >
                 <Text style={styles.modalButtonText}>Sair</Text>
@@ -343,7 +346,7 @@ const fazerLogout = async () => {
         <View style={styles.modalBackground}>
           <View style={styles.modalContainer}>
             <Text style={styles.modalTitle}>Excluir Conta</Text>
-            <Text style={{ textAlign: "center", marginBottom: 20 }}>
+            <Text style={{ textAlign: "center", marginBottom: 20, color: cores.Texto }}>
               Tem certeza que deseja excluir sua conta? Esta ação não poderá ser desfeita.
             </Text>
             <View style={styles.modalButtons}>
@@ -402,10 +405,11 @@ const fazerLogout = async () => {
   );
 }
 
-const styles = StyleSheet.create({
+function estilosPerfil(cores) {
+  return {
   container: {
     flex: 1,
-    backgroundColor: "#f3f3ef",
+    backgroundColor: cores.FundoDeTela,
     paddingHorizontal: 20,
     paddingTop: 40,
     alignItems: "center",
@@ -419,25 +423,31 @@ const styles = StyleSheet.create({
     width: 100,
     height: 100,
     borderRadius: 50,
-    backgroundColor: "#ccc",
+    backgroundColor: cores.ListasBordas,
   },
   avatarPlaceholder: {
     width: 120,
     height: 120,
     borderRadius: 60,
-    backgroundColor: "#2e3e4e",
+    backgroundColor: cores.Barras,
     justifyContent: "center",
     alignItems: "center",
     marginBottom: 10,
   },
   avatarLetter: {
-    color: "#ccc",
+    color: cores.IconesPadrao,
     fontSize: 50,
     fontWeight: "bold",
   },
+  value: {
+    fontSize: 22,
+    fontWeight: "bold",
+    color: cores.Titulo,
+    marginTop: 10,
+  },
   email: {
     fontSize: 16,
-    color: "#666",
+    color: cores.TextoSecundario,
     marginTop: 5,
   },
   infoContainer: {
@@ -452,10 +462,10 @@ const styles = StyleSheet.create({
   infoText: {
     marginLeft: 10,
     fontSize: 16,
-    color: "#2e3e4e",
+    color: cores.Texto,
   },
   botaoEditar: {
-    backgroundColor: "#2e3e4e",
+    backgroundColor: cores.Barras,
     paddingVertical: 12,
     borderRadius: 30,
     flexDirection: "row",
@@ -475,14 +485,14 @@ const styles = StyleSheet.create({
     width: "100%",
   },
   botaoTexto: {
-    color: "#fff",
+    color: cores.BotaoTexto,
     fontSize: 16,
     fontWeight: "bold",
     marginLeft: 10,
   },
   logoutButton: {
     flexDirection: "row",
-    backgroundColor: "#2e3e4e",
+    backgroundColor: cores.Barras,
     paddingVertical: 12,
     paddingHorizontal: 30,
     borderRadius: 30,
@@ -492,19 +502,19 @@ const styles = StyleSheet.create({
     marginTop: 10,
   },
   logoutText: {
-    color: "#fff",
+    color: cores.BotaoTexto,
     fontSize: 16,
     marginLeft: 10,
     fontWeight: "bold",
   },
   modalBackground: {
     flex: 1,
-    backgroundColor: "rgba(0,0,0,0.5)",
+    backgroundColor: cores.ModalFundo,
     justifyContent: "center",
     paddingHorizontal: 20,
   },
   modalContainer: {
-    backgroundColor: "#fff",
+    backgroundColor: cores.ModalContainer,
     borderRadius: 20,
     padding: 20,
     maxHeight: "90%",
@@ -513,38 +523,40 @@ const styles = StyleSheet.create({
     fontSize: 22,
     fontWeight: "bold",
     marginBottom: 15,
-    color: "#2e3e4e",
+    color: cores.Titulo,
     textAlign: "center",
   },
   label: {
     fontSize: 14,
-    color: "#2e3e4e",
+    color: cores.Texto,
     marginTop: 10,
   },
   input: {
     borderWidth: 1,
-    borderColor: "#bbb",
+    borderColor: cores.InputBorda,
     borderRadius: 10,
     paddingHorizontal: 15,
     paddingVertical: 10,
     fontSize: 16,
-    color: "#000",
+    color: cores.InputTexto,
+    backgroundColor: cores.FundoInput,
     marginTop: 5,
   },
   inputSenhaContainer: {
     flexDirection: "row",
     alignItems: "center",
     borderWidth: 1,
-    borderColor: "#bbb",
+    borderColor: cores.InputBorda,
     borderRadius: 10,
     paddingHorizontal: 15,
     marginTop: 5,
+    backgroundColor: cores.FundoInput,
   },
   inputSenha: {
     flex: 1,
     paddingVertical: 10,
     fontSize: 16,
-    color: "#000",
+    color: cores.InputTexto,
   },
   modalButtons: {
     flexDirection: "row",
@@ -559,20 +571,21 @@ const styles = StyleSheet.create({
     alignItems: "center",
   },
   modalButtonText: {
-    color: "#fff",
+    color: cores.BotaoTexto,
     fontWeight: "bold",
     fontSize: 16,
   },
   modalTexto: {
     fontSize: 18,
     fontWeight: "bold",
-    color: "#fff",
+    color: cores.BotaoTexto,
     textAlign: "center",
   },
   rodapeTexto: {
-  fontSize: 14,
-  color: "#2e3e4e",
-  textAlign: "center", // centraliza horizontalmente
-  marginTop: 20,
+    fontSize: 14,
+    color: cores.Texto,
+    textAlign: "center",
+    marginTop: 20,
+  },
+  };
 }
-});

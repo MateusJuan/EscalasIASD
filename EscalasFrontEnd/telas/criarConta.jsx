@@ -3,7 +3,6 @@ import {
   View,
   Text,
   TextInput,
-  StyleSheet,
   TouchableOpacity,
   Modal,
   FlatList,
@@ -11,10 +10,12 @@ import {
 import { MaskedTextInput } from "react-native-mask-text";
 import axios from "axios";
 import { Feather } from "@expo/vector-icons";
-import cores from "./estilos/cores";
+import { useCores, useEstilos } from "./estilos/cores";
 import { SafeAreaView } from "react-native-safe-area-context";
 
 export default function CriarConta({ navigation }) {
+  const cores = useCores();
+  const styles = useEstilos(estilosCriarConta);
   const [nome, setNome] = useState("");
   const [email, setEmail] = useState("");
   const [senha, setSenha] = useState("");
@@ -182,6 +183,7 @@ const [igrejaSelecionada, setIgrejaSelecionada] = useState(null);
       <TextInput
         style={styles.input}
         placeholder="Nome Sobrenome"
+        placeholderTextColor={cores.InputPlaceholder}
         value={nome}
         onChangeText={setNome}
       />
@@ -190,6 +192,7 @@ const [igrejaSelecionada, setIgrejaSelecionada] = useState(null);
       <TextInput
         style={styles.input}
         placeholder="seuemail@gmail.com"
+        placeholderTextColor={cores.InputPlaceholder}
         keyboardType="email-address"
         autoCapitalize="none"
         value={email}
@@ -199,8 +202,9 @@ const [igrejaSelecionada, setIgrejaSelecionada] = useState(null);
       <Text style={styles.label}>SENHA</Text>
       <View style={styles.senhaContainer}>
         <TextInput
-          style={{ flex: 1, padding: 10, fontSize: 16 }}
+          style={styles.senhaInput}
           placeholder="**********"
+          placeholderTextColor={cores.InputPlaceholder}
           secureTextEntry={!senhaVisivel}
           value={senha}
           onChangeText={setSenha}
@@ -222,6 +226,7 @@ const [igrejaSelecionada, setIgrejaSelecionada] = useState(null);
         mask="99/99/9999"
         style={styles.input}
         placeholder="dd/mm/aaaa"
+        placeholderTextColor={cores.InputPlaceholder}
         value={dataNascimento}
         onChangeText={(masked) => setDataNascimento(masked)}
         keyboardType="numeric"
@@ -233,6 +238,7 @@ const [igrejaSelecionada, setIgrejaSelecionada] = useState(null);
   <TextInput
     style={styles.input}
     placeholder="Digite ou pesquise igreja"
+    placeholderTextColor={cores.InputPlaceholder}
     value={buscaIgreja}
     onChangeText={(text) => {
       setBuscaIgreja(text);
@@ -254,7 +260,7 @@ const [igrejaSelecionada, setIgrejaSelecionada] = useState(null);
             setIgrejas([]);
           }}
         >
-          <Text>{item.nome}</Text>
+          <Text style={styles.itemSugestaoTexto}>{item.nome}</Text>
         </TouchableOpacity>
       )}
     />
@@ -268,6 +274,7 @@ const [igrejaSelecionada, setIgrejaSelecionada] = useState(null);
       <TextInput
         style={styles.input}
         placeholder="Digite ou pesquise ministério"
+        placeholderTextColor={cores.InputPlaceholder}
         value={buscaMinisterio}
         onChangeText={(text) => {
           setBuscaMinisterio(text);
@@ -288,7 +295,7 @@ const [igrejaSelecionada, setIgrejaSelecionada] = useState(null);
                 setMinisterios([]);
               }}
             >
-              <Text>{item.ministerio}</Text>
+              <Text style={styles.itemSugestaoTexto}>{item.ministerio}</Text>
             </TouchableOpacity>
           )}
         />
@@ -326,7 +333,8 @@ const [igrejaSelecionada, setIgrejaSelecionada] = useState(null);
   );
 }
 
-const styles = StyleSheet.create({
+function estilosCriarConta(cores) {
+  return {
   voltarBotao: {
     position: "absolute",
     top: 10,
@@ -355,15 +363,16 @@ const styles = StyleSheet.create({
   input: {
     borderWidth: 1,
     borderColor: cores.InputBorda,
-    backgroundColor: cores.FundoDeTela,
+    backgroundColor: cores.FundoInput,
     padding: 10,
     marginBottom: 10,
     fontSize: 16,
     borderRadius: 20,
+    color: cores.InputTexto,
   },
   listaSugestoes: {
     maxHeight: 100,
-    backgroundColor: cores.FundoDeTela,
+    backgroundColor: cores.FundoCard,
     borderWidth: 1,
     borderColor: cores.InputBorda,
     marginBottom: 15,
@@ -374,15 +383,24 @@ const styles = StyleSheet.create({
     borderBottomWidth: 1,
     borderBottomColor: cores.ListasBordas,
   },
+  itemSugestaoTexto: {
+    color: cores.Texto,
+  },
   senhaContainer: {
     flexDirection: "row",
     alignItems: "center",
     borderWidth: 1,
     borderColor: cores.InputBorda,
-    backgroundColor: cores.FundoDeTela,
+    backgroundColor: cores.FundoInput,
     borderRadius: 20,
     paddingRight: 10,
     marginBottom: 15,
+  },
+  senhaInput: {
+    flex: 1,
+    padding: 10,
+    fontSize: 16,
+    color: cores.InputTexto,
   },
   olhoBotao: {
     paddingHorizontal: 5,
@@ -416,4 +434,5 @@ const styles = StyleSheet.create({
     color: cores.BotaoTexto,
     textAlign: "center",
   },
-});
+  };
+}

@@ -2,7 +2,6 @@ import React, { useEffect, useState } from "react";
 import {
   View,
   Text,
-  StyleSheet,
   ScrollView,
   ActivityIndicator,
   Modal,
@@ -11,7 +10,7 @@ import {
 import { MaterialIcons } from "@expo/vector-icons";
 import UsuarioInferior from "../barras/usuarioinferior";
 import AsyncStorage from "@react-native-async-storage/async-storage";
-import cores from "../estilos/cores";
+import { useCores, useEstilos } from "../estilos/cores";
 
 // Função segura de data (mesma da tela início)
 function parseDataSeguro(dataStr) {
@@ -35,6 +34,8 @@ function parseDataSeguro(dataStr) {
 }
 
 export default function ProgramaCulto({ navigation }) {
+  const cores = useCores();
+  const styles = useEstilos(estilosProgramaCulto);
   const [user, setUser] = useState(null);
   const [escalas, setEscalas] = useState(null);
   const [programacao, setProgramacao] = useState(null);
@@ -100,26 +101,69 @@ export default function ProgramaCulto({ navigation }) {
 
     const escaladoHoje = escalas.find(
       (e) =>
-        e.pessoa_id === user.id &&
+        Number(e.pessoa_id) === Number(user.id) &&
         e.data &&
         e.data.getTime() === hojeSemHora.getTime()
     );
 
     if (escaladoHoje) {
       setPodeVisualizar(true);
-
-      // Aqui você pode buscar a programação do backend futuramente
-      setProgramacao([
-        { horario: "09:00", atividade: "Abertura" },
-        { horario: "09:10", atividade: "Louvor" },
-        { horario: "09:40", atividade: "Oração" },
-        { horario: "10:00", atividade: "Sermão" },
-        { horario: "11:00", atividade: "Encerramento" },
-      ]);
+      carregarProgramaDoDia();
     } else {
       setPodeVisualizar(false);
+      navigation.replace("InicioUsuario");
     }
   }, [user, escalas]);
+
+  async function carregarProgramaDoDia() {
+    try {
+      const token = await AsyncStorage.getItem("token");
+      const headers = token ? { Authorization: `Bearer ${token}` } : {};
+      let data = null;
+
+      const res = await fetch(
+        "https://agendas-escalas-iasd-backend.onrender.com/api/programas/hoje",
+        { headers }
+      );
+
+      if (res.ok) {
+        data = await res.json();
+      } else {
+        const listaRes = await fetch(
+          "https://agendas-escalas-iasd-backend.onrender.com/api/programas",
+          { headers }
+        );
+        const lista = await listaRes.json();
+        const hoje = new Date();
+        const programaHoje = (Array.isArray(lista) ? lista : []).find((p) => {
+          const d = parseDataSeguro(p.data);
+          return (
+            d &&
+            d.getFullYear() === hoje.getFullYear() &&
+            d.getMonth() === hoje.getMonth() &&
+            d.getDate() === hoje.getDate()
+          );
+        });
+        if (!programaHoje) {
+          setProgramacao([]);
+          return;
+        }
+        const det = await fetch(
+          `https://agendas-escalas-iasd-backend.onrender.com/api/programas/${programaHoje.id}`,
+          { headers }
+        );
+        data = await det.json();
+      }
+
+      const partes = (data.programa_partes || [])
+        .filter((p) => p.tipo === "programacao")
+        .sort((a, b) => (a.ordem ?? 0) - (b.ordem ?? 0))
+        .map((p) => ({ horario: p.horario, atividade: p.titulo }));
+      setProgramacao(partes);
+    } catch {
+      setProgramacao([]);
+    }
+  }
 
   if (!user || escalas === null) {
     return (
@@ -159,12 +203,18 @@ export default function ProgramaCulto({ navigation }) {
             </View>
 
             <ScrollView style={{ maxHeight: 300 }}>
-              {programacao.map((item, index) => (
-                <View key={index} style={styles.tabelaLinha}>
-                  <Text style={styles.tabelaTexto}>{item.horario}</Text>
-                  <Text style={styles.tabelaTexto}>{item.atividade}</Text>
-                </View>
-              ))}
+              {(!programacao || programacao.length === 0) ? (
+                <Text style={[styles.tabelaTexto, { padding: 12 }]}>
+                  Ainda não há programação publicada para hoje.
+                </Text>
+              ) : (
+                programacao.map((item, index) => (
+                  <View key={index} style={styles.tabelaLinha}>
+                    <Text style={styles.tabelaTexto}>{item.horario}</Text>
+                    <Text style={styles.tabelaTexto}>{item.atividade}</Text>
+                  </View>
+                ))
+              )}
             </ScrollView>
           </View>
         </>
@@ -184,7 +234,8 @@ export default function ProgramaCulto({ navigation }) {
   );
 }
 
-const styles = StyleSheet.create({
+function estilosProgramaCulto(cores) {
+  return {
   container: {
     flex: 1,
     backgroundColor: cores.FundoDeTela,
@@ -213,6 +264,7 @@ const styles = StyleSheet.create({
     marginLeft: 15,
     fontSize: 14,
     fontWeight: "500",
+    color: cores.Texto,
   },
   tabela: {
     marginTop: 10,
@@ -255,6 +307,7 @@ const styles = StyleSheet.create({
     marginTop: 15,
     textAlign: "center",
     fontSize: 14,
+    color: cores.Texto,
   },
   modalBackground: {
     flex: 1,
@@ -273,4 +326,5 @@ const styles = StyleSheet.create({
     color: cores.IconesPadrao,
     textAlign: "center",
   },
-});
+  };
+}

@@ -1,9 +1,11 @@
-import * as Notifications from "expo-notifications";
-import * as Device from "expo-device";
 import { Platform } from "react-native";
+import * as Device from "expo-device";
+import { isRunningInExpoGo } from "expo";
 
 export async function obterExpoPushToken() {
-  if (!Device.isDevice) return null;
+  if (isRunningInExpoGo() || !Device.isDevice) return null;
+
+  const Notifications = require("expo-notifications");
 
   const { status } = await Notifications.getPermissionsAsync();
   let finalStatus = status;
@@ -22,6 +24,5 @@ export async function obterExpoPushToken() {
     });
   }
 
-  const token = (await Notifications.getExpoPushTokenAsync()).data;
-  return token;
+  return (await Notifications.getExpoPushTokenAsync()).data;
 }

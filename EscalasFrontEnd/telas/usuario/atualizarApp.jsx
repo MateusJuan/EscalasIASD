@@ -1,8 +1,11 @@
-import { StyleSheet, Text, View, Animated, Easing, Linking, TouchableOpacity } from "react-native";
+import { Text, View, Animated, Easing, Linking, TouchableOpacity } from "react-native";
 import { useRef, useEffect } from "react";
 import UsuarioInferior from "../barras/usuarioinferior";
+import { useCores, useEstilos } from "../estilos/cores";
 
 export default function AgendaMensalUsuario({ navigation }) {
+  const cores = useCores();
+  const styles = useEstilos(estilosAtualizar);
   const fadeAnim = useRef(new Animated.Value(0)).current;
 
   const linkAPK =
@@ -32,7 +35,7 @@ export default function AgendaMensalUsuario({ navigation }) {
   }, []);
 
   return (
-    <View style={{ flex: 1 }}>
+    <View style={{ flex: 1, backgroundColor: cores.FundoDeTela }}>
       <View style={styles.container}>
         <Text style={styles.title}>📥 Atualização Disponível</Text>
         <Animated.Text style={[styles.animText, { opacity: fadeAnim }]}>
@@ -48,41 +51,43 @@ export default function AgendaMensalUsuario({ navigation }) {
   );
 }
 
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: "#f4f5f2",
-    alignItems: "center",
-    justifyContent: "center",
-    paddingHorizontal: 30,
-  },
-  title: {
-    fontSize: 20,
-    fontWeight: "bold",
-    color: "#333",
-    marginBottom: 15,
-    textAlign: "center",
-  },
-  animText: {
-    fontSize: 16,
-    fontWeight: "600",
-    color: "#ff5555",
-    marginBottom: 25,
-  },
-  button: {
-    backgroundColor: "#007AFF",
-    paddingVertical: 12,
-    paddingHorizontal: 25,
-    borderRadius: 12,
-    elevation: 2, // sombra no Android
-    shadowColor: "#000", // sombra no iOS
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.2,
-    shadowRadius: 4,
-  },
-  buttonText: {
-    color: "#fff",
-    fontSize: 16,
-    fontWeight: "600",
-  },
-});
+function estilosAtualizar(cores) {
+  return {
+    container: {
+      flex: 1,
+      backgroundColor: cores.FundoDeTela,
+      alignItems: "center",
+      justifyContent: "center",
+      paddingHorizontal: 30,
+    },
+    title: {
+      fontSize: 20,
+      fontWeight: "bold",
+      color: cores.Titulo,
+      marginBottom: 15,
+      textAlign: "center",
+    },
+    animText: {
+      fontSize: 16,
+      fontWeight: "600",
+      color: cores.ModalErro,
+      marginBottom: 25,
+    },
+    button: {
+      backgroundColor: cores.BotaoPadrao,
+      paddingVertical: 12,
+      paddingHorizontal: 25,
+      borderRadius: 12,
+      elevation: 2,
+      shadowColor: "#000",
+      shadowOffset: { width: 0, height: 2 },
+      shadowOpacity: 0.2,
+      shadowRadius: 4,
+    },
+    buttonText: {
+      color: cores.BotaoTexto,
+      fontSize: 16,
+      fontWeight: "600",
+    },
+  };
+}
